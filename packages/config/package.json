@@ -1,0 +1,13 @@
+{
+  "name": "@melli/config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./tailwind.preset.cjs",
+  "exports": {
+    "./tailwind": "./tailwind.preset.cjs"
+  },
+  "scripts": {
+    "lint": "echo 'no lint'"
+  }
+}

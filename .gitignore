@@ -1,0 +1,27 @@
+node_modules
+.pnpm-store
+
+# Builds
+dist
+build
+.next
+out
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Editor
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+
+# TS
+*.tsbuildinfo
