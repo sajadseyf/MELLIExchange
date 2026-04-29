@@ -4,6 +4,8 @@ import { Button, Container, PageHeading } from '@melli/ui';
 import { getCurrencies, getGoldPrices } from '@/lib/api';
 import { RatesTable } from '@/components/RatesTable';
 import { GoldCards } from '@/components/GoldCards';
+import { CurrencyCalculator } from '@/components/CurrencyCalculator';
+import { WhyUs } from '@/components/WhyUs';
 import { site } from '@/lib/site';
 
 export default async function HomePage() {
@@ -12,6 +14,7 @@ export default async function HomePage() {
 
   return (
     <>
+      {/* Hero */}
       <section className="border-b border-ink-100 bg-gradient-to-b from-cream to-white">
         <Container className="grid gap-10 py-16 lg:grid-cols-2 lg:py-24">
           <div className="flex flex-col justify-center gap-6">
@@ -52,7 +55,31 @@ export default async function HomePage() {
         </Container>
       </section>
 
+      {/* Calculator + Full rates */}
       <section className="py-16">
+        <Container>
+          <div className="grid items-start gap-8 lg:grid-cols-[1fr_340px]">
+            {/* Rates table (main column) */}
+            <div>
+              <div className="mb-6 flex items-baseline justify-between">
+                <h2 className="font-serif text-2xl text-ink-900">All currency rates</h2>
+                <Link href="/currencies" className="text-sm font-medium text-gold-700 hover:text-gold-500">
+                  Full page →
+                </Link>
+              </div>
+              <RatesTable rows={currencies} />
+            </div>
+
+            {/* Calculator (sidebar) */}
+            <div className="lg:sticky lg:top-28">
+              <CurrencyCalculator currencies={currencies} />
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* Gold */}
+      <section className="border-t border-ink-100 bg-gradient-to-b from-white to-cream py-16">
         <Container className="flex flex-col gap-8">
           <PageHeading
             eyebrow="Gold"
@@ -62,6 +89,9 @@ export default async function HomePage() {
           <GoldCards rows={gold} />
         </Container>
       </section>
+
+      {/* Trust sections: stats → why us → CTA */}
+      <WhyUs />
     </>
   );
 }

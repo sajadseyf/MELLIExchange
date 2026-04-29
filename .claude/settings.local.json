@@ -6,7 +6,9 @@
       "Bash(pnpm --filter @melli/web add flag-icons)",
       "Bash(pnpm --filter @melli/admin add flag-icons)",
       "Bash(pnpm install *)",
-      "Bash(pnpm seed *)"
+      "Bash(pnpm seed *)",
+      "WebFetch(domain:www.moneyway.com)",
+      "Bash(pnpm --filter @melli/web build)"
     ]
   }
 }
