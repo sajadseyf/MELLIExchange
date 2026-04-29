@@ -34,6 +34,18 @@ module.exports = {
         },
         cream: '#fbf7ec',
         burgundy: '#6b1f2a',
+        navy: {
+          50:  '#f1f4fa',
+          100: '#dce3f0',
+          200: '#b3bfe2',
+          300: '#8093d2',
+          400: '#5772c0',
+          500: '#3b57ab',
+          600: '#2c4490',
+          700: '#213576',
+          800: '#18285e',
+          900: '#101e4b',
+        },
       },
       fontFamily: {
         serif: ['"Playfair Display"', 'Georgia', 'serif'],

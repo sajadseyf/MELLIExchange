@@ -13,7 +13,7 @@ const base =
   'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 focus-visible:ring-offset-2';
 
 const variants: Record<Variant, string> = {
-  primary: 'bg-gold-500 text-ink-900 hover:bg-gold-400 active:bg-gold-600',
+  primary: 'bg-navy-900 text-white hover:bg-navy-800 active:bg-navy-700',
   secondary:
     'bg-ink-100 text-ink-800 hover:bg-ink-200 active:bg-ink-300 border border-ink-200',
   ghost: 'bg-transparent text-ink-700 hover:bg-ink-100',

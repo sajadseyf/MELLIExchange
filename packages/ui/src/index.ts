@@ -5,4 +5,5 @@ export { Container } from './components/Container';
 export { PageHeading } from './components/PageHeading';
 export { Badge } from './components/Badge';
 export { LogoMark } from './components/LogoMark';
+export { Flag } from './components/Flag';
 export { cn } from './utils/cn';

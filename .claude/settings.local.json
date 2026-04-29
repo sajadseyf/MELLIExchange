@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Bash(pnpm -r build)"
+      "Bash(pnpm -r build)",
+      "Bash(grep -iE \"\\\\.\\(png|jpg|jpeg\\)$\")",
+      "Bash(pnpm --filter @melli/web add flag-icons)",
+      "Bash(pnpm --filter @melli/admin add flag-icons)",
+      "Bash(pnpm install *)",
+      "Bash(pnpm seed *)"
     ]
   }
 }
