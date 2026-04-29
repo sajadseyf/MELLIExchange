@@ -55,25 +55,16 @@ export default async function HomePage() {
         </Container>
       </section>
 
-      {/* Calculator + Full rates */}
+      {/* Calculator */}
       <section className="py-16">
-        <Container>
-          <div className="grid items-start gap-8 lg:grid-cols-[1fr_340px]">
-            {/* Rates table (main column) */}
-            <div>
-              <div className="mb-6 flex items-baseline justify-between">
-                <h2 className="font-serif text-2xl text-ink-900">All currency rates</h2>
-                <Link href="/currencies" className="text-sm font-medium text-gold-700 hover:text-gold-500">
-                  Full page →
-                </Link>
-              </div>
-              <RatesTable rows={currencies} />
-            </div>
-
-            {/* Calculator (sidebar) */}
-            <div className="lg:sticky lg:top-28">
-              <CurrencyCalculator currencies={currencies} />
-            </div>
+        <Container className="flex flex-col items-center gap-8">
+          <PageHeading
+            eyebrow="Convert"
+            title="Currency calculator"
+            description="Quickly estimate how much you'll receive. Rates are indicative and confirmed at the counter."
+          />
+          <div className="w-full max-w-md">
+            <CurrencyCalculator currencies={currencies} />
           </div>
         </Container>
       </section>

@@ -30,7 +30,8 @@ router.put('/:karat', requireAuth, async (req, res) => {
   }
   const parsed = updateSchema.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
+    const msg = parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join(', ');
+    res.status(400).json({ error: msg });
     return;
   }
   const updated = await GoldPriceModel.findOneAndUpdate(

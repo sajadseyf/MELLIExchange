@@ -33,10 +33,14 @@ const upsertSchema = z.object({
   order: z.number().int().optional().default(0),
 });
 
+function formatZodError(err: z.ZodError): string {
+  return err.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join(', ');
+}
+
 router.post('/', requireAuth, async (req, res) => {
   const parsed = upsertSchema.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
+    res.status(400).json({ error: formatZodError(parsed.error) });
     return;
   }
   const exists = await CurrencyModel.findOne({ code: parsed.data.code });
@@ -53,7 +57,7 @@ const updateSchema = upsertSchema.partial().omit({ code: true });
 router.put('/:code', requireAuth, async (req, res) => {
   const parsed = updateSchema.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
+    res.status(400).json({ error: formatZodError(parsed.error) });
     return;
   }
   const code = (req.params.code ?? '').toUpperCase();
