@@ -8,7 +8,14 @@
       "Bash(pnpm install *)",
       "Bash(pnpm seed *)",
       "WebFetch(domain:www.moneyway.com)",
-      "Bash(pnpm --filter @melli/web build)"
+      "Bash(pnpm --filter @melli/web build)",
+      "Bash(npx tsc *)",
+      "Bash(pnpm --filter @melli/web exec tsc --noEmit)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
+      "Bash(pnpm --filter @melli/web dev)",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill //PID 24048 //F)"
     ]
   }
 }

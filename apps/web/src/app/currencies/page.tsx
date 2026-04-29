@@ -19,7 +19,7 @@ export default async function CurrenciesPage() {
           description="Buy and sell rates against Canadian Dollar (CAD). Rates are indicative and may vary at the counter."
         />
         {updatedAt && (
-          <p className="text-sm text-ink-500">
+          <p className="text-sm text-ink-500 dark:text-zinc-400">
             Last updated {updatedAt.toLocaleString()}
           </p>
         )}

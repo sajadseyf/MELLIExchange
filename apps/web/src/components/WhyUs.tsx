@@ -52,12 +52,12 @@ export function WhyUs() {
   return (
     <>
       {/* Stats band */}
-      <section className="bg-navy-900">
+      <section className="bg-navy-900 dark:bg-dark-card dark:border-y dark:border-dark-border">
         <Container className="grid grid-cols-2 gap-6 py-12 sm:grid-cols-4 sm:py-14">
           {stats.map((s) => (
             <div key={s.label} className="text-center">
-              <div className="font-serif text-4xl font-bold text-gold-400 sm:text-5xl">{s.value}</div>
-              <div className="mt-1 text-sm font-medium uppercase tracking-wider text-navy-200">{s.label}</div>
+              <div className="text-4xl font-bold text-gold-400 sm:text-5xl">{s.value}</div>
+              <div className="mt-1 text-sm font-medium uppercase tracking-wider text-navy-200 dark:text-zinc-400">{s.label}</div>
             </div>
           ))}
         </Container>
@@ -70,26 +70,26 @@ export function WhyUs() {
             <span className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-600">
               Why Melli Exchange
             </span>
-            <h2 className="mt-3 font-serif text-3xl text-ink-900 sm:text-4xl">
+            <h2 className="mt-3 text-3xl font-semibold text-ink-900 dark:text-white sm:text-4xl">
               Your trusted partner for<br className="hidden sm:block" /> currency & gold
             </h2>
-            <p className="mt-4 text-base text-ink-500">
+            <p className="mt-4 text-base text-ink-500 dark:text-zinc-400">
               We combine competitive pricing, fast service, and regulatory compliance to make your exchange experience seamless.
             </p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((f) => (
-              <Card key={f.title} className="group relative overflow-hidden p-6 transition-shadow hover:shadow-soft">
+              <Card key={f.title} className="group relative overflow-hidden p-6 transition-shadow hover:shadow-soft dark:hover:border-dark-muted">
                 <div
                   aria-hidden
-                  className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gold-100 opacity-0 transition-opacity group-hover:opacity-60"
+                  className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gold-100 opacity-0 transition-opacity group-hover:opacity-60 dark:bg-gold-500/10"
                 />
                 <div className="relative">
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-navy-900/5">
-                    <f.icon className="h-6 w-6 text-navy-700" />
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-navy-900/5 dark:bg-gold-500/10">
+                    <f.icon className="h-6 w-6 text-navy-700 dark:text-gold-400" />
                   </div>
-                  <h3 className="mb-2 font-serif text-lg text-ink-900">{f.title}</h3>
-                  <p className="text-sm leading-relaxed text-ink-500">{f.description}</p>
+                  <h3 className="mb-2 text-lg font-semibold text-ink-900 dark:text-white">{f.title}</h3>
+                  <p className="text-sm leading-relaxed text-ink-500 dark:text-zinc-400">{f.description}</p>
                 </div>
               </Card>
             ))}
@@ -98,54 +98,54 @@ export function WhyUs() {
       </section>
 
       {/* CTA band */}
-      <section className="border-y border-ink-100 bg-gradient-to-br from-cream via-white to-gold-50">
+      <section className="border-y border-ink-100 bg-gradient-to-br from-white via-white to-gold-50 dark:border-dark-border dark:from-dark-card dark:via-dark-card dark:to-dark-card">
         <Container className="grid items-center gap-8 py-14 lg:grid-cols-2 lg:py-20">
           <div>
             <span className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-600">
               Visit Us Today
             </span>
-            <h2 className="mt-3 font-serif text-3xl text-ink-900 sm:text-4xl">
+            <h2 className="mt-3 text-3xl font-semibold text-ink-900 dark:text-white sm:text-4xl">
               Ready to exchange?<br />
               Walk in — no appointment needed.
             </h2>
-            <p className="mt-4 max-w-lg text-base text-ink-500">
+            <p className="mt-4 max-w-lg text-base text-ink-500 dark:text-zinc-400">
               Our friendly team is ready to help you with currency exchange, gold purchases, and jewelry. Located in the heart of Coquitlam with convenient parking.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <a
                 href="/contact"
-                className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-navy-800"
+                className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-navy-800 dark:bg-gold-500 dark:hover:bg-gold-600"
               >
                 Get Directions
               </a>
               <a
                 href="tel:+10000000000"
-                className="inline-flex items-center gap-2 rounded-lg border border-ink-200 bg-white px-6 py-3 text-sm font-medium text-ink-800 transition-colors hover:bg-ink-50"
+                className="inline-flex items-center gap-2 rounded-lg border border-ink-200 bg-white px-6 py-3 text-sm font-medium text-ink-800 transition-colors hover:bg-ink-50 dark:border-dark-border dark:bg-dark-raised dark:text-zinc-200 dark:hover:bg-dark-muted"
               >
                 Call Us
               </a>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div className="rounded-xl2 border border-ink-100 bg-white p-5 shadow-card">
-              <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-gold-600">Location</div>
-              <p className="text-sm text-ink-700">1102-1163 Pinetree Wy</p>
-              <p className="text-sm text-ink-700">Coquitlam, BC V3B 8A9</p>
+            <div className="rounded-xl2 border border-ink-100 bg-white p-5 shadow-card dark:border-dark-border dark:bg-dark-raised dark:shadow-none">
+              <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-gold-600 dark:text-gold-400">Location</div>
+              <p className="text-sm text-ink-700 dark:text-zinc-300">1102-1163 Pinetree Wy</p>
+              <p className="text-sm text-ink-700 dark:text-zinc-300">Coquitlam, BC V3B 8A9</p>
             </div>
-            <div className="rounded-xl2 border border-ink-100 bg-white p-5 shadow-card">
-              <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-gold-600">Hours</div>
-              <p className="text-sm text-ink-700">Mon–Fri: 9:30–7 PM</p>
-              <p className="text-sm text-ink-700">Sat: 10–6 PM</p>
+            <div className="rounded-xl2 border border-ink-100 bg-white p-5 shadow-card dark:border-dark-border dark:bg-dark-raised dark:shadow-none">
+              <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-gold-600 dark:text-gold-400">Hours</div>
+              <p className="text-sm text-ink-700 dark:text-zinc-300">Mon–Fri: 9:30–7 PM</p>
+              <p className="text-sm text-ink-700 dark:text-zinc-300">Sat: 10–6 PM</p>
             </div>
-            <div className="rounded-xl2 border border-ink-100 bg-white p-5 shadow-card">
-              <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-gold-600">Services</div>
-              <p className="text-sm text-ink-700">Currency Exchange</p>
-              <p className="text-sm text-ink-700">Gold & Jewelry</p>
+            <div className="rounded-xl2 border border-ink-100 bg-white p-5 shadow-card dark:border-dark-border dark:bg-dark-raised dark:shadow-none">
+              <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-gold-600 dark:text-gold-400">Services</div>
+              <p className="text-sm text-ink-700 dark:text-zinc-300">Currency Exchange</p>
+              <p className="text-sm text-ink-700 dark:text-zinc-300">Gold & Jewelry</p>
             </div>
-            <div className="rounded-xl2 border border-ink-100 bg-white p-5 shadow-card">
-              <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-gold-600">Compliance</div>
-              <p className="text-sm text-ink-700">FINTRAC Registered</p>
-              <p className="text-sm text-ink-700">Fully Licensed</p>
+            <div className="rounded-xl2 border border-ink-100 bg-white p-5 shadow-card dark:border-dark-border dark:bg-dark-raised dark:shadow-none">
+              <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-gold-600 dark:text-gold-400">Compliance</div>
+              <p className="text-sm text-ink-700 dark:text-zinc-300">FINTRAC Registered</p>
+              <p className="text-sm text-ink-700 dark:text-zinc-300">Fully Licensed</p>
             </div>
           </div>
         </Container>

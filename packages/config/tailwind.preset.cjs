@@ -1,10 +1,6 @@
-/**
- * Shared Tailwind preset for Melli Exchange.
- * Both apps/web and apps/admin extend this so the design system is consistent.
- */
-
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -46,9 +42,20 @@ module.exports = {
           800: '#18285e',
           900: '#101e4b',
         },
+        surface: {
+          DEFAULT: '#ffffff',
+          raised: '#f9fafb',
+          sunken: '#f5f5f4',
+        },
+        dark: {
+          DEFAULT: '#09090b',
+          card: '#131316',
+          raised: '#1a1a1f',
+          border: '#27272a',
+          muted: '#3f3f46',
+        },
       },
       fontFamily: {
-        serif: ['"Playfair Display"', 'Georgia', 'serif'],
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       boxShadow: {

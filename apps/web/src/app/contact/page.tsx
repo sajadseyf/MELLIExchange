@@ -22,10 +22,10 @@ export default function ContactPage() {
           <Card className="p-6 lg:col-span-2">
             <ul className="space-y-5">
               <li className="flex gap-3">
-                <MapPinIcon className="mt-0.5 h-5 w-5 flex-none text-gold-600" />
+                <MapPinIcon className="mt-0.5 h-5 w-5 flex-none text-gold-600 dark:text-gold-400" />
                 <div>
-                  <p className="font-medium text-ink-900">Address</p>
-                  <p className="text-sm text-ink-600">
+                  <p className="font-medium text-ink-900 dark:text-white">Address</p>
+                  <p className="text-sm text-ink-600 dark:text-zinc-400">
                     {site.address.street}<br />
                     {site.address.city}, {site.address.region} {site.address.postal}<br />
                     {site.address.country}
@@ -33,31 +33,31 @@ export default function ContactPage() {
                 </div>
               </li>
               <li className="flex gap-3">
-                <PhoneIcon className="mt-0.5 h-5 w-5 flex-none text-gold-600" />
+                <PhoneIcon className="mt-0.5 h-5 w-5 flex-none text-gold-600 dark:text-gold-400" />
                 <div>
-                  <p className="font-medium text-ink-900">Phone</p>
-                  <a href={`tel:${site.phone.replace(/\s/g, '')}`} className="text-sm text-ink-600 hover:text-gold-600">
+                  <p className="font-medium text-ink-900 dark:text-white">Phone</p>
+                  <a href={`tel:${site.phone.replace(/\s/g, '')}`} className="text-sm text-ink-600 hover:text-gold-600 dark:text-zinc-400 dark:hover:text-gold-400">
                     {site.phone}
                   </a>
                 </div>
               </li>
               <li className="flex gap-3">
-                <EnvelopeIcon className="mt-0.5 h-5 w-5 flex-none text-gold-600" />
+                <EnvelopeIcon className="mt-0.5 h-5 w-5 flex-none text-gold-600 dark:text-gold-400" />
                 <div>
-                  <p className="font-medium text-ink-900">Email</p>
-                  <a href={`mailto:${site.email}`} className="text-sm text-ink-600 hover:text-gold-600">
+                  <p className="font-medium text-ink-900 dark:text-white">Email</p>
+                  <a href={`mailto:${site.email}`} className="text-sm text-ink-600 hover:text-gold-600 dark:text-zinc-400 dark:hover:text-gold-400">
                     {site.email}
                   </a>
                 </div>
               </li>
               <li className="flex gap-3">
-                <ClockIcon className="mt-0.5 h-5 w-5 flex-none text-gold-600" />
+                <ClockIcon className="mt-0.5 h-5 w-5 flex-none text-gold-600 dark:text-gold-400" />
                 <div>
-                  <p className="font-medium text-ink-900">Hours</p>
-                  <ul className="text-sm text-ink-600">
+                  <p className="font-medium text-ink-900 dark:text-white">Hours</p>
+                  <ul className="text-sm text-ink-600 dark:text-zinc-400">
                     {site.hours.map((h) => (
                       <li key={h.days}>
-                        <span className="text-ink-700">{h.days}</span> · {h.time}
+                        <span className="text-ink-700 dark:text-zinc-300">{h.days}</span> · {h.time}
                       </li>
                     ))}
                   </ul>

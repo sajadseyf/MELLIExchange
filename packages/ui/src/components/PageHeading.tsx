@@ -14,9 +14,9 @@ export function PageHeading({ eyebrow, title, description }: Props) {
           {eyebrow}
         </span>
       )}
-      <h1 className="font-serif text-3xl text-ink-900 sm:text-4xl">{title}</h1>
+      <h1 className="text-3xl font-semibold text-ink-900 dark:text-white sm:text-4xl">{title}</h1>
       {description && (
-        <p className="max-w-2xl text-base text-ink-500">{description}</p>
+        <p className="max-w-2xl text-base text-ink-500 dark:text-zinc-400">{description}</p>
       )}
     </div>
   );
