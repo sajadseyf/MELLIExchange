@@ -22,7 +22,7 @@ export function RatesTable({ rows, compact = false }: Props) {
       {/* Desktop table */}
       <div className="hidden overflow-x-auto sm:block">
         <table className="w-full text-sm">
-          <thead className="bg-ink-50/60 text-left text-xs uppercase tracking-wider text-ink-500 dark:bg-dark-raised/50 dark:text-zinc-500">
+          <thead className="bg-white/40 text-left text-xs uppercase tracking-wider text-ink-500 dark:bg-dark-raised/50 dark:text-zinc-500">
             <tr>
               <th className="px-6 py-3">Currency</th>
               <th className="px-6 py-3">Code</th>
@@ -35,7 +35,7 @@ export function RatesTable({ rows, compact = false }: Props) {
             {rows.map((c) => (
               <tr
                 key={c.code}
-                className="border-t border-ink-100 transition-colors hover:bg-ink-50/50 dark:border-dark-border dark:hover:bg-dark-raised/50"
+                className="border-t border-navy-100/70 transition-colors hover:bg-white/50 dark:border-dark-border dark:hover:bg-dark-raised/50"
               >
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
@@ -62,7 +62,7 @@ export function RatesTable({ rows, compact = false }: Props) {
       </div>
 
       {/* Mobile card list */}
-      <div className="divide-y divide-ink-100 dark:divide-dark-border sm:hidden">
+      <div className="divide-y divide-navy-100/70 dark:divide-dark-border sm:hidden">
         {rows.map((c) => (
           <div key={c.code} className="flex items-center gap-3 px-4 py-3">
             <Flag code={c.flag} size="md" />

@@ -62,7 +62,7 @@ export function CurrencyCalculator({ currencies }: Props) {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b border-ink-100 px-5 py-3.5 dark:border-dark-border">
+      <div className="border-b border-navy-100 px-5 py-3.5 dark:border-dark-border">
         <h3 className="text-base font-semibold text-ink-900 dark:text-white">Currency Calculator</h3>
         <p className="text-[11px] text-ink-400 dark:text-zinc-500">Indicative rates — confirmed at counter</p>
       </div>
@@ -112,7 +112,7 @@ export function CurrencyCalculator({ currencies }: Props) {
         <div className="space-y-1.5">
           <label className="text-[11px] font-medium uppercase tracking-wider text-ink-400 dark:text-zinc-500">I get</label>
           <div className="flex gap-2">
-            <div className="flex h-11 flex-1 items-center rounded-lg border border-ink-100 bg-ink-50 px-3 text-base tabular-nums font-semibold text-ink-900 dark:border-dark-border dark:bg-dark-raised dark:text-white">
+            <div className="flex h-11 flex-1 items-center rounded-lg border border-navy-100 bg-white/70 px-3 text-base tabular-nums font-semibold text-ink-900 dark:border-dark-border dark:bg-dark-raised dark:text-white">
               {result ? result.value.toFixed(2) : '—'}
             </div>
             <div className="relative">

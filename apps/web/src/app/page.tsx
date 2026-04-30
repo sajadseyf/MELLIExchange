@@ -86,7 +86,7 @@ export default async function HomePage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-ink-100 bg-white dark:border-dark-border dark:bg-dark-card">
+            <div className="rounded-2xl border border-navy-100 bg-gradient-to-br from-navy-50 via-white to-gold-50/60 dark:border-dark-border dark:bg-dark-card dark:from-dark-card dark:via-dark-card dark:to-dark-card">
               <CurrencyCalculator currencies={currencies} />
             </div>
           </div>
@@ -115,8 +115,8 @@ export default async function HomePage() {
       <section className="py-6 lg:py-10">
         <Container>
           <div className="grid gap-4 lg:grid-cols-3">
-            <div className="rounded-2xl border border-ink-100 bg-white dark:border-dark-border dark:bg-dark-card lg:col-span-2">
-              <div className="flex items-baseline justify-between border-b border-ink-100 px-6 py-4 dark:border-dark-border">
+            <div className="rounded-2xl border border-navy-100 bg-gradient-to-br from-navy-50 via-white to-gold-50/60 dark:border-dark-border dark:bg-dark-card dark:from-dark-card dark:via-dark-card dark:to-dark-card lg:col-span-2">
+              <div className="flex items-baseline justify-between border-b border-navy-100 px-6 py-4 dark:border-dark-border">
                 <div>
                   <h2 className="text-lg font-semibold text-ink-900 dark:text-white">
                     Today&apos;s rates
@@ -192,7 +192,7 @@ export default async function HomePage() {
       {/* CTA */}
       <section className="pb-10">
         <Container>
-          <div className="rounded-2xl bg-gradient-to-r from-gold-50 to-gold-100/60 p-8 dark:from-gold-900/20 dark:to-gold-800/10 dark:border dark:border-dark-border lg:p-10">
+          <div className="rounded-2xl border border-navy-100 bg-gradient-to-br from-navy-50 via-white to-gold-50/60 p-8 dark:border-dark-border dark:bg-dark-card dark:from-dark-card dark:via-dark-card dark:to-dark-card lg:p-10">
             <div className="flex flex-col items-start gap-6 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <h2 className="text-2xl font-semibold text-ink-900 dark:text-white">
