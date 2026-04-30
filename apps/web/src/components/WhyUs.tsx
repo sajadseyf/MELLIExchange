@@ -79,18 +79,12 @@ export function WhyUs() {
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((f) => (
-              <Card key={f.title} className="group relative overflow-hidden p-6 transition-shadow hover:shadow-soft dark:hover:border-dark-muted">
-                <div
-                  aria-hidden
-                  className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gold-100 opacity-0 transition-opacity group-hover:opacity-60 dark:bg-gold-500/10"
-                />
-                <div className="relative">
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-navy-900/5 dark:bg-gold-500/10">
-                    <f.icon className="h-6 w-6 text-navy-700 dark:text-gold-400" />
-                  </div>
-                  <h3 className="mb-2 text-lg font-semibold text-ink-900 dark:text-white">{f.title}</h3>
-                  <p className="text-sm leading-relaxed text-ink-500 dark:text-zinc-400">{f.description}</p>
+              <Card key={f.title} className="p-6 transition-shadow hover:shadow-soft dark:hover:border-dark-muted">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-navy-900/5 dark:bg-gold-500/10">
+                  <f.icon className="h-6 w-6 text-navy-700 dark:text-gold-400" />
                 </div>
+                <h3 className="mb-2 text-lg font-semibold text-ink-900 dark:text-white">{f.title}</h3>
+                <p className="text-sm leading-relaxed text-ink-500 dark:text-zinc-400">{f.description}</p>
               </Card>
             ))}
           </div>
