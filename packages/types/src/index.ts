@@ -36,3 +36,20 @@ export interface LoginResponse {
 export interface ApiError {
   error: string;
 }
+
+export type ProductCategory = 'ring' | 'necklace' | 'bracelet' | 'earring' | 'pendant' | 'other';
+export type ProductKarat = 18 | 21 | 22 | 24;
+
+export interface Product {
+  id: string;
+  name: string;
+  description: string;
+  category: ProductCategory;
+  karat: ProductKarat;
+  weightGrams: number;
+  price: number;
+  images: string[];
+  inStock: boolean;
+  order: number;
+  updatedAt: string;
+}

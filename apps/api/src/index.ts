@@ -1,4 +1,5 @@
 import express from 'express';
+import path from 'path';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { env } from './env.js';
@@ -6,6 +7,8 @@ import { connectDb } from './db.js';
 import authRouter from './routes/auth.js';
 import currenciesRouter from './routes/currencies.js';
 import goldRouter from './routes/gold.js';
+import productsRouter from './routes/products.js';
+import uploadsRouter from './routes/uploads.js';
 
 async function main() {
   await connectDb();
@@ -28,6 +31,9 @@ async function main() {
   app.use('/api/auth', authRouter);
   app.use('/api/currencies', currenciesRouter);
   app.use('/api/gold', goldRouter);
+  app.use('/api/products', productsRouter);
+  app.use('/api/uploads', uploadsRouter);
+  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
   app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     console.error('[error]', err);

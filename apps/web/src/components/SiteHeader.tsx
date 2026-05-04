@@ -1,21 +1,25 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Container, LogoMark } from '@melli/ui';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { ThemeToggle } from './ThemeToggle';
+import { LocaleSwitcher } from './LocaleSwitcher';
 import { site } from '@/lib/site';
-
-const nav = [
-  { href: '/currencies', label: 'Currency Prices' },
-  { href: '/gold',       label: 'Gold Price' },
-  { href: '/about',      label: 'About Us' },
-  { href: '/contact',    label: 'Contact Us' },
-];
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const t = useTranslations('nav');
+
+  const nav = [
+    { href: '/currencies' as const, label: t('currencies') },
+    { href: '/gold' as const,       label: t('gold') },
+    { href: '/products' as const,   label: t('products') },
+    { href: '/about' as const,      label: t('about') },
+    { href: '/contact' as const,    label: t('contact') },
+  ];
 
   return (
     <header className="sticky top-0 z-30 border-b border-ink-100 bg-white/85 backdrop-blur dark:border-dark-border dark:bg-dark/85">
@@ -41,6 +45,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <LocaleSwitcher />
           <ThemeToggle />
           <button
             onClick={() => setOpen(!open)}

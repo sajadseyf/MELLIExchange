@@ -1,9 +1,13 @@
-import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import { Container, LogoMark } from '@melli/ui';
 import { MapPinIcon, PhoneIcon, EnvelopeIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { Link } from '@/i18n/navigation';
 import { site } from '@/lib/site';
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const t = await getTranslations('footer');
+  const tNav = await getTranslations('nav');
+
   return (
     <footer className="bg-navy-900 text-navy-100 dark:bg-dark-card dark:border-t dark:border-dark-border">
       <Container className="grid gap-10 py-14 md:grid-cols-4">
@@ -15,19 +19,14 @@ export function SiteFooter() {
               <p className="text-xs uppercase tracking-[0.18em] text-gold-400">{site.tagline}</p>
             </div>
           </div>
-          <p className="max-w-md text-sm text-navy-200 dark:text-zinc-400">
-            Trusted currency exchange and gold dealer serving Coquitlam and the Greater Vancouver area.
-          </p>
+          <p className="max-w-md text-sm text-navy-200 dark:text-zinc-400">{t('desc')}</p>
         </div>
         <div>
-          <h4 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gold-400">Visit us</h4>
+          <h4 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gold-400">{t('visit_us')}</h4>
           <ul className="space-y-3 text-sm text-navy-200 dark:text-zinc-400">
             <li className="flex gap-2">
               <MapPinIcon className="mt-0.5 h-4 w-4 flex-none text-gold-400" />
-              <span>
-                {site.address.street}<br />
-                {site.address.city}, {site.address.region} {site.address.postal}
-              </span>
+              <span>{site.address.street}<br />{site.address.city}, {site.address.region} {site.address.postal}</span>
             </li>
             <li className="flex items-center gap-2">
               <PhoneIcon className="h-4 w-4 flex-none text-gold-400" />
@@ -40,7 +39,7 @@ export function SiteFooter() {
           </ul>
         </div>
         <div>
-          <h4 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gold-400">Hours</h4>
+          <h4 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gold-400">{t('hours')}</h4>
           <ul className="space-y-2 text-sm text-navy-200 dark:text-zinc-400">
             {site.hours.map((h) => (
               <li key={h.days} className="flex items-center gap-2">
@@ -50,15 +49,16 @@ export function SiteFooter() {
             ))}
           </ul>
           <div className="mt-5 flex flex-col gap-2 text-sm">
-            <Link href="/currencies" className="text-navy-200 hover:text-gold-300 dark:text-zinc-400 dark:hover:text-gold-300">Currency prices</Link>
-            <Link href="/gold" className="text-navy-200 hover:text-gold-300 dark:text-zinc-400 dark:hover:text-gold-300">Gold price</Link>
-            <Link href="/about" className="text-navy-200 hover:text-gold-300 dark:text-zinc-400 dark:hover:text-gold-300">About us</Link>
-            <Link href="/contact" className="text-navy-200 hover:text-gold-300 dark:text-zinc-400 dark:hover:text-gold-300">Contact us</Link>
+            <Link href="/currencies" className="text-navy-200 hover:text-gold-300 dark:text-zinc-400 dark:hover:text-gold-300">{tNav('currencies')}</Link>
+            <Link href="/gold" className="text-navy-200 hover:text-gold-300 dark:text-zinc-400 dark:hover:text-gold-300">{tNav('gold')}</Link>
+            <Link href="/products" className="text-navy-200 hover:text-gold-300 dark:text-zinc-400 dark:hover:text-gold-300">{tNav('products')}</Link>
+            <Link href="/about" className="text-navy-200 hover:text-gold-300 dark:text-zinc-400 dark:hover:text-gold-300">{tNav('about')}</Link>
+            <Link href="/contact" className="text-navy-200 hover:text-gold-300 dark:text-zinc-400 dark:hover:text-gold-300">{tNav('contact')}</Link>
           </div>
         </div>
       </Container>
       <div className="border-t border-navy-800 py-5 text-center text-xs text-navy-300 dark:border-dark-border dark:text-zinc-500">
-        © {new Date().getFullYear()} {site.name}. All rights reserved.
+        {t('copyright', { year: new Date().getFullYear() })}
       </div>
     </footer>
   );

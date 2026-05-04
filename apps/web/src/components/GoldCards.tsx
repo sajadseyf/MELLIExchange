@@ -1,23 +1,25 @@
+import { getTranslations } from 'next-intl/server';
 import { Card } from '@melli/ui';
 import type { GoldPrice } from '@melli/types';
-
-const KARAT_LABELS: Record<number, string> = {
-  18: 'Fine for jewelry and design pieces',
-  22: 'Traditional high-purity standard',
-  24: 'Pure gold — investment grade',
-};
 
 interface Props {
   rows: GoldPrice[];
   stacked?: boolean;
 }
 
-export function GoldCards({ rows, stacked = false }: Props) {
+export async function GoldCards({ rows, stacked = false }: Props) {
+  const t = await getTranslations('gold');
+
+  const karatDesc: Record<number, string> = {
+    18: t('k18_desc'),
+    22: t('k22_desc'),
+    24: t('k24_desc'),
+  };
+  const cadGram = t('cad_gram');
+
   if (rows.length === 0) {
     return (
-      <div className="p-8 text-center text-sm text-ink-500 dark:text-zinc-400">
-        Gold prices are being updated. Please check back shortly.
-      </div>
+      <div className="p-8 text-center text-sm text-ink-500 dark:text-zinc-400">{t('empty')}</div>
     );
   }
 
@@ -30,16 +32,14 @@ export function GoldCards({ rows, stacked = false }: Props) {
               <div className="text-xs font-semibold uppercase tracking-wider text-gold-700 dark:text-gold-400">
                 {g.karat}K Gold
               </div>
-              <p className="mt-0.5 text-xs text-ink-500 dark:text-zinc-500">
-                {KARAT_LABELS[g.karat]}
-              </p>
+              <p className="mt-0.5 text-xs text-ink-500 dark:text-zinc-500">{karatDesc[g.karat]}</p>
             </div>
             <div className="text-right">
               <div className="text-xl font-bold tabular-nums text-ink-900 dark:text-white">
                 ${g.pricePerGram.toFixed(2)}
               </div>
               <div className="text-[10px] uppercase tracking-wider text-ink-400 dark:text-zinc-500">
-                CAD / gram
+                {cadGram}
               </div>
             </div>
           </div>
@@ -57,13 +57,9 @@ export function GoldCards({ rows, stacked = false }: Props) {
           </div>
           <div className="text-4xl font-bold tabular-nums text-ink-900 dark:text-white">
             CAD {g.pricePerGram.toFixed(2)}
-            <span className="ml-2 text-base font-normal text-ink-400 dark:text-zinc-500">
-              / gram
-            </span>
+            <span className="ml-2 text-base font-normal text-ink-400 dark:text-zinc-500">/ gram</span>
           </div>
-          <p className="mt-3 text-sm text-ink-500 dark:text-zinc-400">
-            {KARAT_LABELS[g.karat]}
-          </p>
+          <p className="mt-3 text-sm text-ink-500 dark:text-zinc-400">{karatDesc[g.karat]}</p>
           <p className="mt-4 text-xs text-ink-400 dark:text-zinc-500">
             Updated {new Date(g.updatedAt).toLocaleString()}
           </p>

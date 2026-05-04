@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { ArrowsUpDownIcon } from '@heroicons/react/24/solid';
+import { useTranslations } from 'next-intl';
 import { Flag } from '@melli/ui';
 import type { Currency } from '@melli/types';
 
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function CurrencyCalculator({ currencies }: Props) {
+  const t = useTranslations('calculator');
   const [amount, setAmount] = useState('100');
   const [fromCode, setFromCode] = useState('CAD');
   const [toCode, setToCode] = useState('USD');
@@ -30,7 +32,7 @@ export function CurrencyCalculator({ currencies }: Props) {
       if (!target) return null;
       const rate = direction === 'sell' ? target.sell : target.buy;
       if (!rate) return null;
-      return { value: num / rate, rate, label: `1 ${toCode} = ${rate.toFixed(4)} CAD` };
+      return { value: num / rate, label: `1 ${toCode} = ${rate.toFixed(4)} CAD` };
     }
 
     if (toCode === 'CAD') {
@@ -38,16 +40,15 @@ export function CurrencyCalculator({ currencies }: Props) {
       if (!source) return null;
       const rate = direction === 'buy' ? source.buy : source.sell;
       if (!rate) return null;
-      return { value: num * rate, rate, label: `1 ${fromCode} = ${rate.toFixed(4)} CAD` };
+      return { value: num * rate, label: `1 ${fromCode} = ${rate.toFixed(4)} CAD` };
     }
 
     const source = currencies.find((c) => c.code === fromCode);
     const target = currencies.find((c) => c.code === toCode);
     if (!source || !target) return null;
     const cadAmount = num * source.buy;
-    const finalAmount = cadAmount / target.sell;
-    return { value: finalAmount, rate: source.buy / target.sell, label: `Via CAD` };
-  }, [amount, fromCode, toCode, direction, currencies]);
+    return { value: cadAmount / target.sell, label: t('sub') };
+  }, [amount, fromCode, toCode, direction, currencies, t]);
 
   function swap() {
     setFromCode(toCode);
@@ -63,13 +64,13 @@ export function CurrencyCalculator({ currencies }: Props) {
   return (
     <div className="flex h-full flex-col">
       <div className="border-b border-navy-100 px-5 py-3.5 dark:border-dark-border">
-        <h3 className="text-base font-semibold text-ink-900 dark:text-white">Currency Calculator</h3>
-        <p className="text-[11px] text-ink-400 dark:text-zinc-500">Indicative rates — confirmed at counter</p>
+        <h3 className="text-base font-semibold text-ink-900 dark:text-white">{t('title')}</h3>
+        <p className="text-[11px] text-ink-400 dark:text-zinc-500">{t('sub')}</p>
       </div>
 
       <div className="flex flex-1 flex-col justify-center gap-3 p-4">
         <div className="space-y-1.5">
-          <label className="text-[11px] font-medium uppercase tracking-wider text-ink-400 dark:text-zinc-500">I have</label>
+          <label className="text-[11px] font-medium uppercase tracking-wider text-ink-400 dark:text-zinc-500">{t('i_have')}</label>
           <div className="flex gap-2">
             <input
               type="number"
@@ -83,14 +84,8 @@ export function CurrencyCalculator({ currencies }: Props) {
               <div className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2">
                 <Flag code={flagMap[fromCode] ?? ''} size="sm" />
               </div>
-              <select
-                value={fromCode}
-                onChange={(e) => setFromCode(e.target.value)}
-                className={selectClass}
-              >
-                {allCodes.map((c) => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
+              <select value={fromCode} onChange={(e) => setFromCode(e.target.value)} className={selectClass}>
+                {allCodes.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
               <div className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-ink-400 dark:text-zinc-500">
                 <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
@@ -100,17 +95,13 @@ export function CurrencyCalculator({ currencies }: Props) {
         </div>
 
         <div className="flex justify-center">
-          <button
-            onClick={swap}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-ink-200 bg-white text-ink-400 transition-all hover:bg-gold-50 hover:text-gold-600 hover:border-gold-300 active:scale-95 dark:border-dark-border dark:bg-dark-raised dark:text-zinc-400 dark:hover:bg-dark-muted dark:hover:text-gold-400"
-            aria-label="Swap currencies"
-          >
+          <button onClick={swap} className="flex h-9 w-9 items-center justify-center rounded-full border border-ink-200 bg-white text-ink-400 transition-all hover:bg-gold-50 hover:text-gold-600 hover:border-gold-300 active:scale-95 dark:border-dark-border dark:bg-dark-raised dark:text-zinc-400 dark:hover:bg-dark-muted dark:hover:text-gold-400" aria-label="Swap">
             <ArrowsUpDownIcon className="h-4 w-4" />
           </button>
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-[11px] font-medium uppercase tracking-wider text-ink-400 dark:text-zinc-500">I get</label>
+          <label className="text-[11px] font-medium uppercase tracking-wider text-ink-400 dark:text-zinc-500">{t('i_get')}</label>
           <div className="flex gap-2">
             <div className="flex h-11 flex-1 items-center rounded-lg border border-navy-100 bg-white/70 px-3 text-base tabular-nums font-semibold text-ink-900 dark:border-dark-border dark:bg-dark-raised dark:text-white">
               {result ? result.value.toFixed(2) : '—'}
@@ -119,14 +110,8 @@ export function CurrencyCalculator({ currencies }: Props) {
               <div className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2">
                 <Flag code={flagMap[toCode] ?? ''} size="sm" />
               </div>
-              <select
-                value={toCode}
-                onChange={(e) => setToCode(e.target.value)}
-                className={selectClass}
-              >
-                {allCodes.map((c) => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
+              <select value={toCode} onChange={(e) => setToCode(e.target.value)} className={selectClass}>
+                {allCodes.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
               <div className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-ink-400 dark:text-zinc-500">
                 <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>

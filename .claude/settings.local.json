@@ -15,7 +15,28 @@
       "Bash(pnpm --filter @melli/web dev)",
       "Bash(curl -s http://localhost:3000)",
       "Bash(netstat -ano)",
-      "Bash(taskkill //PID 24048 //F)"
+      "Bash(taskkill //PID 24048 //F)",
+      "Bash(pnpm --filter @melli/types build)",
+      "Bash(pnpm --filter @melli/api tsc --noEmit)",
+      "Bash(pnpm --filter api exec tsc --noEmit)",
+      "Bash(pnpm --filter web exec tsc --noEmit)",
+      "Bash(pnpm --filter admin exec tsc --noEmit)",
+      "Bash(curl -s http://localhost:4000/api/products)",
+      "Bash(pnpm add *)",
+      "Bash(mkdir -p /Users/sajadseif/workspace/exchange/MELLIExchange/apps/web/src/app/\\\\[locale\\\\]/gold)",
+      "Bash(mkdir -p /Users/sajadseif/workspace/exchange/MELLIExchange/apps/web/src/app/\\\\[locale\\\\]/currencies)",
+      "Bash(mkdir -p /Users/sajadseif/workspace/exchange/MELLIExchange/apps/web/src/app/\\\\[locale\\\\]/products)",
+      "Bash(mkdir -p /Users/sajadseif/workspace/exchange/MELLIExchange/apps/web/src/app/\\\\[locale\\\\]/about)",
+      "Bash(mkdir -p /Users/sajadseif/workspace/exchange/MELLIExchange/apps/web/src/app/\\\\[locale\\\\]/contact)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d['version']\\)\")",
+      "Bash(xargs cat *)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('version:', d.get\\('version'\\)\\); print\\('peerDeps:', json.dumps\\(d.get\\('peerDependencies', {}\\), indent=2\\)\\)\")",
+      "Bash(python3 *)",
+      "Bash(find /Users/sajadseif/workspace/exchange/MELLIExchange/node_modules/.pnpm/next-intl@4.11.0*/node_modules/next-intl -maxdepth 1 -name \"*.js\" -o -name \"*.d.ts\")",
+      "Bash(pnpm --filter api seed)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:4000/uploads/7f6d622d0ff65529e0df07bb8fe604cd.jpeg\")",
+      "Bash(curl *)",
+      "Bash(xargs ls *)"
     ]
   }
 }
