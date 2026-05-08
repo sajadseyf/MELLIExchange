@@ -11,6 +11,7 @@ export async function GoldCards({ rows, stacked = false }: Props) {
   const t = await getTranslations('gold');
 
   const karatDesc: Record<number, string> = {
+    14: t('k14_desc'),
     18: t('k18_desc'),
     22: t('k22_desc'),
     24: t('k24_desc'),

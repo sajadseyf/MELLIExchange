@@ -30,12 +30,13 @@ router.get('/history', async (req, res) => {
     .sort({ recordedAt: 1 })
     .lean();
 
-  // Pivot to { date, k18, k22, k24 } per day
-  const dayMap = new Map<string, { date: string; k18?: number; k22?: number; k24?: number }>();
+  // Pivot to { date, k14, k18, k22, k24 } per day
+  const dayMap = new Map<string, { date: string; k14?: number; k18?: number; k22?: number; k24?: number }>();
   for (const r of rows) {
     const date = (r.recordedAt as Date).toISOString().slice(0, 10);
     if (!dayMap.has(date)) dayMap.set(date, { date });
     const entry = dayMap.get(date)!;
+    if (r.karat === 14) entry.k14 = r.pricePerGram;
     if (r.karat === 18) entry.k18 = r.pricePerGram;
     if (r.karat === 22) entry.k22 = r.pricePerGram;
     if (r.karat === 24) entry.k24 = r.pricePerGram;
@@ -50,7 +51,7 @@ const updateSchema = z.object({
 
 router.put('/:karat', requireAuth, async (req, res) => {
   const karat = Number(req.params.karat);
-  if (![18, 22, 24].includes(karat)) {
+  if (![14, 18, 22, 24].includes(karat)) {
     res.status(400).json({ error: 'Invalid karat' });
     return;
   }
@@ -76,6 +77,47 @@ router.put('/:karat', requireAuth, async (req, res) => {
   );
 
   res.json(serialize(updated));
+});
+
+// Clean up outlier gold history (weekend/stale anomalies)
+// Removes records where 24K price deviates >25% from surrounding days
+router.post('/history/cleanup', requireAuth, async (_req, res) => {
+  const all = await GoldPriceHistoryModel
+    .find({ karat: 24 })
+    .sort({ recordedAt: 1 })
+    .lean();
+
+  const toDelete: string[] = [];
+
+  for (let i = 1; i < all.length - 1; i++) {
+    const prev = all[i - 1]!.pricePerGram;
+    const next = all[i + 1]!.pricePerGram;
+    const cur  = all[i]!.pricePerGram;
+    const neighbor = (prev + next) / 2;
+    const deviation = Math.abs(cur - neighbor) / neighbor;
+    if (deviation > 0.15) {
+      toDelete.push((all[i] as any)._id.toString());
+    }
+  }
+
+  // Also remove anything below a reasonable floor
+  for (const r of all) {
+    if (r.pricePerGram < 170 && !(toDelete as string[]).includes((r as any)._id.toString())) {
+      toDelete.push((r as any)._id.toString());
+    }
+  }
+
+  if (toDelete.length > 0) {
+    // Delete the 24K entries and all matching-date entries for other karats
+    const badDates = all
+      .filter((r) => toDelete.includes((r as any)._id.toString()))
+      .map((r) => r.recordedAt);
+
+    await GoldPriceHistoryModel.deleteMany({ recordedAt: { $in: badDates } });
+    console.log(`[gold/cleanup] removed ${toDelete.length} outlier dates`);
+  }
+
+  res.json({ ok: true, removed: toDelete.length });
 });
 
 export default router;

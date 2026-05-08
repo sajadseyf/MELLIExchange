@@ -9,6 +9,10 @@
     @apply bg-white text-ink-800 antialiased;
     font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
   }
+
+  [dir="rtl"], [dir="rtl"] body {
+    font-family: 'Vazirmatn', ui-sans-serif, system-ui, sans-serif;
+  }
   .dark html, .dark body,
   html.dark, html.dark body {
     @apply bg-dark text-zinc-100;

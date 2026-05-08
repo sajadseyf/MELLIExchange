@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { Button, Container, LogoMark } from '@melli/ui';
 import type { AdminUser } from '@melli/types';
 import { api, ApiError } from '@/lib/api';
+import { TabNav } from '@/components/TabNav';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -57,7 +58,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </Container>
       </header>
-      <main className="py-10">
+      <TabNav />
+      <main className="py-8">
         <Container>{children}</Container>
       </main>
     </div>

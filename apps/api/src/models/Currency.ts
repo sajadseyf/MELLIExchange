@@ -8,7 +8,9 @@ const currencySchema = new Schema(
     flag: { type: String, default: '' },
     buy: { type: Number, required: true, min: 0 },
     sell: { type: Number, required: true, min: 0 },
-    order: { type: Number, default: 0 },
+    order:     { type: Number, default: 0 },
+    contactUs: { type: Boolean, default: false },
+    hidden:    { type: Boolean, default: false },
   },
   { timestamps: true },
 );

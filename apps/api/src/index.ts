@@ -4,11 +4,18 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { env } from './env.js';
 import { connectDb } from './db.js';
+import { startPriceSync } from './priceSync.js';
 import authRouter from './routes/auth.js';
 import currenciesRouter from './routes/currencies.js';
 import goldRouter from './routes/gold.js';
 import productsRouter from './routes/products.js';
 import uploadsRouter from './routes/uploads.js';
+import settingsRouter from './routes/settings.js';
+import postsRouter from './routes/posts.js';
+import competitorRouter from './routes/competitor.js';
+import analysisRouter from './routes/analysis.js';
+import spotRouter from './routes/spot.js';
+import newsRouter from './routes/news.js';
 
 async function main() {
   await connectDb();
@@ -33,6 +40,12 @@ async function main() {
   app.use('/api/gold', goldRouter);
   app.use('/api/products', productsRouter);
   app.use('/api/uploads', uploadsRouter);
+  app.use('/api/settings', settingsRouter);
+  app.use('/api/posts', postsRouter);
+  app.use('/api/competitor', competitorRouter);
+  app.use('/api/analysis', analysisRouter);
+  app.use('/api/spot', spotRouter);
+  app.use('/api/news', newsRouter);
   app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
   app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
@@ -42,6 +55,7 @@ async function main() {
 
   app.listen(env.port, () => {
     console.log(`[api] listening on http://localhost:${env.port}`);
+    startPriceSync();
   });
 }
 

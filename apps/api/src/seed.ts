@@ -6,26 +6,65 @@ import { CurrencyModel } from './models/Currency.js';
 import { GoldPriceModel } from './models/GoldPrice.js';
 import { ProductModel } from './models/Product.js';
 import { GoldPriceHistoryModel } from './models/GoldPriceHistory.js';
+import { CurrencyPriceHistoryModel } from './models/CurrencyPriceHistory.js';
 import mongoose from 'mongoose';
 
 const seedCurrencies = [
-  { code: 'USD', name: 'US Dollar',         symbol: '$',   flag: 'us', buy: 1.36, sell: 1.40, order: 1 },
-  { code: 'EUR', name: 'Euro',              symbol: '€',   flag: 'eu', buy: 1.46, sell: 1.50, order: 2 },
-  { code: 'GBP', name: 'British Pound',     symbol: '£',   flag: 'gb', buy: 1.72, sell: 1.78, order: 3 },
-  { code: 'AUD', name: 'Australian Dollar', symbol: 'A$',  flag: 'au', buy: 0.89, sell: 0.93, order: 4 },
-  { code: 'JPY', name: 'Japanese Yen',      symbol: '¥',   flag: 'jp', buy: 0.0088, sell: 0.0094, order: 5 },
-  { code: 'CNY', name: 'Chinese Yuan',      symbol: '¥',   flag: 'cn', buy: 0.18, sell: 0.20, order: 6 },
-  { code: 'AED', name: 'UAE Dirham',        symbol: 'د.إ', flag: 'ae', buy: 0.36, sell: 0.39, order: 7 },
-  { code: 'INR', name: 'Indian Rupee',      symbol: '₹',   flag: 'in', buy: 0.015, sell: 0.018, order: 8 },
-  { code: 'IRR', name: 'Iranian Rial',      symbol: '﷼',   flag: 'ir', buy: 0.000022, sell: 0.000028, order: 9 },
-  { code: 'TRY', name: 'Turkish Lira',      symbol: '₺',   flag: 'tr', buy: 0.038, sell: 0.043, order: 10 },
-  { code: 'MXN', name: 'Mexican Peso',      symbol: '$',   flag: 'mx', buy: 0.066, sell: 0.072, order: 11 },
-  { code: 'HKD', name: 'Hong Kong Dollar',  symbol: 'HK$', flag: 'hk', buy: 0.17, sell: 0.19, order: 12 },
-  { code: 'CHF', name: 'Swiss Franc',       symbol: 'CHF', flag: 'ch', buy: 1.52, sell: 1.58, order: 13 },
-  { code: 'SAR', name: 'Saudi Riyal',       symbol: '﷼',   flag: 'sa', buy: 0.36, sell: 0.39, order: 14 },
+  // ── Major / VanEx top ────────────────────────────────────────────────────────
+  { code: 'USD', name: 'US Dollar',              symbol: '$',    flag: 'us', buy: 1.3362, sell: 1.3702, order: 1 },
+  { code: 'EUR', name: 'Euro',                   symbol: '€',    flag: 'eu', buy: 1.5715, sell: 1.6415, order: 2 },
+  { code: 'GBP', name: 'British Pound',          symbol: '£',    flag: 'gb', buy: 1.8195, sell: 1.8674, order: 3 },
+  { code: 'AUD', name: 'Australian Dollar',      symbol: 'A$',   flag: 'au', buy: 0.9358, sell: 0.9827, order: 4 },
+  { code: 'CHF', name: 'Swiss Franc',            symbol: 'CHF',  flag: 'ch', buy: 1.6901, sell: 1.7761, order: 5 },
+  { code: 'JPY', name: 'Japanese Yen',           symbol: '¥',    flag: 'jp', buy: 0.00863, sell: 0.00902, order: 6 },
+  { code: 'CNY', name: 'Chinese Yuan',           symbol: '¥',    flag: 'cn', buy: 0.1873, sell: 0.2031, order: 7 },
+  { code: 'HKD', name: 'Hong Kong Dollar',       symbol: 'HK$',  flag: 'hk', buy: 0.1685, sell: 0.1797, order: 8 },
+  { code: 'SGD', name: 'Singapore Dollar',       symbol: 'S$',   flag: 'sg', buy: 1.0136, sell: 1.1117, order: 9 },
+  { code: 'NZD', name: 'New Zealand Dollar',     symbol: 'NZ$',  flag: 'nz', buy: 0.7811, sell: 0.8235, order: 10 },
+  // ── Middle East ──────────────────────────────────────────────────────────────
+  { code: 'AED', name: 'UAE Dirham',             symbol: 'د.إ',  flag: 'ae', buy: 0.3477, sell: 0.3912, order: 11 },
+  { code: 'SAR', name: 'Saudi Riyal',            symbol: '﷼',    flag: 'sa', buy: 0.3357, sell: 0.3858, order: 12 },
+  { code: 'QAR', name: 'Qatari Riyal',           symbol: 'ر.ق',  flag: 'qa', buy: 0.3380, sell: 0.3964, order: 13 },
+  { code: 'OMR', name: 'Omani Rial',             symbol: 'ر.ع.', flag: 'om', buy: 3.2461, sell: 3.8897, order: 14 },
+  { code: 'EGP', name: 'Egyptian Pound',         symbol: '£',    flag: 'eg', buy: 0.02352, sell: 0.03122, order: 15 },
+  { code: 'ILS', name: 'Israeli Shekel',         symbol: '₪',    flag: 'il', buy: 0.4418, sell: 0.4924, order: 16 },
+  // ── Asia ─────────────────────────────────────────────────────────────────────
+  { code: 'INR', name: 'Indian Rupee',           symbol: '₹',    flag: 'in', buy: 0.0139, sell: 0.0153, order: 17 },
+  { code: 'MYR', name: 'Malaysian Ringgit',      symbol: 'RM',   flag: 'my', buy: 0.3350, sell: 0.3660, order: 18 },
+  { code: 'THB', name: 'Thai Baht',              symbol: '฿',    flag: 'th', buy: 0.0415, sell: 0.0462, order: 19 },
+  { code: 'KRW', name: 'South Korean Won',       symbol: '₩',    flag: 'kr', buy: 0.000871, sell: 0.000986, order: 20 },
+  { code: 'IDR', name: 'Indonesian Rupiah',      symbol: 'Rp',   flag: 'id', buy: 0.00007621, sell: 0.00008364, order: 21 },
+  { code: 'PHP', name: 'Philippine Peso',        symbol: '₱',    flag: 'ph', buy: 0.0216, sell: 0.0241, order: 22 },
+  { code: 'VND', name: 'Vietnamese Dong',        symbol: '₫',    flag: 'vn', buy: 0.00005633, sell: 0.00006149, order: 23 },
+  { code: 'TWD', name: 'Taiwan Dollar',          symbol: 'NT$',  flag: 'tw', buy: 0.04254, sell: 0.04572, order: 24 },
+  { code: 'LKR', name: 'Sri Lankan Rupee',       symbol: '₨',    flag: 'lk', buy: 0.0038, sell: 0.0049, order: 25 },
+  // ── Europe ───────────────────────────────────────────────────────────────────
+  { code: 'SEK', name: 'Swedish Krona',          symbol: 'kr',   flag: 'se', buy: 0.1407, sell: 0.1510, order: 26 },
+  { code: 'NOK', name: 'Norwegian Krone',        symbol: 'kr',   flag: 'no', buy: 0.1395, sell: 0.1512, order: 27 },
+  { code: 'DKK', name: 'Danish Krone',           symbol: 'kr',   flag: 'dk', buy: 0.2002, sell: 0.2183, order: 28 },
+  { code: 'PLN', name: 'Polish Zloty',           symbol: 'zł',   flag: 'pl', buy: 0.3607, sell: 0.3925, order: 29 },
+  { code: 'CZK', name: 'Czech Koruna',           symbol: 'Kč',   flag: 'cz', buy: 0.0626, sell: 0.0692, order: 30 },
+  { code: 'HUF', name: 'Hungarian Forint',       symbol: 'Ft',   flag: 'hu', buy: 0.004188, sell: 0.004602, order: 31 },
+  // ── Americas ─────────────────────────────────────────────────────────────────
+  { code: 'MXN', name: 'Mexican Peso',           symbol: '$',    flag: 'mx', buy: 0.07583, sell: 0.0870, order: 32 },
+  { code: 'BRL', name: 'Brazilian Real',         symbol: 'R$',   flag: 'br', buy: 0.2739, sell: 0.3099, order: 33 },
+  { code: 'ARS', name: 'Argentine Peso',         symbol: '$',    flag: 'ar', buy: 0.00093, sell: 0.00113, order: 34 },
+  { code: 'COP', name: 'Colombian Peso',         symbol: '$',    flag: 'co', buy: 0.00035592, sell: 0.00041841, order: 35 },
+  { code: 'CLP', name: 'Chilean Peso',           symbol: '$',    flag: 'cl', buy: 0.001423, sell: 0.001625, order: 36 },
+  { code: 'PEN', name: 'Peruvian Sol',           symbol: 'S/',   flag: 'pe', buy: 0.3550, sell: 0.4050, order: 37 },
+  { code: 'DOP', name: 'Dominican Peso',         symbol: '$',    flag: 'do', buy: 0.0212, sell: 0.0272, order: 38 },
+  { code: 'JMD', name: 'Jamaican Dollar',        symbol: 'J$',   flag: 'jm', buy: 0.0081, sell: 0.0094, order: 39 },
+  { code: 'CRC', name: 'Costa Rican Colón',      symbol: '₡',    flag: 'cr', buy: 0.002874, sell: 0.003233, order: 40 },
+  // ── Africa & Other ───────────────────────────────────────────────────────────
+  { code: 'ZAR', name: 'South African Rand',     symbol: 'R',    flag: 'za', buy: 0.0772, sell: 0.0862, order: 41 },
+  { code: 'TRY', name: 'Turkish Lira',           symbol: '₺',    flag: 'tr', buy: 0.0289, sell: 0.0330, order: 42 },
+  { code: 'FJD', name: 'Fijian Dollar',          symbol: 'FJ$',  flag: 'fj', buy: 0.5820, sell: 0.6997, order: 43 },
+  // ── Special ──────────────────────────────────────────────────────────────────
+  { code: 'IRR', name: 'Iranian Rial',           symbol: '﷼',    flag: 'ir', buy: 0.000022, sell: 0.000028, order: 44 },
 ];
 
 const seedGold = [
+  { karat: 14, pricePerGram: 60.5 },
   { karat: 18, pricePerGram: 78.0 },
   { karat: 22, pricePerGram: 95.0 },
   { karat: 24, pricePerGram: 104.0 },
@@ -242,6 +281,23 @@ const seedProducts = [
     category: 'pendant', karat: 22, weightGrams: 6.0, price: 600, inStock: false, order: 40,
   },
 
+  // ── 14K / چهارده عیار ────────────────────────────────────────────────
+  {
+    name: 'Delicate 14K Stacking Ring',
+    description: 'Slim and lightweight 14K gold band, perfect for everyday stacking. Minimal and modern.',
+    category: 'ring', karat: 14, weightGrams: 2.1, price: 175, inStock: true, order: 44,
+  },
+  {
+    name: '14K Gold Chain Necklace 18"',
+    description: 'Classic 14K cable chain, 18 inches. Lightweight and versatile — perfect as a standalone or layered look.',
+    category: 'necklace', karat: 14, weightGrams: 4.0, price: 310, inStock: true, order: 45,
+  },
+  {
+    name: '14K Huggie Hoop Earrings',
+    description: 'Small huggie hoops in 14K yellow gold. Comfortable for all-day wear with a secure snap closure.',
+    category: 'earring', karat: 14, weightGrams: 2.4, price: 210, inStock: true, order: 46,
+  },
+
   // ── Other / سایر ─────────────────────────────────────────────────────
   {
     name: 'Gold Coin 1/10 oz (24K)',
@@ -297,9 +353,9 @@ async function main() {
   console.log(`[seed] products ensured: ${seedProducts.length}`);
 
   // Seed 30 days of gold price history with a realistic random walk
-  const bases: Record<number, number> = { 18: 78.0, 22: 95.0, 24: 104.0 };
+  const bases: Record<number, number> = { 14: 60.5, 18: 78.0, 22: 95.0, 24: 104.0 };
   let seededHistory = 0;
-  for (const karat of [18, 22, 24] as const) {
+  for (const karat of [14, 18, 22, 24] as const) {
     let price = bases[karat] ?? 90;
     for (let d = 29; d >= 0; d--) {
       const date = new Date();
@@ -317,6 +373,38 @@ async function main() {
     }
   }
   console.log(`[seed] gold history ensured: ${seededHistory} records`);
+
+  // Seed 30 days of currency price history
+  const currencyBases: Record<string, { buy: number; sell: number }> = {
+    USD: { buy: 1.36, sell: 1.40 },
+    EUR: { buy: 1.46, sell: 1.50 },
+    GBP: { buy: 1.72, sell: 1.78 },
+    AED: { buy: 0.36, sell: 0.39 },
+    IRR: { buy: 0.000022, sell: 0.000028 },
+    CHF: { buy: 1.52, sell: 1.58 },
+    AUD: { buy: 0.89, sell: 0.93 },
+    CNY: { buy: 0.18, sell: 0.20 },
+  };
+  let seededCurrencyHistory = 0;
+  for (const [code, base] of Object.entries(currencyBases)) {
+    let buy = base.buy;
+    let sell = base.sell;
+    for (let d = 29; d >= 0; d--) {
+      const date = new Date();
+      date.setDate(date.getDate() - d);
+      date.setHours(0, 0, 0, 0);
+      const drift = (Math.random() - 0.48) * buy * 0.012;
+      buy  = Math.round((buy  + drift) * 1e6) / 1e6;
+      sell = Math.round((sell + drift) * 1e6) / 1e6;
+      await CurrencyPriceHistoryModel.updateOne(
+        { code, recordedAt: date },
+        { $setOnInsert: { code, buy, sell, recordedAt: date } },
+        { upsert: true },
+      );
+      seededCurrencyHistory++;
+    }
+  }
+  console.log(`[seed] currency history ensured: ${seededCurrencyHistory} records`);
 
   await mongoose.disconnect();
   console.log('[seed] done');
