@@ -17,7 +17,7 @@ export function LiveGoldSpot({ initialUsd, label }: Props) {
 
     async function refresh() {
       try {
-        const res = await fetch(`${API_URL}/api/spot/latest`, { cache: 'no-store' });
+        const res = await fetch(`/api/spot/latest`, { cache: 'no-store' });
         if (!res.ok) return;
         const data = await res.json();
         const p = data?.gold?.priceUsd;

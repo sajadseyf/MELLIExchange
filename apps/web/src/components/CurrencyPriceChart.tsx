@@ -17,7 +17,7 @@ interface Point { label: string; buy: number; sell: number; }
 
 async function fetchLive(code: string, hours: number): Promise<Point[]> {
   try {
-    const res = await fetch(`${API_URL}/api/currencies/live?code=${code}&hours=${hours}`);
+    const res = await fetch(`/api/currencies/live?code=${code}&hours=${hours}`);
     if (!res.ok) return [];
     const raw = (await res.json()) as Array<{ time: string; buy: number; sell: number }>;
 
