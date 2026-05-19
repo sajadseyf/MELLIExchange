@@ -1,3 +1,5 @@
+// Force fresh build cache bust: 2026-05-18
+
 'use client';
 
 import { useEffect, useState } from 'react';
