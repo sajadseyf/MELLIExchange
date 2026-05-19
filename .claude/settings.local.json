@@ -77,7 +77,9 @@
       "Bash(git push *)",
       "Bash(npm list *)",
       "Bash(vercel --prod)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(vercel --prod --scope sajad-s-projects1)",
+      "Bash(vercel ls *)"
     ]
   }
 }

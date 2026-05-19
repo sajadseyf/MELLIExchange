@@ -8,7 +8,7 @@ const nextConfig = {
   output: 'standalone',
   outputFileTracingRoot: path.join(__dirname, '../../'),
   reactStrictMode: true,
-  transpilePackages: ['@melli/ui', '@melli/types'],
+  transpilePackages: ['@melli/ui', '@melli/types', '@melli/api'],
   async rewrites() {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
     return [
