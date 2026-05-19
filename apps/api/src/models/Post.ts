@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, models, type Model } from 'mongoose';
 
 const translationSchema = new Schema(
   { title: String, excerpt: String, content: String },
@@ -26,4 +26,4 @@ const postSchema = new Schema(
 
 postSchema.index({ published: 1, publishedAt: -1 });
 
-export const PostModel = model('Post', postSchema);
+export const PostModel = (models['Post'] as Model<any>) ?? model('Post', postSchema);

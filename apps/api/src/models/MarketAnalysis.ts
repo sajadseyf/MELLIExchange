@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, models, type Model } from 'mongoose';
 
 const schema = new Schema(
   {
@@ -13,4 +13,4 @@ const schema = new Schema(
 
 schema.index({ publishedAt: -1 });
 
-export const MarketAnalysisModel = model('MarketAnalysis', schema);
+export const MarketAnalysisModel = (models['MarketAnalysis'] as Model<any>) ?? model('MarketAnalysis', schema);

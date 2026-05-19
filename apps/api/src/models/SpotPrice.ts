@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, models, type Model } from 'mongoose';
 
 const schema = new Schema(
   {
@@ -16,4 +16,4 @@ const schema = new Schema(
 schema.index({ metal: 1, recordedAt: -1 });
 schema.index({ recordedAt: 1 }, { expireAfterSeconds: 7 * 24 * 60 * 60 }); // auto-delete after 7 days
 
-export const SpotPriceModel = model('SpotPrice', schema);
+export const SpotPriceModel = (models['SpotPrice'] as Model<any>) ?? model('SpotPrice', schema);

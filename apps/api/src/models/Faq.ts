@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, models, type Model } from 'mongoose';
 
 const localeText = {
   fa: { type: String, default: '' },
@@ -16,4 +16,4 @@ const schema = new Schema(
   { timestamps: true },
 );
 
-export const FaqModel = model('Faq', schema);
+export const FaqModel = (models['Faq'] as Model<any>) ?? model('Faq', schema);

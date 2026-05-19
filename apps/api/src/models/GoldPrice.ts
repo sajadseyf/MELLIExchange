@@ -1,4 +1,4 @@
-import { Schema, model, type InferSchemaType } from 'mongoose';
+import { Schema, model, models, type InferSchemaType, type Model } from 'mongoose';
 
 const goldPriceSchema = new Schema(
   {
@@ -9,4 +9,4 @@ const goldPriceSchema = new Schema(
 );
 
 export type GoldPriceDoc = InferSchemaType<typeof goldPriceSchema>;
-export const GoldPriceModel = model('GoldPrice', goldPriceSchema);
+export const GoldPriceModel = (models['GoldPrice'] as Model<GoldPriceDoc>) ?? model('GoldPrice', goldPriceSchema);

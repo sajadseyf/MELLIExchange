@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, models, type Model } from 'mongoose';
 
 const rateEntrySchema = new Schema(
   { code: String, buy: Number, sell: Number },
@@ -16,4 +16,4 @@ const schema = new Schema(
 
 schema.index({ source: 1, recordedAt: -1 });
 
-export const CompetitorRateModel = model('CompetitorRate', schema);
+export const CompetitorRateModel = (models['CompetitorRate'] as Model<any>) ?? model('CompetitorRate', schema);

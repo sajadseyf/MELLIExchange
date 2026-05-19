@@ -1,4 +1,4 @@
-import { Schema, model, type InferSchemaType } from 'mongoose';
+import { Schema, model, models, type InferSchemaType, type Model } from 'mongoose';
 
 const currencySchema = new Schema(
   {
@@ -16,4 +16,4 @@ const currencySchema = new Schema(
 );
 
 export type CurrencyDoc = InferSchemaType<typeof currencySchema>;
-export const CurrencyModel = model('Currency', currencySchema);
+export const CurrencyModel = (models['Currency'] as Model<CurrencyDoc>) ?? model('Currency', currencySchema);

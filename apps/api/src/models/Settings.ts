@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, models, type Model } from 'mongoose';
 
 export type CurrencySource =
   | 'vanex_scrape'
@@ -39,7 +39,7 @@ const schema = new Schema(
   { timestamps: true },
 );
 
-export const SettingsModel = model('Settings', schema);
+export const SettingsModel = (models['Settings'] as Model<any>) ?? model('Settings', schema);
 
 export async function getSettings() {
   const doc = await SettingsModel.findOne().lean();

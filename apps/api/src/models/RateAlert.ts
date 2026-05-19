@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, models, type Model } from 'mongoose';
 
 const schema = new Schema(
   {
@@ -16,4 +16,4 @@ const schema = new Schema(
 
 schema.index({ createdAt: -1 });
 
-export const RateAlertModel = model('RateAlert', schema);
+export const RateAlertModel = (models['RateAlert'] as Model<any>) ?? model('RateAlert', schema);

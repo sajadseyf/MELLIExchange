@@ -1,4 +1,4 @@
-import { Schema, model, type InferSchemaType } from 'mongoose';
+import { Schema, model, models, type InferSchemaType, type Model } from 'mongoose';
 
 const goldPriceHistorySchema = new Schema({
   karat:        { type: Number, required: true, enum: [14, 18, 22, 24] },
@@ -9,4 +9,4 @@ const goldPriceHistorySchema = new Schema({
 goldPriceHistorySchema.index({ karat: 1, recordedAt: 1 }, { unique: true });
 
 export type GoldPriceHistoryDoc = InferSchemaType<typeof goldPriceHistorySchema>;
-export const GoldPriceHistoryModel = model('GoldPriceHistory', goldPriceHistorySchema);
+export const GoldPriceHistoryModel = (models['GoldPriceHistory'] as Model<GoldPriceHistoryDoc>) ?? model('GoldPriceHistory', goldPriceHistorySchema);

@@ -1,12 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import serverlessHttp from 'serverless-http';
 // @ts-ignore — workspace package with TS source
 import { app } from '@melli/api/app';
 
-const handler = serverlessHttp(app);
-
-export default async function apiProxy(req: NextApiRequest, res: NextApiResponse) {
-  await handler(req as any, res as any);
+export default function apiProxy(req: NextApiRequest, res: NextApiResponse) {
+  return new Promise<void>((resolve) => {
+    res.on('finish', resolve);
+    app(req as any, res as any, resolve);
+  });
 }
 
 export const config = {

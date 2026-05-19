@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, models, type Model } from 'mongoose';
 
 const schema = new Schema(
   {
@@ -16,4 +16,4 @@ schema.index({ code: 1, recordedAt: 1 }, { unique: true });
 // Auto-delete records older than 90 days
 schema.index({ recordedAt: 1 }, { expireAfterSeconds: 90 * 24 * 60 * 60 });
 
-export const CurrencyIntradayModel = model('CurrencyIntraday', schema);
+export const CurrencyIntradayModel = (models['CurrencyIntraday'] as Model<any>) ?? model('CurrencyIntraday', schema);

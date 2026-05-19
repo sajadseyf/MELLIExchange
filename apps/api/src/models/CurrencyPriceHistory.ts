@@ -1,4 +1,4 @@
-import { Schema, model, type InferSchemaType } from 'mongoose';
+import { Schema, model, models, type InferSchemaType, type Model } from 'mongoose';
 
 const currencyPriceHistorySchema = new Schema({
   code:       { type: String, required: true, uppercase: true },
@@ -10,4 +10,4 @@ const currencyPriceHistorySchema = new Schema({
 currencyPriceHistorySchema.index({ code: 1, recordedAt: 1 }, { unique: true });
 
 export type CurrencyPriceHistoryDoc = InferSchemaType<typeof currencyPriceHistorySchema>;
-export const CurrencyPriceHistoryModel = model('CurrencyPriceHistory', currencyPriceHistorySchema);
+export const CurrencyPriceHistoryModel = (models['CurrencyPriceHistory'] as Model<CurrencyPriceHistoryDoc>) ?? model('CurrencyPriceHistory', currencyPriceHistorySchema);
