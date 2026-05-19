@@ -39,7 +39,7 @@ export function Sidebar() {
   const path = usePathname();
   const [open, setOpen] = useState(false);
 
-  const isActive = (href: string) => path === href || path.startsWith(href + '/');
+  const isActive = (href: string) => path === href || (path?.startsWith(href + '/') ?? false);
 
   const nav = (
     <nav className="flex flex-col gap-6 p-4">
