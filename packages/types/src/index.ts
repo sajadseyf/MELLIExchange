@@ -61,6 +61,15 @@ export interface Post {
   translating?: boolean;
 }
 
+export interface FaqItem {
+  id: string;
+  question: { fa: string; en: string; zh?: string };
+  answer: { fa: string; en: string; zh?: string };
+  order: number;
+  active: boolean;
+  updatedAt: string;
+}
+
 export type ProductCategory = 'ring' | 'necklace' | 'bracelet' | 'earring' | 'pendant' | 'other';
 export type ProductKarat = 14 | 18 | 21 | 22 | 24;
 

@@ -4,20 +4,18 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const TABS = [
-  { href: '/',        label: 'Dashboard',         icon: '⚡' },
-  { href: '/news',    label: 'News & Analysis',   icon: '📰' },
-  { href: '/rates',   label: 'Live Rates',        icon: '💱' },
-  { href: '/charts',  label: 'Charts',            icon: '📈' },
-  { href: '/settings',label: 'Settings',          icon: '⚙️'  },
+  { href: '/currencies', label: 'Currencies',       icon: '💱' },
+  { href: '/gold',       label: 'Gold',              icon: '🥇' },
+  { href: '/products',   label: 'Products',          icon: '💍' },
+  { href: '/faq',        label: 'FAQ',               icon: '❓' },
+  { href: '/news',       label: 'News & Analysis',   icon: '📰' },
+  { href: '/rates',      label: 'Live Rates',        icon: '📊' },
+  { href: '/charts',     label: 'Charts',            icon: '📈' },
+  { href: '/settings',   label: 'Settings',          icon: '⚙️'  },
 ] as const;
 
 export function TabNav() {
   const path = usePathname();
-
-  const active = (href: string) => {
-    if (href === '/') return path === '/';
-    return path.startsWith(href);
-  };
 
   return (
     <div className="border-b border-ink-100 bg-white">
@@ -29,7 +27,7 @@ export function TabNav() {
               href={href}
               className={[
                 'flex shrink-0 items-center gap-1.5 border-b-2 px-4 py-3 text-sm font-medium transition-colors',
-                active(href)
+                path === href || path.startsWith(href + '/')
                   ? 'border-gold-500 text-gold-700'
                   : 'border-transparent text-ink-500 hover:border-ink-300 hover:text-ink-700',
               ].join(' ')}

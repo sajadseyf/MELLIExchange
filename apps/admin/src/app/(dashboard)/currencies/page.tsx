@@ -7,7 +7,7 @@ export default function CurrenciesPage() {
       <PageHeading
         eyebrow="Prices"
         title="Currencies"
-        description="Update buy and sell rates for all currencies. Changes are live immediately."
+        description="Update buy and sell rates for all currencies. Changes go live on the public site immediately."
       />
       <CurrenciesPanel />
     </div>

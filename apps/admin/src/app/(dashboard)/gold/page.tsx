@@ -6,8 +6,8 @@ export default function GoldPage() {
     <div className="flex flex-col gap-8">
       <PageHeading
         eyebrow="Prices"
-        title="Gold & Karats"
-        description="Update gold prices per gram for 14K, 18K, 22K and 24K. Changes are live immediately."
+        title="Gold"
+        description="Update gold prices per gram for each karat. Changes go live on the public site immediately."
       />
       <GoldPanel />
     </div>
