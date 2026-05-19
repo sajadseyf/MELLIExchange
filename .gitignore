@@ -25,3 +25,5 @@ Thumbs.db
 
 # TS
 *.tsbuildinfo
+.vercel
+.env*.local

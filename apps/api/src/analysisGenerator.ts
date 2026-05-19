@@ -28,6 +28,7 @@ async function fetchVBCENews(): Promise<string> {
 function parseRssItems(xml: string, max = 5): Array<{ title: string; description: string }> {
   const items: Array<{ title: string; description: string }> = [];
   for (const [, body] of [...xml.matchAll(/<item>([\s\S]*?)<\/item>/gi)].slice(0, max)) {
+    if (!body) continue;
     const title = (body.match(/<title[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i) ?? [])[1]?.trim() ?? '';
     const desc  = (body.match(/<description[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/i) ?? [])[1]?.replace(/<[^>]+>/g, '').trim() ?? '';
     if (title) items.push({ title, description: desc.slice(0, 500) });
