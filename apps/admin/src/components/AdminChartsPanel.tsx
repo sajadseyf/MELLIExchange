@@ -1,5 +1,3 @@
-// Force fresh build cache bust: 2026-05-18
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -39,9 +37,9 @@ function CurrencyChart({ code, days }: { code: string; days: number }) {
     <ResponsiveContainer width="100%" height={200}>
       <LineChart data={chartData}>
         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-        <Tooltip formatter={(v: any) => (v !== undefined && v !== null ? Number(v).toFixed(4) : '')} />
+        <XAxis dataKey="label" tick={{ fontSize: 11 }} />
         <YAxis tick={{ fontSize: 11 }} domain={['auto', 'auto']} />
-        <Tooltip formatter={(v: any) => (v !== undefined && v !== null ? Number(v).toFixed(4) : '')} />
+        <Tooltip formatter={(v: unknown) => (typeof v === 'number' ? v.toFixed(4) : String(v))} />
         <Legend />
         <Line type="monotone" dataKey="buy"  stroke="#16a34a" dot={false} name="Buy"  strokeWidth={1.5} />
         <Line type="monotone" dataKey="sell" stroke="#dc2626" dot={false} name="Sell" strokeWidth={1.5} />
