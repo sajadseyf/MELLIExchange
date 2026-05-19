@@ -51,7 +51,25 @@
       "Bash(node_modules/.bin/tsc --noEmit)",
       "Bash(node *)",
       "Bash(awk '{print $6\"=\"$7}')",
-      "Bash(mongosh --quiet --eval \"db.getSiblingDB\\('melliexchange'\\).marketanalyses.countDocuments\\(\\)\")"
+      "Bash(mongosh --quiet --eval \"db.getSiblingDB\\('melliexchange'\\).marketanalyses.countDocuments\\(\\)\")",
+      "Bash(brew services *)",
+      "Bash(npx next *)",
+      "Bash(ps *)",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(pkill -f \"next-server\")",
+      "Bash(ulimit -n)",
+      "Bash(launchctl limit *)",
+      "Bash(ulimit -n 65536)",
+      "Bash(pnpm dev *)",
+      "Bash(pkill -f \"next\")",
+      "Bash(sudo launchctl limit maxfiles 65536 200000)",
+      "Bash(echo \"started PID $!\")",
+      "Bash(awk '{print $2}')",
+      "Bash(kill -9 45503 45473 45461 45460 45024 45009 44994 44979 44967 44966 41667 41652 41637 41622 41610 41609 41521 36591 36606 36621 31879 31849 31862 30651 30636 30649)",
+      "Bash(xargs kill -9)",
+      "Bash(pkill -9 -f \"next\")",
+      "Bash(pkill -9 -f \"next-server\")",
+      "Bash(echo \"web server starting, PID $!\")"
     ]
   }
 }

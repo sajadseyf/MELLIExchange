@@ -1,20 +1,38 @@
 import { Container, PageHeading } from '@melli/ui';
 import { getTranslations } from 'next-intl/server';
+import { getFaqs } from '@/lib/api';
+import type { FaqItem } from '@melli/types';
 
-export default async function FaqPage() {
-  const t = await getTranslations('faq');
+export default async function FaqPage({ params }: { params: { locale: string } }) {
+  const { locale } = params;
+  const [t, faqs] = await Promise.all([getTranslations('faq'), getFaqs()]);
 
-  const items = [
-    { q: t('q1'), a: t('a1') },
-    { q: t('q2'), a: t('a2') },
-    { q: t('q3'), a: t('a3') },
-    { q: t('q4'), a: t('a4') },
-    { q: t('q5'), a: t('a5') },
-    { q: t('q6'), a: t('a6') },
-    { q: t('q7'), a: t('a7') },
-    { q: t('q8'), a: t('a8') },
-    { q: t('q9'), a: t('a9') },
-  ];
+  const items = faqs.length > 0
+    ? faqs
+        .map((item: FaqItem) => ({
+          q: locale === 'fa'
+            ? item.question.fa
+            : locale === 'zh'
+            ? (item.question.zh || item.question.en)
+            : item.question.en,
+          a: locale === 'fa'
+            ? item.answer.fa
+            : locale === 'zh'
+            ? (item.answer.zh || item.answer.en)
+            : item.answer.en,
+        }))
+        .filter((item) => item.q && item.a)
+    : [
+        { q: t('q1'), a: t('a1') },
+        { q: t('q2'), a: t('a2') },
+        { q: t('q3'), a: t('a3') },
+        { q: t('q4'), a: t('a4') },
+        { q: t('q5'), a: t('a5') },
+        { q: t('q6'), a: t('a6') },
+        { q: t('q7'), a: t('a7') },
+        { q: t('q8'), a: t('a8') },
+        { q: t('q9'), a: t('a9') },
+      ];
 
   return (
     <Container className="py-14">

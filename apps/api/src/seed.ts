@@ -7,7 +7,110 @@ import { GoldPriceModel } from './models/GoldPrice.js';
 import { ProductModel } from './models/Product.js';
 import { GoldPriceHistoryModel } from './models/GoldPriceHistory.js';
 import { CurrencyPriceHistoryModel } from './models/CurrencyPriceHistory.js';
+import { FaqModel } from './models/Faq.js';
 import mongoose from 'mongoose';
+
+const seedFaqs = [
+  {
+    order: 0,
+    question: {
+      fa: 'آیا برای تبدیل ارز یا خرید طلا وقت قبلی لازم است؟',
+      en: 'Do I need an appointment to exchange currency or buy gold?',
+    },
+    answer: {
+      fa: 'خیر، نیاز به وقت قبلی نیست. در ساعات کاری مراجعه کنید و تیم ما بلافاصله به شما کمک خواهد کرد. اکثر تراکنش‌ها کمتر از ۵ دقیقه طول می‌کشند.',
+      en: 'No appointment needed. Simply walk in during business hours and our team will assist you right away. Most transactions take under 5 minutes.',
+    },
+  },
+  {
+    order: 1,
+    question: {
+      fa: 'چه ارزهایی را تبدیل می‌کنید؟',
+      en: 'What currencies do you exchange?',
+    },
+    answer: {
+      fa: 'ما تمام ارزهای اصلی جهان از جمله دلار آمریکا، یورو، پوند، درهم امارات، ریال ایران، دلار کانادا و بسیاری دیگر را تبدیل می‌کنیم.',
+      en: 'We exchange all major world currencies including USD, EUR, GBP, AED, IRR, CAD, and many more.',
+    },
+  },
+  {
+    order: 2,
+    question: {
+      fa: 'نرخ‌های شما چگونه تعیین می‌شود؟',
+      en: 'How are your exchange rates set?',
+    },
+    answer: {
+      fa: 'نرخ‌های ما بر اساس شرایط بازار روز به‌روز به‌روزرسانی می‌شوند. نرخی که مشاهده می‌کنید همان نرخی است که دریافت می‌کنید — بدون هیچ هزینه پنهانی.',
+      en: 'Our rates are updated daily based on current market conditions. The rate displayed is the rate you receive — no hidden fees.',
+    },
+  },
+  {
+    order: 3,
+    question: {
+      fa: 'چه عیارهایی از طلا را خرید و فروش می‌کنید؟',
+      en: 'What gold karats do you buy and sell?',
+    },
+    answer: {
+      fa: 'ما طلای ۱۸، ۲۱، ۲۲ و ۲۴ عیار را خرید و فروش می‌کنیم. چه برای خرید جواهرات، چه برای سرمایه‌گذاری یا فروش طلای خود، قیمت‌گذاری شفاف ارائه می‌دهیم.',
+      en: 'We deal in 18K, 21K, 22K, and 24K gold. Whether purchasing jewelry, investment gold, or selling your own gold, we offer fair and transparent pricing.',
+    },
+  },
+  {
+    order: 4,
+    question: {
+      fa: 'آیا جواهرات طلا هم می‌خرید؟',
+      en: 'Do you buy gold jewelry or only sell it?',
+    },
+    answer: {
+      fa: 'بله، هم خرید و هم فروش جواهرات و شمش طلا انجام می‌دهیم. طلای خود را بیاورید و تیم ما آن را ارزیابی کرده و قیمت رقابتی ارائه می‌دهد.',
+      en: 'We both buy and sell gold jewelry and bullion. Bring your pieces in and our team will assess them and offer a competitive price.',
+    },
+  },
+  {
+    order: 5,
+    question: {
+      fa: 'آیا حداقل یا حداکثر مبلغ برای تبدیل ارز وجود دارد؟',
+      en: 'Is there a minimum or maximum amount for currency exchange?',
+    },
+    answer: {
+      fa: 'برای اکثر تراکنش‌ها حداقل مبلغی وجود ندارد. برای مبالغ بزرگ، لطفاً از قبل با ما تماس بگیرید تا ارز مورد نظر را آماده کنیم.',
+      en: 'There is no minimum for most transactions. For large exchanges, please contact us in advance so we can ensure the required currency is available.',
+    },
+  },
+  {
+    order: 6,
+    question: {
+      fa: 'آیا دارای مجوز و تحت نظارت هستید؟',
+      en: 'Are you regulated and licensed?',
+    },
+    answer: {
+      fa: 'بله. ملی اکسچنج به طور کامل در FINTRAC ثبت شده و با تمام مقررات ضد پول‌شویی کانادا مطابقت دارد.',
+      en: 'Yes. Melli Exchange is fully registered with FINTRAC and complies with all Canadian anti-money-laundering regulations.',
+    },
+  },
+  {
+    order: 7,
+    question: {
+      fa: 'آیا باید مدرک شناسایی همراه داشته باشم؟',
+      en: 'Do I need to bring ID?',
+    },
+    answer: {
+      fa: 'برای تراکنش‌های بالاتر از آستانه قانونی، ارائه مدرک شناسایی معتبر دولتی الزامی است.',
+      en: 'For transactions above the regulatory threshold, a valid government-issued photo ID is required by Canadian law.',
+    },
+  },
+  {
+    order: 8,
+    question: {
+      fa: 'آدرس و ساعات کاری شما چیست؟',
+      en: 'Where are you located and what are your hours?',
+    },
+    answer: {
+      fa: 'ما در کوکیتلام، بریتیش کلمبیا واقع شده‌ایم. ساعات کاری: دوشنبه تا جمعه ۹:۳۰ صبح تا ۷ بعد از ظهر و شنبه ۱۰ صبح تا ۶ بعد از ظهر. یکشنبه‌ها تعطیل هستیم.',
+      en: 'We are located in Coquitlam, BC. Hours: Monday–Friday 9:30 AM–7:00 PM, Saturday 10:00 AM–6:00 PM. Closed Sundays.',
+    },
+  },
+];
 
 const seedCurrencies = [
   // ── Major / VanEx top ────────────────────────────────────────────────────────
@@ -405,6 +508,15 @@ async function main() {
     }
   }
   console.log(`[seed] currency history ensured: ${seededCurrencyHistory} records`);
+
+  for (const faq of seedFaqs) {
+    await FaqModel.updateOne(
+      { 'question.fa': faq.question.fa },
+      { $setOnInsert: faq },
+      { upsert: true },
+    );
+  }
+  console.log(`[seed] faqs ensured: ${seedFaqs.length}`);
 
   await mongoose.disconnect();
   console.log('[seed] done');

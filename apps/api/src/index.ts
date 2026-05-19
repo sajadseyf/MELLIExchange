@@ -16,6 +16,7 @@ import competitorRouter from './routes/competitor.js';
 import analysisRouter from './routes/analysis.js';
 import spotRouter from './routes/spot.js';
 import newsRouter from './routes/news.js';
+import faqRouter from './routes/faq.js';
 
 async function main() {
   await connectDb();
@@ -46,6 +47,27 @@ async function main() {
   app.use('/api/analysis', analysisRouter);
   app.use('/api/spot', spotRouter);
   app.use('/api/news', newsRouter);
+  app.use('/api/faq', faqRouter);
+
+  // Compatibility endpoint — matches rs1.smallfactory.dev /api/v1/rates format
+  app.get('/api/v1/rates', async (_req, res) => {
+    const { CurrencyModel } = await import('./models/Currency.js');
+    const currencies = await CurrencyModel.find({ hidden: false }).sort({ order: 1 }).lean();
+    res.json(
+      currencies.map((c: any, i: number) => ({
+        id:            i + 1,
+        iso:           c.code,
+        country:       c.name,
+        buy_price:     String(c.buy),
+        sell_price:    String(c.sell),
+        currency_unit: c.name,
+        updated_at:    c.updatedAt,
+        major:         c.order <= 10,
+        position:      c.order,
+      })),
+    );
+  });
+
   app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
   app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

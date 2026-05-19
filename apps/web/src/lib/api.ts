@@ -1,4 +1,4 @@
-import type { Currency, GoldPrice, Product, Post } from '@melli/types';
+import type { Currency, GoldPrice, Product, Post, FaqItem } from '@melli/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
@@ -112,6 +112,14 @@ export interface NewsItem {
 export async function getMarketNews(): Promise<NewsItem[]> {
   try {
     return await fetchJson<NewsItem[]>('/api/news');
+  } catch {
+    return [];
+  }
+}
+
+export async function getFaqs(): Promise<FaqItem[]> {
+  try {
+    return await fetchJson<FaqItem[]>('/api/faq');
   } catch {
     return [];
   }
