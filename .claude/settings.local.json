@@ -72,7 +72,12 @@
       "Bash(echo \"web server starting, PID $!\")",
       "Bash(git -C /Users/sajadseif/workspace/MELLIExchange ls-files)",
       "Bash(grep -E \"\\\\.env$\")",
-      "Bash(pnpm build *)"
+      "Bash(pnpm build *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(npm list *)",
+      "Bash(vercel --prod)",
+      "Bash(git add *)"
     ]
   }
 }

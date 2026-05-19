@@ -1,0 +1,7 @@
+[build]
+  base = "apps/admin"
+  command = "pnpm install && pnpm build"
+  publish = ".next"
+
+[build.environment]
+  PNPM_VERSION = "9.12.0"
