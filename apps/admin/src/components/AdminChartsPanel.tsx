@@ -38,7 +38,7 @@ function CurrencyChart({ code, days }: { code: string; days: number }) {
         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
         <XAxis dataKey="label" tick={{ fontSize: 11 }} />
         <YAxis tick={{ fontSize: 11 }} domain={['auto', 'auto']} />
-        <Tooltip formatter={(v) => (typeof v === 'number' ? v.toFixed(4) : v)} />
+        <Tooltip formatter={(v: unknown) => (typeof v === 'number' ? v.toFixed(4) : String(v))} />
         <Legend />
         <Line type="monotone" dataKey="buy"  stroke="#16a34a" dot={false} name="Buy"  strokeWidth={1.5} />
         <Line type="monotone" dataKey="sell" stroke="#dc2626" dot={false} name="Sell" strokeWidth={1.5} />
@@ -63,7 +63,7 @@ function GoldChart({ days }: { days: number }) {
         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
         <XAxis dataKey="label" tick={{ fontSize: 11 }} />
         <YAxis tick={{ fontSize: 11 }} domain={['auto', 'auto']} />
-        <Tooltip formatter={(v) => (typeof v === 'number' ? `$${v.toFixed(2)} CAD/g` : v)} />
+        <Tooltip formatter={(v: unknown) => (typeof v === 'number' ? `$${v.toFixed(2)} CAD/g` : String(v))} />
         <Line type="monotone" dataKey="k24" stroke="#d97706" dot={false} name="24K (CAD/g)" strokeWidth={1.5} />
       </LineChart>
     </ResponsiveContainer>
@@ -86,7 +86,7 @@ function SilverChart({ days }: { days: number }) {
         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
         <XAxis dataKey="label" tick={{ fontSize: 11 }} />
         <YAxis tick={{ fontSize: 11 }} domain={['auto', 'auto']} />
-        <Tooltip formatter={(v) => (typeof v === 'number' ? `$${v.toFixed(2)} USD/oz` : v)} />
+        <Tooltip formatter={(v: unknown) => (typeof v === 'number' ? `$${v.toFixed(2)} USD/oz` : String(v))} />
         <Line type="monotone" dataKey="priceUsd" stroke="#6b7280" dot={false} name="Silver USD/oz" strokeWidth={1.5} />
       </LineChart>
     </ResponsiveContainer>
