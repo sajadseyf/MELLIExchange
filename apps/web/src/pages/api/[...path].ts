@@ -5,7 +5,7 @@ import { app } from '@melli/api/app';
 export default function apiProxy(req: NextApiRequest, res: NextApiResponse) {
   return new Promise<void>((resolve) => {
     res.on('finish', resolve);
-    app(req as any, res as any, resolve);
+    app(req as any, res as any, () => resolve());
   });
 }
 
