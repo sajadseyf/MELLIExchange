@@ -27,7 +27,7 @@ export function TabNav() {
               href={href}
               className={[
                 'flex shrink-0 items-center gap-1.5 border-b-2 px-4 py-3 text-sm font-medium transition-colors',
-                path === href || path.startsWith(href + '/')
+                path === href || (path?.startsWith(href + '/') ?? false)
                   ? 'border-gold-500 text-gold-700'
                   : 'border-transparent text-ink-500 hover:border-ink-300 hover:text-ink-700',
               ].join(' ')}

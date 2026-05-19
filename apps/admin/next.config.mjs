@@ -9,7 +9,9 @@ const nextConfig = {
   outputFileTracingRoot: path.join(__dirname, '../../'),
   reactStrictMode: true,
   transpilePackages: ['@melli/ui', '@melli/types', '@melli/api'],
-  serverExternalPackages: ['mongoose', 'sharp', 'bcryptjs', 'nodemailer', 'twilio'],
+  experimental: {
+    serverComponentsExternalPackages: ['mongoose', 'sharp', 'bcryptjs', 'nodemailer', 'twilio'],
+  },
   webpack(config) {
     config.resolve.extensionAlias = {
       '.js': ['.ts', '.tsx', '.js'],
