@@ -1,6 +1,12 @@
 import type { Currency, GoldPrice, Product, Post, FaqItem } from '@melli/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+function getApiBase() {
+  if (typeof window !== 'undefined') return '';
+  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return 'http://localhost:3000';
+}
+const API_URL = getApiBase();
 
 async function fetchJson<T>(path: string): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {

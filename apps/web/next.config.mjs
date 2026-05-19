@@ -12,7 +12,7 @@ const nextConfig = {
   output: 'standalone',
   outputFileTracingRoot: path.join(__dirname, '../../'),
   reactStrictMode: true,
-  transpilePackages: ['@melli/ui', '@melli/types'],
+  transpilePackages: ['@melli/ui', '@melli/types', '@melli/api'],
   images: {
     remotePatterns: [
       { protocol: 'http',  hostname: 'localhost' },
