@@ -29,18 +29,6 @@ const nextConfig = {
       { protocol: 'https', hostname: 'vbceca.s3.us-west-2.amazonaws.com' },
     ],
   },
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${API_ORIGIN}/api/:path*`,
-      },
-      {
-        source: '/uploads/:path*',
-        destination: `${API_ORIGIN}/uploads/:path*`,
-      },
-    ];
-  },
 };
 
 export default withNextIntl(nextConfig);
