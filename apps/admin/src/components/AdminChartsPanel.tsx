@@ -33,6 +33,7 @@ function CurrencyChart({ code, days }: { code: string; days: number }) {
 
   if (!data.length) return <div className="flex h-48 items-center justify-center text-sm text-ink-400">No data</div>;
 
+  
   const chartData = data.map((d) => ({ ...d, label: fmtDate(d.date) }));
   return (
     <ResponsiveContainer width="100%" height={200}>
