@@ -9,6 +9,13 @@ const nextConfig = {
   outputFileTracingRoot: path.join(__dirname, '../../'),
   reactStrictMode: true,
   transpilePackages: ['@melli/ui', '@melli/types', '@melli/api'],
+  webpack(config) {
+    config.resolve.extensionAlias = {
+      '.js': ['.ts', '.tsx', '.js'],
+      '.mjs': ['.mts', '.mjs'],
+    };
+    return config;
+  },
   async rewrites() {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
     return [
