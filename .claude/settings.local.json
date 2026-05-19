@@ -79,7 +79,13 @@
       "Bash(vercel --prod)",
       "Bash(git add *)",
       "Bash(vercel --prod --scope sajad-s-projects1)",
-      "Bash(vercel ls *)"
+      "Bash(vercel ls *)",
+      "Skill(vercel:status)",
+      "Bash(vercel --version)",
+      "Bash(vercel domains *)",
+      "Bash(vercel inspect *)",
+      "Bash(vercel env *)",
+      "Bash(vercel logs *)"
     ]
   }
 }

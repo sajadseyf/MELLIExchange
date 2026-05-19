@@ -19,10 +19,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         setUser(data.user);
         setChecking(false);
       })
-      .catch((err) => {
-        if (err instanceof ApiError && err.status === 401) {
-          router.replace('/login');
-        }
+      .catch(() => {
+        router.replace('/login');
       });
   }, [router]);
 
