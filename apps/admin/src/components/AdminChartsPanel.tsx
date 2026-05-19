@@ -38,7 +38,7 @@ function CurrencyChart({ code, days }: { code: string; days: number }) {
     <ResponsiveContainer width="100%" height={200}>
       <LineChart data={chartData}>
         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-        <XAxis dataKey="label" tick={{ fontSize: 11 }} />
+        <Tooltip formatter={(v: any) => (v !== undefined && v !== null ? Number(v).toFixed(4) : '')} />
         <YAxis tick={{ fontSize: 11 }} domain={['auto', 'auto']} />
         <Tooltip formatter={(v: any) => (v !== undefined && v !== null ? Number(v).toFixed(4) : '')} />
         <Legend />
