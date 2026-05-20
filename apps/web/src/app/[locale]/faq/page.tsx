@@ -1,7 +1,14 @@
+import type { Metadata } from 'next';
 import { Container, PageHeading } from '@melli/ui';
 import { getTranslations } from 'next-intl/server';
 import { getFaqs } from '@/lib/api';
 import type { FaqItem } from '@melli/types';
+
+export const metadata: Metadata = {
+  title: 'Frequently Asked Questions',
+  description: 'Answers to common questions about currency exchange, gold rates, ID requirements, and visiting Melli Exchange in Coquitlam, BC.',
+  alternates: { canonical: '/en/faq' },
+};
 
 export default async function FaqPage({ params }: { params: { locale: string } }) {
   const { locale } = params;

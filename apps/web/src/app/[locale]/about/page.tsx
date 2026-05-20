@@ -1,5 +1,12 @@
+import type { Metadata } from 'next';
 import { Container, PageHeading, Card } from '@melli/ui';
 import { getTranslations } from 'next-intl/server';
+
+export const metadata: Metadata = {
+  title: 'About Us',
+  description: 'Learn about Melli Exchange — a trusted currency exchange and gold jewelry store serving the Coquitlam and Greater Vancouver community.',
+  alternates: { canonical: '/en/about' },
+};
 
 export default async function AboutPage() {
   const t = await getTranslations('about');

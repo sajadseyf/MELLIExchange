@@ -1,4 +1,5 @@
 export const site = {
+  url: 'https://www.melliexchange.ca',
   name: 'Melli Exchange',
   tagline: 'Jewelry & Exchange',
   address: {

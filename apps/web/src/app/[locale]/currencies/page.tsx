@@ -1,8 +1,15 @@
+import type { Metadata } from 'next';
 import { Container, PageHeading, Card } from '@melli/ui';
 import { getTranslations } from 'next-intl/server';
 import { RatesTable } from '@/components/RatesTable';
 import { CurrencyPriceChart } from '@/components/CurrencyPriceChart';
 import { getCurrencies } from '@/lib/api';
+
+export const metadata: Metadata = {
+  title: 'Live Currency Exchange Rates',
+  description: 'Live CAD currency exchange rates — USD, EUR, GBP, AED, IRR and more. Updated daily at Melli Exchange in Coquitlam, BC.',
+  alternates: { canonical: '/en/currencies' },
+};
 
 export default async function CurrenciesPage() {
   const [rows, t] = await Promise.all([getCurrencies(), getTranslations('currencies')]);

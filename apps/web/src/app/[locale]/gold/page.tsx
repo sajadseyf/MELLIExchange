@@ -1,5 +1,12 @@
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { getGoldPrices, getCurrencies, getGoldSpotPrice } from '@/lib/api';
+
+export const metadata: Metadata = {
+  title: 'Gold Prices — 18K, 21K, 22K, 24K',
+  description: 'Today\'s gold prices in CAD at Melli Exchange, Coquitlam BC. Live 18K, 21K, 22K and 24K gold rates updated daily.',
+  alternates: { canonical: '/en/gold' },
+};
 import { LiveGoldSpot } from '@/components/LiveGoldSpot';
 import { KaratCard } from '@/components/KaratCard';
 import { Container, PageHeading } from '@melli/ui';
