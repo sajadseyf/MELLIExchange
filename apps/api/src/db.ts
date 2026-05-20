@@ -9,10 +9,11 @@ export async function connectDb(): Promise<void> {
 
   mongoose.set('strictQuery', true);
   await mongoose.connect(env.mongoUri, {
-    bufferCommands: false,        // fail fast instead of hanging forever
-    maxPoolSize: 5,               // keep pool small for serverless
-    serverSelectionTimeoutMS: 10000,
-    socketTimeoutMS: 45000,
+    bufferCommands: false,
+    maxPoolSize: 5,
+    serverSelectionTimeoutMS: 8000,
+    connectTimeoutMS: 8000,
+    socketTimeoutMS: 30000,
   });
   cached = mongoose.connection.readyState;
   console.log('[db] connected');
