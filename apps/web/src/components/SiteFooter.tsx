@@ -28,10 +28,12 @@ export async function SiteFooter() {
               <MapPinIcon className="mt-0.5 h-4 w-4 flex-none text-gold-400" />
               <span>{site.address.street}<br />{site.address.city}, {site.address.region} {site.address.postal}</span>
             </li>
-            <li className="flex items-center gap-2">
-              <PhoneIcon className="h-4 w-4 flex-none text-gold-400" />
-              <a href={`tel:${site.phone.replace(/\s/g, '')}`} className="hover:text-gold-300">{site.phone}</a>
-            </li>
+            {site.phones.map((p) => (
+              <li key={p} className="flex items-center gap-2">
+                <PhoneIcon className="h-4 w-4 flex-none text-gold-400" />
+                <a href={`tel:${p.replace(/\D/g, '')}`} className="hover:text-gold-300">{p}</a>
+              </li>
+            ))}
             <li className="flex items-center gap-2">
               <EnvelopeIcon className="h-4 w-4 flex-none text-gold-400" />
               <a href={`mailto:${site.email}`} className="hover:text-gold-300">{site.email}</a>

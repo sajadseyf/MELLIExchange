@@ -30,9 +30,11 @@ export default async function ContactPage() {
                 <PhoneIcon className="mt-0.5 h-5 w-5 flex-none text-gold-600 dark:text-gold-400" />
                 <div>
                   <p className="font-medium text-ink-900 dark:text-white">{t('phone')}</p>
-                  <a href={`tel:${site.phone.replace(/\s/g, '')}`} className="text-sm text-ink-600 hover:text-gold-600 dark:text-zinc-400 dark:hover:text-gold-400">
-                    {site.phone}
-                  </a>
+                  {site.phones.map((p) => (
+                    <a key={p} href={`tel:${p.replace(/\D/g, '')}`} className="block text-sm text-ink-600 hover:text-gold-600 dark:text-zinc-400 dark:hover:text-gold-400">
+                      {p}
+                    </a>
+                  ))}
                 </div>
               </li>
               <li className="flex gap-3">
