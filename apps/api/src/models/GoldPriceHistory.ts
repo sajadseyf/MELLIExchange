@@ -1,4 +1,5 @@
-import { Schema, model, models, type InferSchemaType, type Model } from 'mongoose';
+import mongoose, { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+const { models } = mongoose;
 
 const goldPriceHistorySchema = new Schema({
   karat:        { type: Number, required: true, enum: [14, 18, 22, 24] },

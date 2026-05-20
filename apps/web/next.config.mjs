@@ -21,6 +21,11 @@ const nextConfig = {
       '.js': ['.ts', '.tsx', '.js'],
       '.mjs': ['.mts', '.mjs'],
     };
+    config.externals = [
+      ...(Array.isArray(config.externals) ? config.externals : []),
+      'sharp',
+      'aws4',
+    ];
     return config;
   },
   images: {

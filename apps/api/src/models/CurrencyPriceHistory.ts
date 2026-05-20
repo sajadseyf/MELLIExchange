@@ -1,4 +1,5 @@
-import { Schema, model, models, type InferSchemaType, type Model } from 'mongoose';
+import mongoose, { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+const { models } = mongoose;
 
 const currencyPriceHistorySchema = new Schema({
   code:       { type: String, required: true, uppercase: true },

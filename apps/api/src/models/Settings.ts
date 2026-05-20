@@ -1,4 +1,5 @@
-import { Schema, model, models, type Model } from 'mongoose';
+import mongoose, { Schema, model, type Model } from 'mongoose';
+const { models } = mongoose;
 
 export type CurrencySource =
   | 'vanex_scrape'
