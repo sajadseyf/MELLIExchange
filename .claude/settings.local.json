@@ -80,7 +80,11 @@
       "Bash(git add *)",
       "Bash(vercel --prod --scope sajad-s-projects1)",
       "Bash(vercel ls *)",
-      "Bash(grep -v \"^$\")"
+      "Bash(grep -v \"^$\")",
+      "Bash(pkill -9 -f \"tsx\")",
+      "Bash(vercel env *)",
+      "Bash(vercel deploy *)",
+      "Bash(vercel logs *)"
     ]
   }
 }
