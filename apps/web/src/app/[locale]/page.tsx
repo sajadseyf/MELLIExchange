@@ -265,7 +265,7 @@ export default async function HomePage() {
               </div>
               <div className="flex flex-shrink-0 gap-3">
                 <Link href="/contact"><Button>{t('get_directions')}</Button></Link>
-                <a href={`tel:${site.phone.replace(/\s/g, '')}`}><Button variant="secondary">{t('call_us')}</Button></a>
+                <a href={`tel:${site.phones[0].replace(/\D/g, '')}`}><Button variant="secondary">{t('call_us')}</Button></a>
               </div>
             </div>
           </div>

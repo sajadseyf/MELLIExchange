@@ -10,10 +10,12 @@ export async function TopBar() {
     <div className="bg-navy-900 text-white dark:bg-dark-card dark:border-b dark:border-dark-border">
       <Container className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1 py-2 text-xs">
         <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
-          <a href={`tel:${site.phone.replace(/\s/g, '')}`} className="flex items-center gap-1.5 transition-colors hover:text-gold-300">
-            <PhoneIcon className="h-3.5 w-3.5 text-gold-400" />
-            {site.phone}
-          </a>
+          {site.phones.map((p) => (
+            <a key={p} href={`tel:${p.replace(/\D/g, '')}`} className="flex items-center gap-1.5 transition-colors hover:text-gold-300">
+              <PhoneIcon className="h-3.5 w-3.5 text-gold-400" />
+              {p}
+            </a>
+          ))}
           <a href={`mailto:${site.email}`} className="flex items-center gap-1.5 transition-colors hover:text-gold-300">
             <EnvelopeIcon className="h-3.5 w-3.5 text-gold-400" />
             {site.email}
