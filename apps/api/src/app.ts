@@ -17,8 +17,6 @@ import spotRouter from './routes/spot.js';
 import newsRouter from './routes/news.js';
 import faqRouter from './routes/faq.js';
 
-let dbReady = false;
-
 export const app = express();
 
 app.use(express.json());
@@ -26,12 +24,8 @@ app.use(cookieParser());
 app.use(cors({ origin: env.corsOrigins, credentials: true }));
 
 // Lazy DB connect — safe for serverless cold starts
-app.use(async (_req, _res, next) => {
-  if (!dbReady) {
-    await connectDb();
-    dbReady = true;
-  }
-  next();
+app.use((_req, _res, next) => {
+  connectDb().then(() => next()).catch(next);
 });
 
 app.get('/health', (_req, res) => res.json({ ok: true }));

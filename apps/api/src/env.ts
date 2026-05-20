@@ -16,8 +16,8 @@ export const env = {
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean),
-  adminEmail: process.env.ADMIN_EMAIL ?? 'admin@melliexchange.local',
-  adminPassword: process.env.ADMIN_PASSWORD ?? 'changeme',
+  adminEmail: process.env.ADMIN_EMAIL || 'admin@melliexchange.local',
+  adminPassword: process.env.ADMIN_PASSWORD || 'changeme',
   anthropicApiKey: process.env.ANTHROPIC_API_KEY ?? '',
   geminiApiKey: process.env.GEMINI_API_KEY ?? '',
 };
