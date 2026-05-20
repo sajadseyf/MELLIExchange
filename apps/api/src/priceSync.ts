@@ -6,6 +6,7 @@ import { CurrencyPriceHistoryModel } from './models/CurrencyPriceHistory.js';
 import { CurrencyIntradayModel } from './models/CurrencyIntraday.js';
 import { SettingsModel } from './models/Settings.js';
 import { SpotPriceModel } from './models/SpotPrice.js';
+import { CompetitorRateModel } from './models/CompetitorRate.js';
 import { syncCompetitorRates } from './competitorSync.js';
 import { generateMarketAnalysis } from './analysisGenerator.js';
 
@@ -600,6 +601,19 @@ export async function previewRates(): Promise<{
     const r = results[i];
     bySource[c.name] = r?.status === 'fulfilled' ? r.value : null;
   });
+
+  // Add Daniel from last competitor scrape (no real-time scrape needed)
+  const danielDoc = await CompetitorRateModel.findOne({ source: 'daniel' }).sort({ recordedAt: -1 }).lean();
+  if (danielDoc) {
+    const danielMap: CurrencyRates = new Map();
+    for (const entry of (danielDoc as any).rates ?? []) {
+      if (entry.code && entry.buy > 0 && entry.sell > 0) {
+        danielMap.set(entry.code, { buy: entry.buy, sell: entry.sell });
+      }
+    }
+    bySource['daniel_scrape'] = danielMap;
+    candidates.push({ name: 'daniel_scrape', fn: async () => null });
+  }
 
   // Collect all currency codes seen across all sources
   const allCodes = new Set<string>();

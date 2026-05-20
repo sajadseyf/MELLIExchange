@@ -15,6 +15,7 @@ const FREE_SOURCES: { key: string; label: string }[] = [
   { key: 'vanex_scrape',   label: 'VanEx' },
   { key: 'vbce_scrape',    label: 'VBCE' },
   { key: 'arzsina_scrape', label: 'ArzSina' },
+  { key: 'daniel_scrape',  label: 'Daniel' },
   { key: 'bank_of_canada', label: 'BoC' },
   { key: 'frankfurter',    label: 'Frankfurter' },
   { key: 'open_er_api',    label: 'open.er-api' },
@@ -67,8 +68,8 @@ export function CurrenciesPanel() {
 
   useEffect(() => { fetchPreview(); }, [fetchPreview]);
 
-  async function applyRate(code: string, buy: number, sell: number) {
-    await api(`/api/currencies/${code}`, { method: 'PUT', body: JSON.stringify({ buy, sell }) });
+  async function applyField(code: string, field: 'buy' | 'sell', value: number) {
+    await api(`/api/currencies/${code}`, { method: 'PUT', body: JSON.stringify({ [field]: value }) });
     await reload();
   }
 
@@ -289,14 +290,11 @@ export function CurrenciesPanel() {
                             <span className="inline-block h-3 w-12 animate-pulse rounded bg-ink-200" />
                           ) : r ? (
                             <button
-                              onClick={() => applyRate(c.code, r.buy, r.sell)}
+                              onClick={() => applyField(c.code, 'buy', r.buy)}
                               className={`rounded px-2 py-0.5 text-xs font-semibold transition-colors ${
-                                isCurrent
-                                  ? 'underline underline-offset-2 cursor-default'
-                                  : 'cursor-pointer hover:bg-ink-100'
-                              } ${buyIsBest ? 'text-emerald-700' : 'text-red-500'}`}
-                              title={isCurrent ? 'Currently active' : `Apply: buy ${r.buy.toFixed(4)}, sell ${r.sell.toFixed(4)}`}
-                              disabled={!!isCurrent}
+                                buyIsBest ? 'text-emerald-700' : 'text-red-500'
+                              } cursor-pointer hover:bg-ink-100`}
+                              title={`Set buy → ${r.buy.toFixed(4)}`}
                             >
                               {r.buy.toFixed(4)}
                             </button>
@@ -309,13 +307,11 @@ export function CurrenciesPanel() {
                             <span className="inline-block h-3 w-12 animate-pulse rounded bg-ink-200" />
                           ) : r ? (
                             <button
-                              onClick={() => applyRate(c.code, r.buy, r.sell)}
+                              onClick={() => applyField(c.code, 'sell', r.sell)}
                               className={`rounded px-2 py-0.5 text-xs font-semibold transition-colors ${
-                                isCurrent
-                                  ? 'underline underline-offset-2 cursor-default'
-                                  : 'cursor-pointer hover:bg-ink-100'
-                              } ${sellIsBest ? 'text-emerald-700' : 'text-red-500'}`}
-                              disabled={!!isCurrent}
+                                sellIsBest ? 'text-emerald-700' : 'text-red-500'
+                              } cursor-pointer hover:bg-ink-100`}
+                              title={`Set sell → ${r.sell.toFixed(4)}`}
                             >
                               {r.sell.toFixed(4)}
                             </button>
