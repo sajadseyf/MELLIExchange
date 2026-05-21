@@ -252,8 +252,8 @@ export function ProductsPanel() {
               <div className="flex flex-wrap gap-3">
                 {/* Already uploaded images */}
                 {form.images.map((url, idx) => (
-                  <div key={`saved-${idx}`} className="group relative h-20 w-20 overflow-hidden rounded-lg border border-ink-200 dark:border-dark-border">
-                    <img src={url} alt="" className="h-full w-full object-cover" />
+                  <div key={`saved-${idx}`} className="group relative h-28 w-28 overflow-hidden rounded-lg border border-ink-200 bg-ink-50 dark:border-dark-border dark:bg-dark-raised">
+                    <img src={url} alt="" className="h-full w-full object-contain" />
                     <button
                       onClick={() => removeUploadedImage(idx)}
                       className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
@@ -269,8 +269,8 @@ export function ProductsPanel() {
                 ))}
                 {/* Pending (not yet uploaded) — shown with local preview */}
                 {pending.map((p, idx) => (
-                  <div key={`pending-${idx}`} className="group relative h-20 w-20 overflow-hidden rounded-lg border-2 border-dashed border-amber-400">
-                    <img src={p.preview} alt="" className="h-full w-full object-cover opacity-80" />
+                  <div key={`pending-${idx}`} className="group relative h-28 w-28 overflow-hidden rounded-lg border-2 border-dashed border-amber-400 bg-amber-50 dark:bg-dark-raised">
+                    <img src={p.preview} alt="" className="h-full w-full object-contain opacity-90" />
                     <button
                       onClick={() => removePending(idx)}
                       className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
@@ -287,7 +287,7 @@ export function ProductsPanel() {
                 {form.images.length + pending.length < 10 && (
                   <button
                     onClick={() => fileRef.current?.click()}
-                    className="flex h-20 w-20 flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-ink-300 text-ink-400 transition-colors hover:border-gold-400 hover:text-gold-600 dark:border-dark-border dark:text-zinc-500"
+                    className="flex h-28 w-28 flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-ink-300 text-ink-400 transition-colors hover:border-gold-400 hover:text-gold-600 dark:border-dark-border dark:text-zinc-500"
                   >
                     <PhotoIcon className="h-6 w-6" />
                     <span className="text-[10px]">Add</span>
@@ -328,9 +328,11 @@ export function ProductsPanel() {
           {products.map((product) => (
             <div key={product.id} className="flex items-start gap-4 px-6 py-4">
               {product.images?.[0] ? (
-                <img src={product.images[0]} alt={product.name} className="h-14 w-14 flex-shrink-0 rounded-lg object-cover" />
+                <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg border border-ink-100 bg-ink-50 dark:border-dark-border dark:bg-dark-raised">
+                  <img src={product.images[0]} alt={product.name} className="h-full w-full object-contain" />
+                </div>
               ) : (
-                <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-lg bg-gold-50 text-2xl dark:bg-dark-raised">💍</div>
+                <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-gold-50 text-2xl dark:bg-dark-raised">💍</div>
               )}
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
