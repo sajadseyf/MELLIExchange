@@ -6,8 +6,6 @@ import { Button, Card, Input, Badge } from '@melli/ui';
 import type { Product, ProductCategory, ProductKarat } from '@melli/types';
 import { api, ApiError } from '@/lib/api';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
-
 const CATEGORIES: { value: ProductCategory; label: string }[] = [
   { value: 'ring',      label: 'Ring / انگشتر' },
   { value: 'necklace',  label: 'Necklace / گردنبند' },
@@ -33,9 +31,8 @@ const EMPTY_FORM = {
 
 type FormState = typeof EMPTY_FORM;
 
-function imgSrc(url: string) {
-  return url.startsWith('/uploads') ? `${API_URL}${url}` : url;
-}
+// Pending = files selected but not yet uploaded (shown as local previews)
+type PendingFile = { file: File; preview: string };
 
 export function ProductsPanel() {
   const [products, setProducts]       = useState<Product[]>([]);
@@ -43,8 +40,8 @@ export function ProductsPanel() {
   const [editingId, setEditingId]     = useState<string | null>(null);
   const [showAdd, setShowAdd]         = useState(false);
   const [form, setForm]               = useState<FormState>(EMPTY_FORM);
+  const [pending, setPending]         = useState<PendingFile[]>([]);
   const [saving, setSaving]           = useState(false);
-  const [uploading, setUploading]     = useState(false);
   const [deletingId, setDeletingId]   = useState<string | null>(null);
   const fileRef                       = useRef<HTMLInputElement>(null);
 
@@ -57,34 +54,36 @@ export function ProductsPanel() {
     reload().catch((err) => setError(err instanceof ApiError ? err.message : 'Failed to load'));
   }, []);
 
-  async function uploadImages(files: FileList) {
-    setUploading(true);
-    setError(null);
-    try {
-      const formData = new FormData();
-      Array.from(files).forEach((f) => formData.append('images', f));
-      const res = await fetch(`${API_URL}/api/uploads`, {
-        method: 'POST',
-        credentials: 'include',
-        body: formData,
-      });
-      if (!res.ok) throw new Error('Upload failed');
-      const { urls } = (await res.json()) as { urls: string[] };
-      setForm((prev) => ({ ...prev, images: [...prev.images, ...urls] }));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Upload failed');
-    } finally {
-      setUploading(false);
-    }
+  function handleFileSelect(files: FileList) {
+    const newPending: PendingFile[] = Array.from(files).map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+    }));
+    setPending((prev) => [...prev, ...newPending]);
+    // reset input so same file can be re-selected if needed
+    if (fileRef.current) fileRef.current.value = '';
   }
 
-  function removeImage(idx: number) {
+  function removeUploadedImage(idx: number) {
     setForm((prev) => ({ ...prev, images: prev.images.filter((_, i) => i !== idx) }));
+  }
+
+  function removePending(idx: number) {
+    setPending((prev) => {
+      URL.revokeObjectURL(prev[idx]!.preview);
+      return prev.filter((_, i) => i !== idx);
+    });
+  }
+
+  function clearPending() {
+    pending.forEach((p) => URL.revokeObjectURL(p.preview));
+    setPending([]);
   }
 
   function startEdit(product: Product) {
     setEditingId(product.id);
     setShowAdd(false);
+    clearPending();
     setForm({
       name: product.name,
       description: product.description,
@@ -101,6 +100,7 @@ export function ProductsPanel() {
   function startAdd() {
     setShowAdd(true);
     setEditingId(null);
+    clearPending();
     setForm(EMPTY_FORM);
     setError(null);
   }
@@ -108,6 +108,7 @@ export function ProductsPanel() {
   function cancel() {
     setEditingId(null);
     setShowAdd(false);
+    clearPending();
     setForm(EMPTY_FORM);
     setError(null);
   }
@@ -116,6 +117,21 @@ export function ProductsPanel() {
     setError(null);
     setSaving(true);
     try {
+      // Upload pending files first, only on Save
+      let uploadedUrls: string[] = [];
+      if (pending.length > 0) {
+        const formData = new FormData();
+        pending.forEach((p) => formData.append('images', p.file));
+        const res = await fetch('/api/uploads', {
+          method: 'POST',
+          credentials: 'include',
+          body: formData,
+        });
+        if (!res.ok) throw new Error('Image upload failed');
+        const data = (await res.json()) as { urls: string[] };
+        uploadedUrls = data.urls;
+      }
+
       const body = {
         name: form.name,
         description: form.description,
@@ -123,7 +139,7 @@ export function ProductsPanel() {
         karat: Number(form.karat),
         weightGrams: Number(form.weightGrams),
         price: Number(form.price),
-        images: form.images,
+        images: [...form.images, ...uploadedUrls],
         inStock: form.inStock,
         order: Number(form.order),
       };
@@ -228,33 +244,53 @@ export function ProductsPanel() {
             {/* Image upload */}
             <div className="sm:col-span-2">
               <label className="mb-2 block text-xs font-medium text-ink-600 dark:text-zinc-400">
-                Images ({form.images.length} / 10)
+                Images ({form.images.length + pending.length} / 10)
+                {pending.length > 0 && (
+                  <span className="ml-2 text-amber-600">· {pending.length} pending upload on Save</span>
+                )}
               </label>
               <div className="flex flex-wrap gap-3">
+                {/* Already uploaded images */}
                 {form.images.map((url, idx) => (
-                  <div key={idx} className="group relative h-20 w-20 overflow-hidden rounded-lg border border-ink-200 dark:border-dark-border">
-                    <img src={imgSrc(url)} alt="" className="h-full w-full object-cover" />
+                  <div key={`saved-${idx}`} className="group relative h-20 w-20 overflow-hidden rounded-lg border border-ink-200 dark:border-dark-border">
+                    <img src={url} alt="" className="h-full w-full object-cover" />
                     <button
-                      onClick={() => removeImage(idx)}
+                      onClick={() => removeUploadedImage(idx)}
                       className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
                     >
                       <XMarkIcon className="h-5 w-5 text-white" />
                     </button>
-                    {idx === 0 && (
+                    {idx === 0 && pending.length === 0 && (
                       <span className="absolute bottom-0 left-0 right-0 bg-gold-600/80 py-0.5 text-center text-[9px] font-medium uppercase text-white">
                         Cover
                       </span>
                     )}
                   </div>
                 ))}
-                {form.images.length < 10 && (
+                {/* Pending (not yet uploaded) — shown with local preview */}
+                {pending.map((p, idx) => (
+                  <div key={`pending-${idx}`} className="group relative h-20 w-20 overflow-hidden rounded-lg border-2 border-dashed border-amber-400">
+                    <img src={p.preview} alt="" className="h-full w-full object-cover opacity-80" />
+                    <button
+                      onClick={() => removePending(idx)}
+                      className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
+                    >
+                      <XMarkIcon className="h-5 w-5 text-white" />
+                    </button>
+                    {form.images.length === 0 && idx === 0 && (
+                      <span className="absolute bottom-0 left-0 right-0 bg-gold-600/80 py-0.5 text-center text-[9px] font-medium uppercase text-white">
+                        Cover
+                      </span>
+                    )}
+                  </div>
+                ))}
+                {form.images.length + pending.length < 10 && (
                   <button
                     onClick={() => fileRef.current?.click()}
-                    disabled={uploading}
-                    className="flex h-20 w-20 flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-ink-300 text-ink-400 transition-colors hover:border-gold-400 hover:text-gold-600 disabled:opacity-50 dark:border-dark-border dark:text-zinc-500"
+                    className="flex h-20 w-20 flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-ink-300 text-ink-400 transition-colors hover:border-gold-400 hover:text-gold-600 dark:border-dark-border dark:text-zinc-500"
                   >
                     <PhotoIcon className="h-6 w-6" />
-                    <span className="text-[10px]">{uploading ? 'Uploading…' : 'Add'}</span>
+                    <span className="text-[10px]">Add</span>
                   </button>
                 )}
               </div>
@@ -264,9 +300,9 @@ export function ProductsPanel() {
                 accept="image/*"
                 multiple
                 className="hidden"
-                onChange={(e) => e.target.files && uploadImages(e.target.files)}
+                onChange={(e) => e.target.files && handleFileSelect(e.target.files)}
               />
-              <p className="mt-1 text-xs text-ink-400 dark:text-zinc-500">First image is used as cover. Max 8 MB per file.</p>
+              <p className="mt-1 text-xs text-ink-400 dark:text-zinc-500">First image is cover. Max 8 MB per file. Images upload when you click Save.</p>
             </div>
           </div>
 
@@ -292,7 +328,7 @@ export function ProductsPanel() {
           {products.map((product) => (
             <div key={product.id} className="flex items-start gap-4 px-6 py-4">
               {product.images?.[0] ? (
-                <img src={imgSrc(product.images[0])} alt={product.name} className="h-14 w-14 flex-shrink-0 rounded-lg object-cover" />
+                <img src={product.images[0]} alt={product.name} className="h-14 w-14 flex-shrink-0 rounded-lg object-cover" />
               ) : (
                 <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-lg bg-gold-50 text-2xl dark:bg-dark-raised">💍</div>
               )}
