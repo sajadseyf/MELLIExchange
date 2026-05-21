@@ -47,4 +47,33 @@ router.get('/me', requireAuth, async (req, res) => {
   res.json({ user: { id: String(admin._id), email: admin.email } });
 });
 
+const profileSchema = z.object({
+  currentPassword: z.string().min(1),
+  newEmail:        z.string().email().optional(),
+  newPassword:     z.string().min(8).optional(),
+});
+
+router.put('/profile', requireAuth, async (req, res) => {
+  const parsed = profileSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0]?.message ?? 'Invalid input' });
+    return;
+  }
+  const { currentPassword, newEmail, newPassword } = parsed.data;
+  const admin = await AdminModel.findById(req.auth!.sub);
+  if (!admin) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
+  const ok = await bcrypt.compare(currentPassword, admin.passwordHash);
+  if (!ok) {
+    res.status(401).json({ error: 'Current password is incorrect' });
+    return;
+  }
+  if (newEmail)    admin.email        = newEmail.toLowerCase();
+  if (newPassword) admin.passwordHash = await bcrypt.hash(newPassword, 12);
+  await admin.save();
+  res.json({ user: { id: String(admin._id), email: admin.email } });
+});
+
 export default router;

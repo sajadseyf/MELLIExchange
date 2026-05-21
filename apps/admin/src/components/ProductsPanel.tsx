@@ -307,7 +307,7 @@ export function ProductsPanel() {
           </div>
 
           <div className="mt-4 flex gap-2">
-            <Button onClick={save} disabled={saving || uploading}>
+            <Button onClick={save} disabled={saving}>
               <CheckIcon className="h-4 w-4" />
               {saving ? 'Saving…' : 'Save'}
             </Button>
