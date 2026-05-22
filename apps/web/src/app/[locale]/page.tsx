@@ -6,6 +6,7 @@ import {
   BuildingStorefrontIcon,
 } from '@heroicons/react/24/outline';
 import { getTranslations } from 'next-intl/server';
+import Image from 'next/image';
 import { Button, Container } from '@melli/ui';
 import { getCurrencies, getGoldPrices, getGoldSpotPrice } from '@/lib/api';
 import { RatesTable } from '@/components/RatesTable';
@@ -55,62 +56,98 @@ export default async function HomePage() {
           <div className="grid gap-4 lg:grid-cols-3">
 
             {/* Hero card */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-navy-900 via-navy-800 to-navy-700 p-8 lg:col-span-2 lg:p-12">
-              {/* Decorative glow */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-navy-900 via-navy-800 to-navy-700 lg:col-span-2">
+
+              {/* Mobile: full-bleed background image with dark overlay */}
+              <div className="absolute inset-0 lg:hidden">
+                <Image
+                  src="https://images.unsplash.com/photo-1610375461246-83df859d849d"
+                  alt=""
+                  fill
+                  className="object-cover object-center"
+                  sizes="100vw"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-navy-900/80" />
+              </div>
+
+              {/* Decorative glows */}
               <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-gold-500/10 blur-3xl" />
               <div className="pointer-events-none absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-gold-400/5 blur-2xl" />
 
-              <div className="relative flex h-full flex-col justify-between gap-10">
-                <div>
-                  {/* Eyebrow */}
-                  <div className="flex items-center gap-2">
-                    <span className="inline-flex h-1.5 w-1.5 rounded-full bg-gold-400" />
-                    <span className="text-xs font-medium uppercase tracking-[0.2em] text-gold-400/80">
-                      {t('hero_eyebrow')}
-                    </span>
+              {/* Desktop: side-by-side; mobile: stacked */}
+              <div className="relative flex h-full flex-col lg:flex-row">
+
+                {/* Left: text content */}
+                <div className="flex flex-col justify-between gap-10 p-8 lg:w-[58%] lg:p-12">
+                  <div>
+                    {/* Eyebrow */}
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex h-1.5 w-1.5 rounded-full bg-gold-400" />
+                      <span className="text-xs font-medium uppercase tracking-[0.2em] text-gold-400/80">
+                        {t('hero_eyebrow')}
+                      </span>
+                    </div>
+
+                    {/* Headline */}
+                    <h1 className="mt-5 text-3xl font-bold leading-[1.15] text-white sm:text-4xl lg:text-5xl">
+                      {t('hero_title')}
+                    </h1>
+
+                    {/* Description */}
+                    <p className="mt-5 max-w-md text-base leading-relaxed text-navy-200/80">
+                      {t('hero_desc')}
+                    </p>
+
+                    {/* CTAs */}
+                    <div className="mt-8 flex flex-wrap items-center gap-3">
+                      <Link href="/currencies">
+                        <button className="inline-flex items-center gap-2 rounded-xl bg-gold-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-gold-900/30 transition-all hover:bg-gold-400 hover:shadow-gold-800/40 active:scale-95">
+                          {t('see_rates')}
+                          <ArrowRightIcon className="h-4 w-4" />
+                        </button>
+                      </Link>
+                      <Link href="/contact">
+                        <button className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-5 py-3 text-sm font-medium text-white/80 transition-all hover:border-white/30 hover:bg-white/5 hover:text-white active:scale-95">
+                          {t('visit_us')}
+                        </button>
+                      </Link>
+                    </div>
                   </div>
 
-                  {/* Headline */}
-                  <h1 className="mt-5 text-3xl font-bold leading-[1.15] text-white sm:text-4xl lg:text-5xl">
-                    {t('hero_title')}
-                  </h1>
-
-                  {/* Description */}
-                  <p className="mt-5 max-w-md text-base leading-relaxed text-navy-200/80">
-                    {t('hero_desc')}
-                  </p>
-
-                  {/* CTAs */}
-                  <div className="mt-8 flex flex-wrap items-center gap-3">
-                    <Link href="/currencies">
-                      <button className="inline-flex items-center gap-2 rounded-xl bg-gold-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-gold-900/30 transition-all hover:bg-gold-400 hover:shadow-gold-800/40 active:scale-95">
-                        {t('see_rates')}
-                        <ArrowRightIcon className="h-4 w-4" />
-                      </button>
-                    </Link>
-                    <Link href="/contact">
-                      <button className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-5 py-3 text-sm font-medium text-white/80 transition-all hover:border-white/30 hover:bg-white/5 hover:text-white active:scale-95">
-                        {t('visit_us')}
-                      </button>
-                    </Link>
+                  {/* Bottom trust strip */}
+                  <div className="flex flex-wrap items-center gap-4 border-t border-white/10 pt-5">
+                    <div className="flex items-center gap-1.5 text-xs text-white/50">
+                      <ShieldCheckIcon className="h-4 w-4 text-gold-400" />
+                      <span>FINTRAC Licensed</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-white/50">
+                      <CurrencyDollarIcon className="h-4 w-4 text-gold-400" />
+                      <span>{t('hero_badge')}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-white/50">
+                      <ClockIcon className="h-4 w-4 text-gold-400" />
+                      <span>Open 6 days / week</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Bottom trust strip */}
-                <div className="flex flex-wrap items-center gap-4 border-t border-white/10 pt-5">
-                  <div className="flex items-center gap-1.5 text-xs text-white/50">
-                    <ShieldCheckIcon className="h-4 w-4 text-gold-400" />
-                    <span>FINTRAC Licensed</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-xs text-white/50">
-                    <CurrencyDollarIcon className="h-4 w-4 text-gold-400" />
-                    <span>{t('hero_badge')}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-xs text-white/50">
-                    <ClockIcon className="h-4 w-4 text-gold-400" />
-                    <span>Open 6 days / week</span>
-                  </div>
+                {/* Right: image panel (desktop only) */}
+                <div className="relative hidden flex-1 lg:block">
+                  <Image
+                    src="https://images.unsplash.com/photo-1610375461246-83df859d849d"
+                    alt="Gold bars — premium currency exchange"
+                    fill
+                    className="object-cover object-center"
+                    sizes="(min-width: 1024px) 35vw, 0px"
+                    priority
+                  />
+                  {/* Blend left edge into navy card */}
+                  <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-navy-800/95 to-transparent" />
+                  {/* Warm gold tint */}
+                  <div className="absolute inset-0 bg-gold-900/15 mix-blend-multiply" />
                 </div>
+
               </div>
             </div>
 

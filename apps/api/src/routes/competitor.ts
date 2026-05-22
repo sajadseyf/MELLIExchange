@@ -9,11 +9,12 @@ const router = Router();
 
 // Latest rates from all sources + own rates for comparison
 router.get('/latest', requireAuth, async (_req, res) => {
-  const [vanex, arzsina, vbce, daniel, own] = await Promise.all([
-    CompetitorRateModel.findOne({ source: 'vanex'   }).sort({ recordedAt: -1 }).lean(),
-    CompetitorRateModel.findOne({ source: 'arzsina' }).sort({ recordedAt: -1 }).lean(),
-    CompetitorRateModel.findOne({ source: 'vbce'    }).sort({ recordedAt: -1 }).lean(),
-    CompetitorRateModel.findOne({ source: 'daniel'  }).sort({ recordedAt: -1 }).lean(),
+  const [vanex, arzsina, vbce, daniel, moneyway, own] = await Promise.all([
+    CompetitorRateModel.findOne({ source: 'vanex'    }).sort({ recordedAt: -1 }).lean(),
+    CompetitorRateModel.findOne({ source: 'arzsina'  }).sort({ recordedAt: -1 }).lean(),
+    CompetitorRateModel.findOne({ source: 'vbce'     }).sort({ recordedAt: -1 }).lean(),
+    CompetitorRateModel.findOne({ source: 'daniel'   }).sort({ recordedAt: -1 }).lean(),
+    CompetitorRateModel.findOne({ source: 'moneyway' }).sort({ recordedAt: -1 }).lean(),
     CurrencyModel.find().lean(),
   ]);
 
@@ -27,11 +28,12 @@ router.get('/latest', requireAuth, async (_req, res) => {
   for (const c of own) ownMap[c.code] = { buy: c.buy, sell: c.sell };
 
   res.json({
-    own:     { rates: ownMap, recordedAt: own[0] ? (own[0] as any).updatedAt : null },
-    vanex:   toMap(vanex),
-    arzsina: toMap(arzsina),
-    vbce:    toMap(vbce),
-    daniel:  toMap(daniel),
+    own:      { rates: ownMap, recordedAt: own[0] ? (own[0] as any).updatedAt : null },
+    vanex:    toMap(vanex),
+    arzsina:  toMap(arzsina),
+    vbce:     toMap(vbce),
+    daniel:   toMap(daniel),
+    moneyway: toMap(moneyway),
   });
 });
 

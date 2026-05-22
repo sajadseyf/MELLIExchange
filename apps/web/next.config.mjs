@@ -25,6 +25,7 @@ const nextConfig = {
     remotePatterns: [
       { protocol: 'http',  hostname: 'localhost' },
       { protocol: 'https', hostname: 'vbceca.s3.us-west-2.amazonaws.com' },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
     ],
   },
 };

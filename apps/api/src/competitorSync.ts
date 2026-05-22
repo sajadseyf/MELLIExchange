@@ -119,6 +119,37 @@ async function scrapeDaniel(): Promise<RateMap> {
   return map;
 }
 
+// ── MoneyWay cheerio scrape ──────────────────────────────────────────────────
+
+async function scrapeMoneyWay(): Promise<RateMap> {
+  const res = await fetch('https://www.moneyway.com/rates/currencies', {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.1 Safari/605.1.15',
+      'Accept': 'text/html,application/xhtml+xml',
+      'Accept-Language': 'en-US,en;q=0.9',
+    },
+  });
+  if (!res.ok) throw new Error(`MoneyWay HTML ${res.status}`);
+  const $ = cheerio.load(await res.text());
+
+  const map: RateMap = {};
+
+  // Table columns: Code | Name | Buy | Sell
+  $('table tr').each((_i, row) => {
+    const cells = $(row).find('td');
+    if (cells.length < 4) return;
+
+    const code = $(cells[0]).text().trim().toUpperCase();
+    if (!/^[A-Z]{2,4}$/.test(code) || code === 'CAD') return;
+
+    const buy  = parseFloat($(cells[2]).text().replace(/,/g, '').trim());
+    const sell = parseFloat($(cells[3]).text().replace(/,/g, '').trim());
+    if (buy > 0 && sell > 0 && isFinite(buy) && isFinite(sell)) map[code] = { buy, sell };
+  });
+
+  return map;
+}
+
 // ── VBCE API ─────────────────────────────────────────────────────────────────
 
 async function scrapeVBCE(): Promise<RateMap> {
@@ -297,11 +328,12 @@ export async function syncCompetitorRates() {
   console.log('[competitorSync] starting…');
   const now = new Date();
 
-  const sources: Array<{ name: 'vanex' | 'arzsina' | 'vbce' | 'daniel'; fn: () => Promise<RateMap> }> = [
-    { name: 'vanex',   fn: scrapeVanex },
-    { name: 'arzsina', fn: scrapeArzSina },
-    { name: 'vbce',    fn: scrapeVBCE },
-    { name: 'daniel',  fn: scrapeDaniel },
+  const sources: Array<{ name: 'vanex' | 'arzsina' | 'vbce' | 'daniel' | 'moneyway'; fn: () => Promise<RateMap> }> = [
+    { name: 'vanex',    fn: scrapeVanex },
+    { name: 'arzsina',  fn: scrapeArzSina },
+    { name: 'vbce',     fn: scrapeVBCE },
+    { name: 'daniel',   fn: scrapeDaniel },
+    { name: 'moneyway', fn: scrapeMoneyWay },
   ];
 
   for (const { name, fn } of sources) {

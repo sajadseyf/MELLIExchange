@@ -8,7 +8,7 @@ const rateEntrySchema = new Schema(
 
 const schema = new Schema(
   {
-    source:     { type: String, required: true, enum: ['vanex', 'arzsina', 'vbce', 'daniel'] },
+    source:     { type: String, required: true, enum: ['vanex', 'arzsina', 'vbce', 'daniel', 'moneyway'] },
     recordedAt: { type: Date, required: true },
     rates:      { type: [rateEntrySchema], default: [] },
   },

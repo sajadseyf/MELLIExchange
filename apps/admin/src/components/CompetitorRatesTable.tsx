@@ -7,15 +7,16 @@ import { api, ApiError } from '@/lib/api';
 interface RateMap { [code: string]: { buy: number; sell: number } }
 interface SourceData { rates: RateMap; recordedAt: string | null }
 interface CompetitorData {
-  own:     SourceData;
-  vanex:   SourceData;
-  arzsina: SourceData;
-  vbce:    SourceData;
-  daniel:  SourceData;
+  own:      SourceData;
+  vanex:    SourceData;
+  arzsina:  SourceData;
+  vbce:     SourceData;
+  daniel:   SourceData;
+  moneyway: SourceData;
 }
 
-const SOURCES = ['own', 'vanex', 'arzsina', 'vbce', 'daniel'] as const;
-const SOURCE_LABELS: Record<string, string> = { own: 'My Rate', vanex: 'Vanex', arzsina: 'ArzSina', vbce: 'VBCE', daniel: 'Daniel' };
+const SOURCES = ['own', 'vanex', 'arzsina', 'vbce', 'daniel', 'moneyway'] as const;
+const SOURCE_LABELS: Record<string, string> = { own: 'My Rate', vanex: 'Vanex', arzsina: 'ArzSina', vbce: 'VBCE', daniel: 'Daniel', moneyway: 'MoneyWay' };
 
 // Most-used currencies in Canada, in order
 const PRIORITY = ['USD', 'EUR', 'GBP', 'AUD', 'CHF', 'JPY', 'AED', 'HKD', 'CNY', 'INR', 'MXN', 'TRY', 'SEK', 'KRW', 'PHP'];
@@ -120,6 +121,7 @@ export function CompetitorRatesTable() {
       ...Object.keys(data.arzsina.rates),
       ...Object.keys(data.vbce.rates),
       ...Object.keys(data.daniel.rates),
+      ...Object.keys(data.moneyway.rates),
     ]);
     return [...codes];
   }, [data]);
@@ -130,14 +132,15 @@ export function CompetitorRatesTable() {
     if (filter) codes = codes.filter((c) => c.includes(filter.toUpperCase()));
 
     return codes.map((code) => {
-      const own     = data.own.rates[code];
-      const vanex   = data.vanex.rates[code];
-      const arzsina = data.arzsina.rates[code];
-      const vbce    = data.vbce.rates[code];
-      const daniel  = data.daniel.rates[code];
+      const own      = data.own.rates[code];
+      const vanex    = data.vanex.rates[code];
+      const arzsina  = data.arzsina.rates[code];
+      const vbce     = data.vbce.rates[code];
+      const daniel   = data.daniel.rates[code];
+      const moneyway = data.moneyway.rates[code];
 
-      const buyValues  = [own?.buy,  vanex?.buy,  arzsina?.buy,  vbce?.buy,  daniel?.buy ].filter((v): v is number => !!v && v > 0);
-      const sellValues = [own?.sell, vanex?.sell, arzsina?.sell, vbce?.sell, daniel?.sell].filter((v): v is number => !!v && v > 0);
+      const buyValues  = [own?.buy,  vanex?.buy,  arzsina?.buy,  vbce?.buy,  daniel?.buy,  moneyway?.buy ].filter((v): v is number => !!v && v > 0);
+      const sellValues = [own?.sell, vanex?.sell, arzsina?.sell, vbce?.sell, daniel?.sell, moneyway?.sell].filter((v): v is number => !!v && v > 0);
 
       const maxBuy  = buyValues.length  ? Math.max(...buyValues)  : 0;
       const minSell = sellValues.length ? Math.min(...sellValues) : 0;
@@ -149,12 +152,12 @@ export function CompetitorRatesTable() {
       const ownBuyIsBest  = !!own?.buy  && own.buy  > 0 && Math.abs(own.buy  - maxBuy)  < EPS;
       const ownSellIsBest = !!own?.sell && own.sell > 0 && Math.abs(own.sell - minSell) < EPS;
 
-      const competitorBuys  = [vanex?.buy,  arzsina?.buy,  vbce?.buy,  daniel?.buy ].filter((v): v is number => !!v);
-      const competitorSells = [vanex?.sell, arzsina?.sell, vbce?.sell, daniel?.sell].filter((v): v is number => !!v);
+      const competitorBuys  = [vanex?.buy,  arzsina?.buy,  vbce?.buy,  daniel?.buy,  moneyway?.buy ].filter((v): v is number => !!v);
+      const competitorSells = [vanex?.sell, arzsina?.sell, vbce?.sell, daniel?.sell, moneyway?.sell].filter((v): v is number => !!v);
       const targetBuy  = competitorBuys.length  ? Math.max(...competitorBuys)  : null;
       const targetSell = competitorSells.length ? Math.min(...competitorSells) : null;
 
-      return { code, own, vanex, arzsina, vbce, daniel, buyClass, sellClass, ownBuyIsBest, ownSellIsBest, targetBuy, targetSell };
+      return { code, own, vanex, arzsina, vbce, daniel, moneyway, buyClass, sellClass, ownBuyIsBest, ownSellIsBest, targetBuy, targetSell };
     }).sort((a, b) => {
       let va: number | string = 0;
       let vb: number | string = 0;
@@ -166,7 +169,7 @@ export function CompetitorRatesTable() {
         return sortAsc ? (va as number) - (vb as number) : (vb as number) - (va as number);
       }
 
-      const [src, side] = sortKey.split('_') as ['own' | 'vanex' | 'arzsina' | 'vbce' | 'daniel', 'buy' | 'sell'];
+      const [src, side] = sortKey.split('_') as ['own' | 'vanex' | 'arzsina' | 'vbce' | 'daniel' | 'moneyway', 'buy' | 'sell'];
       va = a[src]?.[side] ?? 0;
       vb = b[src]?.[side] ?? 0;
       return sortAsc ? (va < vb ? -1 : va > vb ? 1 : 0) : (va > vb ? -1 : va < vb ? 1 : 0);
@@ -237,7 +240,7 @@ export function CompetitorRatesTable() {
               </tr>
             </thead>
             <tbody className="divide-y divide-ink-50">
-              {rows.map(({ code, own, vanex, arzsina, vbce, daniel, buyClass, sellClass, ownBuyIsBest, ownSellIsBest, targetBuy, targetSell }) => {
+              {rows.map(({ code, own, vanex, arzsina, vbce, daniel, moneyway, buyClass, sellClass, ownBuyIsBest, ownSellIsBest, targetBuy, targetSell }) => {
                 const info = CURRENCY_INFO[code];
                 return (
                   <tr key={code} className="hover:bg-gold-50/30">
@@ -297,6 +300,9 @@ export function CompetitorRatesTable() {
                     {/* Daniel */}
                     <td className={`border-l border-ink-50 px-3 py-2 text-right font-mono ${buyClass(daniel?.buy)}`}>{fmt(daniel?.buy)}</td>
                     <td className={`px-3 py-2 text-right font-mono ${sellClass(daniel?.sell)}`}>{fmt(daniel?.sell)}</td>
+                    {/* MoneyWay */}
+                    <td className={`border-l border-ink-50 px-3 py-2 text-right font-mono ${buyClass(moneyway?.buy)}`}>{fmt(moneyway?.buy)}</td>
+                    <td className={`px-3 py-2 text-right font-mono ${sellClass(moneyway?.sell)}`}>{fmt(moneyway?.sell)}</td>
                     {/* Target */}
                     <td className="border-l border-ink-50 px-3 py-2 text-right font-mono text-amber-600">{fmt(targetBuy ?? undefined)}</td>
                     <td className="px-3 py-2 text-right font-mono text-amber-600">{fmt(targetSell ?? undefined)}</td>
@@ -304,7 +310,7 @@ export function CompetitorRatesTable() {
                 );
               })}
               {rows.length === 0 && (
-                <tr><td colSpan={13} className="py-10 text-center text-sm text-ink-400">No data yet. Click Refresh to scrape rates.</td></tr>
+                <tr><td colSpan={15} className="py-10 text-center text-sm text-ink-400">No data yet. Click Refresh to scrape rates.</td></tr>
               )}
             </tbody>
           </table>
