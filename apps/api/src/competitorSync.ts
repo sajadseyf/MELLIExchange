@@ -130,22 +130,22 @@ async function scrapeMoneyWay(): Promise<RateMap> {
     },
   });
   if (!res.ok) throw new Error(`MoneyWay HTML ${res.status}`);
-  const $ = cheerio.load(await res.text());
+  const html = await res.text();
 
+  // Rates are server-side injected as: const cashCurrencyRates = [{code, buy, sell, ...}, ...]
+  const match = html.match(/const cashCurrencyRates\s*=\s*(\[[\s\S]*?\]);/);
+  if (!match?.[1]) throw new Error('MoneyWay: cashCurrencyRates not found');
+
+  const raw: Array<{ code: string; buy: number | string; sell: number | string }> = JSON.parse(match[1]);
   const map: RateMap = {};
 
-  // Table columns: Code | Name | Buy | Sell
-  $('table tr').each((_i, row) => {
-    const cells = $(row).find('td');
-    if (cells.length < 4) return;
-
-    const code = $(cells[0]).text().trim().toUpperCase();
-    if (!/^[A-Z]{2,4}$/.test(code) || code === 'CAD') return;
-
-    const buy  = parseFloat($(cells[2]).text().replace(/,/g, '').trim());
-    const sell = parseFloat($(cells[3]).text().replace(/,/g, '').trim());
+  for (const r of raw) {
+    const code = r.code?.trim().toUpperCase();
+    if (!code || !/^[A-Z]{2,4}$/.test(code) || code === 'CAD') continue;
+    const buy  = parseFloat(String(r.buy));
+    const sell = parseFloat(String(r.sell));
     if (buy > 0 && sell > 0 && isFinite(buy) && isFinite(sell)) map[code] = { buy, sell };
-  });
+  }
 
   return map;
 }
