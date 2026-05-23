@@ -6,6 +6,7 @@ import { useRouter, usePathname } from '@/i18n/navigation';
 const LOCALES = [
   { code: 'en', label: 'EN' },
   { code: 'fa', label: 'فا' },
+  { code: 'ar', label: 'عر' },
   { code: 'zh', label: '中' },
 ] as const;
 

@@ -44,6 +44,7 @@ export const metadata: Metadata = {
     languages: {
       'en': `${site.url}/en`,
       'fa': `${site.url}/fa`,
+      'ar': `${site.url}/ar`,
       'zh': `${site.url}/zh`,
     },
   },
@@ -68,7 +69,7 @@ export default async function LocaleLayout({
   }
 
   const messages = await getMessages();
-  const isRtl = locale === 'fa';
+  const isRtl = locale === 'fa' || locale === 'ar';
 
   return (
     <html lang={locale} dir={isRtl ? 'rtl' : 'ltr'} suppressHydrationWarning>
