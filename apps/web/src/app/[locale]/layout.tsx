@@ -98,6 +98,8 @@ export default async function LocaleLayout({
               url: site.url,
               telephone: site.phones,
               email: site.email,
+              datePublished: '2014-01-01',
+              dateModified: new Date().toISOString().split('T')[0],
               address: {
                 '@type': 'PostalAddress',
                 streetAddress: site.address.street,

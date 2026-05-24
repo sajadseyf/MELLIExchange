@@ -16,6 +16,48 @@ import { LiveGoldSpot } from '@/components/LiveGoldSpot';
 import { Link } from '@/i18n/navigation';
 import { site } from '@/lib/site';
 
+const orgSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: site.name,
+  url: site.url,
+  logo: `${site.url}/logo.png`,
+  description: 'Melli Exchange is a FINTRAC-registered currency exchange and gold jewelry dealer serving Coquitlam and Greater Vancouver, BC, Canada.',
+  foundingDate: '2014',
+  datePublished: '2014-01-01',
+  dateModified: new Date().toISOString().split('T')[0],
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: site.address.street,
+    addressLocality: site.address.city,
+    addressRegion: site.address.region,
+    postalCode: site.address.postal,
+    addressCountry: 'CA',
+  },
+  contactPoint: {
+    '@type': 'ContactPoint',
+    telephone: site.phones[0],
+    contactType: 'customer service',
+    availableLanguage: ['English', 'Persian', 'Arabic', 'Chinese'],
+  },
+  sameAs: [site.url],
+};
+
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: site.name,
+  url: site.url,
+  description: 'Live currency exchange rates and gold prices at Melli Exchange, Coquitlam BC.',
+  datePublished: '2014-01-01',
+  dateModified: new Date().toISOString().split('T')[0],
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: `${site.url}/en/currencies`,
+    'query-input': 'required name=currency',
+  },
+};
+
 const TROY_OZ_GRAMS = 31.1035;
 
 export default async function HomePage() {
@@ -50,6 +92,8 @@ export default async function HomePage() {
 
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
       {/* Hero + Calculator */}
       <section className="py-6 lg:py-10">
         <Container>

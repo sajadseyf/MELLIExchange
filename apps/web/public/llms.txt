@@ -1,0 +1,50 @@
+# Melli Exchange — llms.txt
+
+## About This Site
+
+Melli Exchange (melliexchange.ca) is a FINTRAC-registered currency exchange and gold jewelry dealer
+located in Coquitlam, British Columbia, Canada. The business has served the Greater Vancouver
+community for over a decade, offering competitive exchange rates on major world currencies and
+live gold prices across multiple karat weights.
+
+## Purpose
+
+This website provides:
+- Live currency exchange rates (CAD vs. USD, EUR, GBP, AED, IRR, and 10+ more currencies)
+- Daily gold prices in CAD for 10K, 14K, 18K, 22K, and 24K gold
+- A currency calculator for quick CAD conversions
+- Market news and analysis sourced from VBCE, FXStreet, and Kitco
+- Store information, hours, and contact details
+
+## Key Pages
+
+- / (homepage): Overview of live rates, gold prices, currency calculator, and business highlights
+- /en/currencies: Full table of live buy/sell exchange rates with historical price chart
+- /en/gold: Gold spot price (sourced from Kitco) and per-gram prices for each karat weight
+- /en/products: Physical gold and jewelry products available for purchase in-store
+- /en/news: Market watch — currency and gold news aggregated from industry sources
+- /en/faq: Answers to common questions about currency exchange, ID requirements, and gold buying
+- /en/about: Business background, regulatory compliance, and service overview
+- /en/contact: Address, phone numbers, business hours, and embedded map
+
+## Business Details
+
+- Name: Melli Exchange
+- Address: 1102-1163 Pinetree Way, Coquitlam, BC V3B 8A9, Canada
+- Phone: +1 (778) 929-9447 | +1 (604) 905-9033
+- Email: info@melliexchange.ca
+- Hours: Monday–Friday 9:30 AM–7:00 PM, Saturday 10:00 AM–6:00 PM, Sunday Closed
+- Languages: English, Persian (Farsi), Arabic, Chinese (Mandarin)
+- Regulatory: Registered with FINTRAC (Financial Transactions and Reports Analysis Centre of Canada)
+
+## Technical Notes
+
+- The site is a multilingual Next.js application supporting English (en), Persian (fa), Arabic (ar), and Chinese (zh)
+- Exchange rates and gold prices are fetched from the backend API and updated in near real-time
+- All structured data is provided via JSON-LD (Organization, LocalBusiness, FAQPage, WebPage schemas)
+- A sitemap is available at /sitemap.xml with lastmod dates for all URLs
+
+## Content Licensing
+
+All exchange rate data, gold prices, and news content on this site are provided for informational
+purposes. Rates shown are indicative and may differ from in-store rates at time of transaction.

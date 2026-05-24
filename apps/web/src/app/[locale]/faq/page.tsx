@@ -39,8 +39,31 @@ export default async function FaqPage({ params }: { params: { locale: string } }
         { q: t('q9'), a: t('a9') },
       ];
 
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    datePublished: '2023-01-01',
+    dateModified: new Date().toISOString().split('T')[0],
+    mainEntity: items.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: { '@type': 'Answer', text: item.a },
+    })),
+  };
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.melliexchange.ca/en' },
+      { '@type': 'ListItem', position: 2, name: 'FAQ', item: 'https://www.melliexchange.ca/en/faq' },
+    ],
+  };
+
   return (
     <Container className="py-14">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
       <div className="flex flex-col gap-10">
         <PageHeading eyebrow={t('eyebrow')} title={t('title')} description={t('desc')} />
 

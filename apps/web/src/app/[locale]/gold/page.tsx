@@ -7,6 +7,25 @@ export const metadata: Metadata = {
   description: 'Today\'s gold prices in CAD at Melli Exchange, Coquitlam BC. Live 18K, 21K, 22K and 24K gold rates updated daily.',
   alternates: { canonical: '/en/gold' },
 };
+
+const today = new Date().toISOString().split('T')[0];
+
+const webPageSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: 'Gold Prices — 18K, 21K, 22K, 24K | Melli Exchange',
+  url: 'https://www.melliexchange.ca/en/gold',
+  description: "Today's gold prices in CAD at Melli Exchange, Coquitlam BC. Live 18K, 21K, 22K and 24K gold rates updated daily.",
+  datePublished: '2023-01-01',
+  dateModified: today,
+  breadcrumb: {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.melliexchange.ca/en' },
+      { '@type': 'ListItem', position: 2, name: 'Gold Prices', item: 'https://www.melliexchange.ca/en/gold' },
+    ],
+  },
+};
 import { LiveGoldSpot } from '@/components/LiveGoldSpot';
 import { KaratCard } from '@/components/KaratCard';
 import { Container, PageHeading } from '@melli/ui';
@@ -44,6 +63,7 @@ export default async function GoldPage() {
 
   return (
     <Container className="py-14">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }} />
       <div className="flex flex-col gap-10">
 
         <PageHeading eyebrow={t('eyebrow')} title={t('title')} description={t('desc')} />
@@ -113,6 +133,29 @@ export default async function GoldPage() {
             </span>
           </div>
         </div>
+
+        {/* External references */}
+        <p className="text-xs text-ink-400 dark:text-zinc-500">
+          World spot price data sourced from{' '}
+          <a
+            href="https://www.kitco.com/gold-price-today-usa/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-gold-600 dark:hover:text-gold-400"
+          >
+            Kitco
+          </a>
+          . For further reading on gold purity standards, see the{' '}
+          <a
+            href="https://www.gold.org/about-gold/gold-supply/gold-mining/how-is-gold-formed"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-gold-600 dark:hover:text-gold-400"
+          >
+            World Gold Council
+          </a>
+          .
+        </p>
 
       </div>
     </Container>
