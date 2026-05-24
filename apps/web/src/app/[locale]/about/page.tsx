@@ -41,7 +41,7 @@ export default async function AboutPage() {
             <p className="mt-3 text-ink-600 dark:text-zinc-400">{t('who_p1')}</p>
             <p className="mt-3 text-ink-600 dark:text-zinc-400">{t('who_p2')}</p>
             <p className="mt-4 text-sm text-ink-500 dark:text-zinc-400">
-              Melli Exchange is registered with{' '}
+              Melli Exchange is a registered Money Services Business with{' '}
               <a
                 href="https://www.fintrac-canafe.gc.ca/re-ie/reg-eng"
                 target="_blank"
@@ -58,6 +58,15 @@ export default async function AboutPage() {
                 className="font-medium text-gold-700 underline hover:text-gold-600 dark:text-gold-400 dark:hover:text-gold-300"
               >
                 Proceeds of Crime (Money Laundering) and Terrorist Financing Act
+              </a>
+              . You can verify our MSB registration on the{' '}
+              <a
+                href="https://www.canada.ca/en/financial-consumer-agency/services/financial-service-providers.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-gold-700 underline hover:text-gold-600 dark:text-gold-400 dark:hover:text-gold-300"
+              >
+                Government of Canada financial service provider registry
               </a>
               .
             </p>

@@ -58,27 +58,42 @@ export default async function CurrenciesPage() {
           </div>
         </div>
 
-        <p className="text-xs text-ink-400 dark:text-zinc-500">
-          Our rates are benchmarked against the{' '}
-          <a
-            href="https://www.bankofcanada.ca/rates/exchange/daily-exchange-rates/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline hover:text-gold-600 dark:hover:text-gold-400"
-          >
-            Bank of Canada daily exchange rates
-          </a>
-          . For up-to-date mid-market reference rates, visit the{' '}
-          <a
-            href="https://www.xe.com/currencytables/?from=CAD"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline hover:text-gold-600 dark:hover:text-gold-400"
-          >
-            XE Currency Table
-          </a>
-          . In-store buy/sell rates include a service spread.
-        </p>
+        <div className="rounded-xl border border-ink-100 bg-ink-50/60 px-5 py-4 text-sm text-ink-600 dark:border-dark-border dark:bg-dark-raised/30 dark:text-zinc-400">
+          <p className="font-medium text-ink-800 dark:text-zinc-200">About our exchange rates</p>
+          <p className="mt-1 leading-relaxed">
+            Our buy and sell rates are updated daily and benchmarked against the{' '}
+            <a
+              href="https://www.bankofcanada.ca/rates/exchange/daily-exchange-rates/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-gold-700 underline hover:text-gold-600 dark:text-gold-400 dark:hover:text-gold-300"
+            >
+              Bank of Canada daily exchange rates
+            </a>
+            . For a mid-market reference, see the{' '}
+            <a
+              href="https://www.xe.com/currencytables/?from=CAD"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-gold-700 underline hover:text-gold-600 dark:text-gold-400 dark:hover:text-gold-300"
+            >
+              XE Currency Table
+            </a>
+            . In-store rates include a service spread and may differ from interbank rates.
+          </p>
+          <p className="mt-2 leading-relaxed">
+            Travelling with cash? Under{' '}
+            <a
+              href="https://www.canada.ca/en/border-services-agency/services/cross-border-currency-report.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-gold-700 underline hover:text-gold-600 dark:text-gold-400 dark:hover:text-gold-300"
+            >
+              Canadian border rules
+            </a>
+            , travellers must report any amount of CAD $10,000 or more (or its equivalent in foreign currency) when entering or leaving the country.
+          </p>
+        </div>
       </div>
     </Container>
   );

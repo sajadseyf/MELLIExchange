@@ -75,7 +75,15 @@ export default async function GoldPage() {
               <div className="flex items-center gap-2">
                 <span className="h-2 w-2 animate-pulse rounded-full bg-gold-500" />
                 <p className="text-xs font-semibold uppercase tracking-widest text-gold-700 dark:text-gold-400">
-                  {t('oz_label')} — Kitco
+                  {t('oz_label')} —{' '}
+                  <a
+                    href="https://www.kitco.com/gold-price-today-usa/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline decoration-gold-500/50 hover:decoration-gold-500"
+                  >
+                    Kitco
+                  </a>
                 </p>
               </div>
               {updatedAt && (
@@ -134,28 +142,33 @@ export default async function GoldPage() {
           </div>
         </div>
 
-        {/* External references */}
-        <p className="text-xs text-ink-400 dark:text-zinc-500">
-          World spot price data sourced from{' '}
-          <a
-            href="https://www.kitco.com/gold-price-today-usa/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline hover:text-gold-600 dark:hover:text-gold-400"
-          >
-            Kitco
-          </a>
-          . For further reading on gold purity standards, see the{' '}
-          <a
-            href="https://www.gold.org/about-gold/gold-supply/gold-mining/how-is-gold-formed"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline hover:text-gold-600 dark:hover:text-gold-400"
-          >
-            World Gold Council
-          </a>
-          .
-        </p>
+        {/* About Our Gold Prices */}
+        <div className="rounded-xl border border-ink-100 bg-ink-50/60 px-5 py-4 text-sm text-ink-600 dark:border-dark-border dark:bg-dark-raised/30 dark:text-zinc-400">
+          <p className="font-medium text-ink-800 dark:text-zinc-200">About our gold prices</p>
+          <p className="mt-1 leading-relaxed">
+            Per-gram prices shown are Melli Exchange&apos;s in-store buy rates in Canadian dollars.
+            The world spot price (USD/troy oz) is sourced live from{' '}
+            <a
+              href="https://www.kitco.com/gold-price-today-usa/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-gold-700 underline hover:text-gold-600 dark:text-gold-400 dark:hover:text-gold-300"
+            >
+              Kitco
+            </a>
+            , one of the most widely used precious metals price benchmarks in North America.
+            According to the{' '}
+            <a
+              href="https://www.gold.org/goldhub/data/gold-prices"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-gold-700 underline hover:text-gold-600 dark:text-gold-400 dark:hover:text-gold-300"
+            >
+              World Gold Council
+            </a>
+            , gold is priced in USD per troy ounce globally and converted to local currencies at prevailing exchange rates.
+          </p>
+        </div>
 
       </div>
     </Container>
