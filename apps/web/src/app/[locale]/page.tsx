@@ -79,7 +79,7 @@ export default async function HomePage() {
   const stats = [
     { value: '14+', label: t('stat_currencies') },
     { value: '3',   label: t('stat_karats') },
-    { value: '6',   label: t('stat_days') },
+    { value: '7',   label: t('stat_days') },
     { value: '10+',   label: t('stat_years') },
   ];
 
@@ -171,7 +171,7 @@ export default async function HomePage() {
                     </div>
                     <div className="flex items-center gap-1.5 text-xs text-white/50">
                       <ClockIcon className="h-4 w-4 text-gold-400" />
-                      <span>Open 6 days / week</span>
+                      <span>Open 7 days / week</span>
                     </div>
                   </div>
                 </div>

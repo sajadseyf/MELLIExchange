@@ -54,7 +54,7 @@
     "f3_title": "Fast Service",
     "f3_desc": "Walk in, exchange, walk out. Most transactions under 5 minutes.",
     "f4_title": "Walk-in Friendly",
-    "f4_desc": "Located in Coquitlam with easy access and parking. Open 6 days a week.",
+    "f4_desc": "Located in Coquitlam with easy access and parking. Open 7 days a week.",
     "cta_title": "Ready to exchange?",
     "cta_desc": "Walk in — no appointment needed. Our team is ready to help with currency exchange, gold purchases, and jewelry.",
     "get_directions": "Get Directions",
@@ -154,7 +154,7 @@
     "q8": "Do I need to bring ID?",
     "a8": "For transactions above the regulatory threshold, a valid government-issued photo ID is required by Canadian law. We recommend bringing ID for any significant exchange.",
     "q9": "Where are you located and what are your hours?",
-    "a9": "We are located in Coquitlam, BC. Our hours are Monday to Friday 9:30 AM – 7:00 PM and Saturday 10:00 AM – 6:00 PM. We are closed on Sundays."
+    "a9": "We are located in Coquitlam, BC. Our hours are Monday to Saturday 10:00 AM – 7:00 PM and Sunday 10:00 AM – 5:00 PM."
   },
   "footer": {
     "desc": "Trusted currency exchange and gold dealer serving Coquitlam and the Greater Vancouver area.",
@@ -163,7 +163,7 @@
     "copyright": "© {year} Melli Exchange. All rights reserved."
   },
   "topbar": {
-    "weekday": "Mon–Fri 9:30–7 PM",
-    "weekend": "Sat 10–6 PM"
+    "weekday": "Mon–Sat 10 AM–7 PM",
+    "weekend": "Sun 10 AM–5 PM"
   }
 }

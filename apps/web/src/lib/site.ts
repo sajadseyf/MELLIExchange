@@ -12,8 +12,7 @@ export const site = {
   phones: ['+1 (778) 929-9447', '+1 (604) 905-9033'],
   email: 'info@melliexchange.ca',
   hours: [
-    { days: 'Mon – Fri', time: '9:30 AM – 7:00 PM' },
-    { days: 'Saturday',  time: '10:00 AM – 6:00 PM' },
-    { days: 'Sunday',    time: 'Closed' },
+    { days: 'Mon – Sat', time: '10:00 AM – 7:00 PM' },
+    { days: 'Sunday',    time: '10:00 AM – 5:00 PM' },
   ],
 };

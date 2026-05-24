@@ -109,8 +109,8 @@ export default async function LocaleLayout({
                 addressCountry: 'CA',
               },
               openingHoursSpecification: [
-                { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday','Tuesday','Wednesday','Thursday','Friday'], opens: '09:30', closes: '19:00' },
-                { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Saturday'], opens: '10:00', closes: '18:00' },
+                { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'], opens: '10:00', closes: '19:00' },
+                { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Sunday'], opens: '10:00', closes: '17:00' },
               ],
               currenciesAccepted: 'CAD, USD, EUR, GBP, AED',
               priceRange: '$$',
