@@ -6,42 +6,36 @@ import { getSettings } from './models/Settings.js';
 
 type RateMap = Record<string, { buy: number; sell: number }>;
 
-// ── Vanex cheerio scrape ─────────────────────────────────────────────────────
+// ── Vanex RSC scrape ─────────────────────────────────────────────────────────
+// Vanex is a Next.js CSR app — the plain HTML page has no rate data in it.
+// Sending the RSC:1 header triggers the server-rendered data payload which
+// contains currency objects with buyCash / sellCash (cash desk rates).
 
 async function scrapeVanex(): Promise<RateMap> {
   const res = await fetch('https://vanexgroup.com/en/liveRate', {
     headers: {
       'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.1 Safari/605.1.15',
-      'Accept': 'text/html,application/xhtml+xml',
+      'Accept': 'text/html,application/xhtml+xml,*/*',
       'Accept-Language': 'en-US,en;q=0.9',
+      'RSC': '1',
     },
   });
-  if (!res.ok) throw new Error(`Vanex HTML ${res.status}`);
-  const $ = cheerio.load(await res.text());
+  if (!res.ok) throw new Error(`Vanex RSC ${res.status}`);
+  const text = await res.text();
 
   const map: RateMap = {};
+  // RSC payload embeds JSON objects: {"iso":"USD","isoName":"...","buyCash":1.36,"sellCash":1.39,...}
+  // buyCash = exchange pays customer for their foreign cash (our "buy")
+  // sellCash = exchange charges customer for foreign cash (our "sell")
+  for (const m of text.matchAll(/\{"iso":"([A-Z]{2,4})"[^}]+"buyCash":([\d.]+)[^}]+"sellCash":([\d.]+)/g)) {
+    const code = m[1]!;
+    if (code === 'CAD' || map[code]) continue;
+    const buy  = parseFloat(m[2]!);
+    const sell = parseFloat(m[3]!);
+    if (buy > 0 && sell > 0) map[code] = { buy, sell };
+  }
 
-  // VanEx table rows: currency code | currency name | buy | sell
-  $('table tr').each((_i, row) => {
-    const cells = $(row).find('td');
-    if (cells.length < 3) return;
-
-    const code = $(cells[0]).text().trim().toUpperCase();
-    if (!/^[A-Z]{2,4}$/.test(code)) return;
-
-    // Find numeric values — could be in col 2/3 or 3/4
-    const nums: number[] = [];
-    cells.each((_j, td) => {
-      const v = parseFloat($(td).text().replace(/,/g, '').trim());
-      if (!isNaN(v) && v > 0.0001 && v < 100) nums.push(v);
-    });
-
-    if (nums.length >= 2) {
-      const [buy, sell] = nums;
-      if (buy && sell) map[code] = { buy, sell };
-    }
-  });
-
+  if (Object.keys(map).length === 0) throw new Error('Vanex RSC: no rates parsed from payload');
   return map;
 }
 
@@ -119,7 +113,12 @@ async function scrapeDaniel(): Promise<RateMap> {
   return map;
 }
 
-// ── MoneyWay cheerio scrape ──────────────────────────────────────────────────
+// ── MoneyWay scrape ──────────────────────────────────────────────────────────
+// Rates are PHP-rendered into the HTML as: const cashCurrencyRates = [{...}, ...]
+// MoneyWay labels buy/sell from the customer's perspective (inverted from ours):
+//   their "buy"  = customer buys foreign currency  = exchange sells = higher number
+//   their "sell" = customer sells foreign currency = exchange buys  = lower number
+// We normalise so that stored buy < sell (exchange perspective).
 
 async function scrapeMoneyWay(): Promise<RateMap> {
   const res = await fetch('https://www.moneyway.com/rates/currencies', {
@@ -132,21 +131,25 @@ async function scrapeMoneyWay(): Promise<RateMap> {
   if (!res.ok) throw new Error(`MoneyWay HTML ${res.status}`);
   const html = await res.text();
 
-  // Rates are server-side injected as: const cashCurrencyRates = [{code, buy, sell, ...}, ...]
-  const match = html.match(/const cashCurrencyRates\s*=\s*(\[[\s\S]*?\]);/);
-  if (!match?.[1]) throw new Error('MoneyWay: cashCurrencyRates not found');
+  if (!html.includes('cashCurrencyRates')) throw new Error('MoneyWay: cashCurrencyRates not found in page');
 
-  const raw: Array<{ code: string; buy: number | string; sell: number | string }> = JSON.parse(match[1]);
   const map: RateMap = {};
 
-  for (const r of raw) {
-    const code = r.code?.trim().toUpperCase();
-    if (!code || !/^[A-Z]{2,4}$/.test(code) || code === 'CAD') continue;
-    const buy  = parseFloat(String(r.buy));
-    const sell = parseFloat(String(r.sell));
-    if (buy > 0 && sell > 0 && isFinite(buy) && isFinite(sell)) map[code] = { buy, sell };
+  // Match individual currency objects — avoids catastrophic backtracking of [\s\S]*? on large HTML.
+  // Object shape: {"code":"USD","buy":1.391,"sell":1.368,"rate_at":"...","icon":"...","name":"..."}
+  for (const m of html.matchAll(/\{"code":"([A-Z]{2,4})","buy":([\d.]+),"sell":([\d.]+)/g)) {
+    const code = m[1]!.trim().toUpperCase();
+    if (!code || code === 'CAD') continue;
+    const a = parseFloat(m[2]!);
+    const b = parseFloat(m[3]!);
+    if (!isFinite(a) || !isFinite(b) || a <= 0 || b <= 0) continue;
+    // Normalise to exchange perspective: buy (lower) = what exchange pays, sell (higher) = what exchange charges
+    const buy  = Math.min(a, b);
+    const sell = Math.max(a, b);
+    if (!map[code]) map[code] = { buy, sell };
   }
 
+  if (Object.keys(map).length === 0) throw new Error('MoneyWay: no rates parsed');
   return map;
 }
 
