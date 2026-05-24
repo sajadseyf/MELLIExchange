@@ -163,7 +163,14 @@ export default async function HomePage() {
                   <div className="flex flex-wrap items-center gap-4 border-t border-white/10 pt-5">
                     <div className="flex items-center gap-1.5 text-xs text-white/50">
                       <ShieldCheckIcon className="h-4 w-4 text-gold-400" />
-                      <span>FINTRAC Licensed</span>
+                      <a
+                        href="https://www.fintrac-canafe.gc.ca/re-ie/reg-eng"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline decoration-white/30 hover:text-white hover:decoration-white/60"
+                      >
+                        FINTRAC Licensed
+                      </a>
                     </div>
                     <div className="flex items-center gap-1.5 text-xs text-white/50">
                       <CurrencyDollarIcon className="h-4 w-4 text-gold-400" />
@@ -234,6 +241,18 @@ export default async function HomePage() {
                 </Link>
               </div>
               <RatesTable rows={featured} compact />
+              <p className="border-t border-navy-100 px-6 py-3 text-xs text-ink-400 dark:border-dark-border dark:text-zinc-500">
+                Rates benchmarked against the{' '}
+                <a
+                  href="https://www.bankofcanada.ca/rates/exchange/daily-exchange-rates/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-gold-600 dark:hover:text-gold-400"
+                >
+                  Bank of Canada
+                </a>
+                . In-store rates include a service spread.
+              </p>
             </div>
 
             <div className="relative overflow-hidden rounded-2xl border border-gold-200/60 bg-gradient-to-br from-gold-50 via-white to-gold-50/30 p-6 dark:border-gold-500/20 dark:bg-gradient-to-br dark:from-gold-900/20 dark:via-dark-card dark:to-dark-card">
@@ -248,11 +267,24 @@ export default async function HomePage() {
               </div>
 
               {usdPerOz !== null && (
-                <div className="mb-4 flex items-center justify-between rounded-lg border border-gold-200 bg-gold-100/60 px-4 py-2.5 dark:border-gold-500/20 dark:bg-gold-900/20">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-gold-700 dark:text-gold-400">
-                    {t('oz_label')}
-                  </span>
-                  <LiveGoldSpot initialUsd={usdPerOz} label="USD/oz" />
+                <div className="mb-4 rounded-lg border border-gold-200 bg-gold-100/60 dark:border-gold-500/20 dark:bg-gold-900/20">
+                  <div className="flex items-center justify-between px-4 py-2.5">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-gold-700 dark:text-gold-400">
+                      {t('oz_label')}
+                    </span>
+                    <LiveGoldSpot initialUsd={usdPerOz} label="USD/oz" />
+                  </div>
+                  <p className="border-t border-gold-200/60 px-4 pb-2 pt-1.5 text-[10px] text-gold-600/70 dark:border-gold-500/10 dark:text-gold-400/50">
+                    Spot price via{' '}
+                    <a
+                      href="https://www.kitco.com/gold-price-today-usa/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline hover:text-gold-700 dark:hover:text-gold-300"
+                    >
+                      Kitco
+                    </a>
+                  </p>
                 </div>
               )}
 
