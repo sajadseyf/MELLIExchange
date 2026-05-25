@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import {
   ArrowRightIcon,
   ShieldCheckIcon,
@@ -15,6 +16,11 @@ import { CurrencyCalculator } from '@/components/CurrencyCalculator';
 import { LiveGoldSpot } from '@/components/LiveGoldSpot';
 import { Link } from '@/i18n/navigation';
 import { site } from '@/lib/site';
+import { getPageMetadata } from '@/lib/seo';
+
+export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
+  return getPageMetadata('home', params.locale, '');
+}
 
 const orgSchema = {
   '@context': 'https://schema.org',

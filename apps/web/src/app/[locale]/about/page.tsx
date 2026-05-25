@@ -1,34 +1,33 @@
 import type { Metadata } from 'next';
 import { Container, PageHeading, Card } from '@melli/ui';
 import { getTranslations } from 'next-intl/server';
+import { getPageMetadata } from '@/lib/seo';
+import { site } from '@/lib/site';
 
-export const metadata: Metadata = {
-  title: 'About Us',
-  description: 'Learn about Melli Exchange — a trusted currency exchange and gold jewelry store serving the Coquitlam and Greater Vancouver community.',
-  alternates: { canonical: '/en/about' },
-};
+export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
+  return getPageMetadata('about', params.locale, '/about');
+}
 
-const today = new Date().toISOString().split('T')[0];
-
-const webPageSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'AboutPage',
-  name: 'About Melli Exchange',
-  url: 'https://www.melliexchange.ca/en/about',
-  description: 'Learn about Melli Exchange — a trusted, FINTRAC-registered currency exchange and gold jewelry store in Coquitlam, BC.',
-  datePublished: '2014-01-01',
-  dateModified: today,
-  breadcrumb: {
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.melliexchange.ca/en' },
-      { '@type': 'ListItem', position: 2, name: 'About Us', item: 'https://www.melliexchange.ca/en/about' },
-    ],
-  },
-};
-
-export default async function AboutPage() {
+export default async function AboutPage({ params }: { params: { locale: string } }) {
+  const locale = params.locale ?? 'en';
   const t = await getTranslations('about');
+
+  const webPageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    name: 'About Melli Exchange',
+    url: `${site.url}/${locale}/about`,
+    description: 'Learn about Melli Exchange — a trusted, FINTRAC-registered currency exchange and gold jewelry store in Coquitlam, BC.',
+    datePublished: '2014-01-01',
+    dateModified: new Date().toISOString().split('T')[0],
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${site.url}/${locale}` },
+        { '@type': 'ListItem', position: 2, name: 'About Us', item: `${site.url}/${locale}/about` },
+      ],
+    },
+  };
 
   return (
     <Container className="py-14">

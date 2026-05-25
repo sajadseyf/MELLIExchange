@@ -1,8 +1,14 @@
+import type { Metadata } from 'next';
 import { Container, PageHeading } from '@melli/ui';
 import { getPosts, getMarketNews } from '@/lib/api';
 import type { NewsItem } from '@/lib/api';
 import { Link } from '@/i18n/navigation';
 import type { Post, PostTranslation } from '@melli/types';
+import { getPageMetadata } from '@/lib/seo';
+
+export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
+  return getPageMetadata('news', params.locale, '/news');
+}
 
 const CATEGORY_GRADIENT: Record<string, string> = {
   gold:  'from-amber-400 to-yellow-600',
@@ -62,9 +68,9 @@ function OurPostCard({ post, locale }: { post: Post; locale: string }) {
           <span className="w-fit rounded-full bg-gold-100 px-2.5 py-0.5 text-xs font-bold text-gold-700 dark:bg-gold-900/30 dark:text-gold-400">
             Melli Exchange
           </span>
-          <h2 className="flex-1 text-base font-bold leading-snug text-ink-900 group-hover:text-gold-700 dark:text-white line-clamp-3">
+          <h3 className="flex-1 text-base font-bold leading-snug text-ink-900 group-hover:text-gold-700 dark:text-white line-clamp-3">
             {title}
-          </h2>
+          </h3>
           {excerpt && <p className="text-sm text-ink-500 dark:text-zinc-400 line-clamp-2">{excerpt}</p>}
           {date && <p className="text-xs text-ink-400">{date}</p>}
         </div>

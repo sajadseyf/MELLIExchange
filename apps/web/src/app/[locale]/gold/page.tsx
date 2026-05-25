@@ -1,34 +1,15 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { getGoldPrices, getCurrencies, getGoldSpotPrice } from '@/lib/api';
-
-export const metadata: Metadata = {
-  title: 'Gold Prices — 18K, 21K, 22K, 24K',
-  description: 'Today\'s gold prices in CAD at Melli Exchange, Coquitlam BC. Live 18K, 21K, 22K and 24K gold rates updated daily.',
-  alternates: { canonical: '/en/gold' },
-};
-
-const today = new Date().toISOString().split('T')[0];
-
-const webPageSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'WebPage',
-  name: 'Gold Prices — 18K, 21K, 22K, 24K | Melli Exchange',
-  url: 'https://www.melliexchange.ca/en/gold',
-  description: "Today's gold prices in CAD at Melli Exchange, Coquitlam BC. Live 18K, 21K, 22K and 24K gold rates updated daily.",
-  datePublished: '2023-01-01',
-  dateModified: today,
-  breadcrumb: {
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.melliexchange.ca/en' },
-      { '@type': 'ListItem', position: 2, name: 'Gold Prices', item: 'https://www.melliexchange.ca/en/gold' },
-    ],
-  },
-};
+import { getPageMetadata } from '@/lib/seo';
 import { LiveGoldSpot } from '@/components/LiveGoldSpot';
 import { KaratCard } from '@/components/KaratCard';
 import { Container, PageHeading } from '@melli/ui';
+import { site } from '@/lib/site';
+
+export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
+  return getPageMetadata('gold', params.locale, '/gold');
+}
 
 const TROY_OZ_GRAMS = 31.1035;
 
@@ -40,13 +21,30 @@ const KARATS = [
   { k: 10, purity: 41.7, alloy: 58.3, color: '#C07800', label: '10K' },
 ] as const;
 
-export default async function GoldPage() {
+export default async function GoldPage({ params }: { params: { locale: string } }) {
+  const locale = params.locale ?? 'en';
   const [rows, currencies, spot, t] = await Promise.all([
     getGoldPrices(),
     getCurrencies(),
     getGoldSpotPrice(),
     getTranslations('gold'),
   ]);
+
+  const webPageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: 'Gold Prices — 18K, 21K, 22K, 24K | Melli Exchange',
+    url: `${site.url}/${locale}/gold`,
+    datePublished: '2023-01-01',
+    dateModified: new Date().toISOString().split('T')[0],
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${site.url}/${locale}` },
+        { '@type': 'ListItem', position: 2, name: 'Gold Prices', item: `${site.url}/${locale}/gold` },
+      ],
+    },
+  };
 
   const usd    = currencies.find((c) => c.code === 'USD');
   const usdMid = usd ? (usd.buy + usd.sell) / 2 : null;

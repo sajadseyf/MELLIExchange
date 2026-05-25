@@ -3,12 +3,11 @@ import { Container, PageHeading, Card } from '@melli/ui';
 import { MapPinIcon, PhoneIcon, EnvelopeIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { getTranslations } from 'next-intl/server';
 import { site } from '@/lib/site';
+import { getPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Contact Us',
-  description: 'Visit Melli Exchange at 1102-1163 Pinetree Way, Coquitlam BC. Call (778) 929-9447 or (604) 905-9033. Open Mon–Fri 9:30–7pm, Sat 10am–6pm.',
-  alternates: { canonical: '/en/contact' },
-};
+export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
+  return getPageMetadata('contact', params.locale, '/contact');
+}
 
 export default async function ContactPage() {
   const t = await getTranslations('contact');

@@ -4,34 +4,32 @@ import { getTranslations } from 'next-intl/server';
 import { RatesTable } from '@/components/RatesTable';
 import { CurrencyPriceChart } from '@/components/CurrencyPriceChart';
 import { getCurrencies } from '@/lib/api';
+import { getPageMetadata } from '@/lib/seo';
+import { site } from '@/lib/site';
 
-export const metadata: Metadata = {
-  title: 'Live Currency Exchange Rates',
-  description: 'Live CAD currency exchange rates — USD, EUR, GBP, AED, IRR and more. Updated daily at Melli Exchange in Coquitlam, BC.',
-  alternates: { canonical: '/en/currencies' },
-};
+export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
+  return getPageMetadata('currencies', params.locale, '/currencies');
+}
 
-const today = new Date().toISOString().split('T')[0];
-
-const webPageSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'WebPage',
-  name: 'Live Currency Exchange Rates | Melli Exchange',
-  url: 'https://www.melliexchange.ca/en/currencies',
-  description: 'Live CAD currency exchange rates — USD, EUR, GBP, AED, IRR and more. Updated daily at Melli Exchange in Coquitlam, BC.',
-  datePublished: '2023-01-01',
-  dateModified: today,
-  breadcrumb: {
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.melliexchange.ca/en' },
-      { '@type': 'ListItem', position: 2, name: 'Currency Exchange Rates', item: 'https://www.melliexchange.ca/en/currencies' },
-    ],
-  },
-};
-
-export default async function CurrenciesPage() {
+export default async function CurrenciesPage({ params }: { params: { locale: string } }) {
+  const locale = params.locale ?? 'en';
   const [rows, t] = await Promise.all([getCurrencies(), getTranslations('currencies')]);
+
+  const webPageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: 'Live Currency Exchange Rates | Melli Exchange',
+    url: `${site.url}/${locale}/currencies`,
+    datePublished: '2023-01-01',
+    dateModified: new Date().toISOString().split('T')[0],
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${site.url}/${locale}` },
+        { '@type': 'ListItem', position: 2, name: 'Currency Exchange Rates', item: `${site.url}/${locale}/currencies` },
+      ],
+    },
+  };
   const updatedAt = rows[0]?.updatedAt ? new Date(rows[0].updatedAt) : null;
 
   return (
