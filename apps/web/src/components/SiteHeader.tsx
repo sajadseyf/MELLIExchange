@@ -24,12 +24,12 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-ink-100 bg-white/85 backdrop-blur dark:border-dark-border dark:bg-dark/85">
-      <Container className="flex h-14 items-center justify-between gap-6">
-        <Link href="/" className="flex items-center gap-3">
-          <LogoMark size={36} />
-          <div className="leading-tight">
-            <p className="text-base font-semibold text-ink-900 dark:text-white">{site.name}</p>
-            <p className="text-[10px] uppercase tracking-[0.18em] text-gold-600">{site.tagline}</p>
+      <Container className="flex h-14 items-center justify-between gap-2 sm:gap-6">
+        <Link href="/" className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <LogoMark size={32} />
+          <div className="min-w-0 leading-tight">
+            <p className="truncate text-sm font-semibold text-ink-900 sm:text-base dark:text-white">{site.name}</p>
+            <p className="hidden text-[10px] uppercase tracking-[0.18em] text-gold-600 sm:block">{site.tagline}</p>
           </div>
         </Link>
 
