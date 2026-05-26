@@ -26,6 +26,7 @@ const nextConfig = {
       { protocol: 'http',  hostname: 'localhost' },
       { protocol: 'https', hostname: 'vbceca.s3.us-west-2.amazonaws.com' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: '*.public.blob.vercel-storage.com' },
     ],
   },
 };

@@ -1,16 +1,11 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import Image from 'next/image';
 import { ChevronLeftIcon, ChevronRightIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from 'next-intl';
 import { Card, Badge } from '@melli/ui';
 import type { Product, ProductCategory } from '@melli/types';
-
-// /uploads/* is proxied by Next.js rewrites → API server, so keep paths relative
-function toAbsUrl(url: string) {
-  if (!url) return '';
-  return url;
-}
 
 // ── Single product card ───────────────────────────────────────────────────────
 function ProductCard({ product, t }: { product: Product; t: ReturnType<typeof useTranslations> }) {
@@ -20,7 +15,7 @@ function ProductCard({ product, t }: { product: Product; t: ReturnType<typeof us
   const images = Array.isArray(product.images) ? product.images.filter(Boolean) : [];
   const hasMultiple = images.length > 1;
   const safeIndex = Math.min(imgIndex, Math.max(images.length - 1, 0));
-  const currentImg = images[safeIndex] && !imgError ? toAbsUrl(images[safeIndex]) : null;
+  const currentImg = images[safeIndex] && !imgError ? images[safeIndex]! : null;
 
   const categoryLabel: Record<ProductCategory, string> = {
     ring:     t('cat_ring'),
@@ -34,17 +29,19 @@ function ProductCard({ product, t }: { product: Product; t: ReturnType<typeof us
   return (
     <Card className="flex flex-col overflow-hidden p-0">
       {/* Image area */}
-      <div className="relative aspect-square w-full overflow-hidden bg-gradient-to-br from-gold-50 to-gold-100 dark:from-dark-raised dark:to-dark-card">
+      <div className="relative h-64 w-full overflow-hidden bg-gradient-to-br from-gold-50 to-gold-100 dark:from-dark-raised dark:to-dark-card">
         {currentImg ? (
-          <img
+          <Image
             key={currentImg}
             src={currentImg}
             alt={product.name}
+            fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            className="object-cover transition-transform duration-300 hover:scale-105"
             onError={() => setImgError(true)}
-            className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
           />
         ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-gold-50 to-gold-100 dark:from-dark-raised dark:to-dark-card">
+          <div className="flex h-full w-full flex-col items-center justify-center gap-2">
             <span className="text-5xl">💍</span>
             <span className="text-xs font-medium text-ink-400 dark:text-zinc-500">{product.name}</span>
           </div>
