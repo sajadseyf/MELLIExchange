@@ -156,6 +156,19 @@
     "q9": "Where are you located and what are your hours?",
     "a9": "We are located in Coquitlam, BC. Our hours are Monday to Saturday 10:00 AM – 7:00 PM and Sunday 10:00 AM – 5:00 PM."
   },
+  "news": {
+    "eyebrow": "Market Watch",
+    "title": "News & Market Analysis",
+    "desc": "Currency and gold market news from VBCE, FXStreet, Kitco, and the Melli Exchange team.",
+    "intro": "Stay up to date with live currency exchange rates, gold price movements, and financial market analysis relevant to Canadian dollar holders. We track USD/CAD, EUR/CAD, GBP/CAD, AED/CAD, and gold (18K–24K) daily.",
+    "vbce_title": "VBCE Market Watch",
+    "vbce_badge": "Daily FX Update",
+    "our_title": "From Melli Exchange",
+    "market_title": "Live Market News",
+    "market_badge": "FXStreet · Kitco",
+    "read_more": "Read more →",
+    "empty": "News temporarily unavailable. Please check back soon."
+  },
   "footer": {
     "desc": "Trusted currency exchange and gold dealer serving Coquitlam and the Greater Vancouver area.",
     "visit_us": "Visit us",

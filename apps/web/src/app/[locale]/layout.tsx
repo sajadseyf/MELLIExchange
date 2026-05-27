@@ -53,16 +53,9 @@ export async function generateMetadata({ params }: { params: { locale: string } 
       title: `${site.name} | Currency Exchange & Gold`,
       description,
     },
-    alternates: {
-      canonical: `${site.url}/${locale}`,
-      languages: {
-        'x-default': `${site.url}/en`,
-        en: `${site.url}/en`,
-        fa: `${site.url}/fa`,
-        ar: `${site.url}/ar`,
-        zh: `${site.url}/zh`,
-      },
-    },
+    // No layout-level canonical — each page sets its own via getPageMetadata().
+    // Setting one here for the root path only would conflict with page-level overrides
+    // and cause Google to see duplicate/conflicting canonical signals.
     robots: {
       index: true,
       follow: true,

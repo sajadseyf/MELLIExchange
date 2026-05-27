@@ -149,6 +149,19 @@
     "q9": "你们在哪里，营业时间是什么？",
     "a9": "我们位于不列颠哥伦比亚省高贵林市。营业时间：周一至周六上午10:00至晚上7:00，周日上午10:00至下午5:00。"
   },
+  "news": {
+    "eyebrow": "市场观察",
+    "title": "新闻与市场分析",
+    "desc": "来自VBCE、FXStreet、Kitco及Melli Exchange团队的最新货币和黄金市场资讯。",
+    "intro": "随时掌握最新货币兑换汇率、黄金价格走势及与加元持有者相关的金融市场分析。我们每日追踪USD/CAD、EUR/CAD、GBP/CAD、AED/CAD及18K至24K黄金行情。",
+    "vbce_title": "VBCE市场观察",
+    "vbce_badge": "每日汇率更新",
+    "our_title": "来自Melli Exchange",
+    "market_title": "实时市场资讯",
+    "market_badge": "FXStreet · Kitco",
+    "read_more": "阅读更多 →",
+    "empty": "新闻暂时不可用，请稍后再查。"
+  },
   "footer": {
     "desc": "值得信赖的货币兑换商和黄金经销商，服务高贵林及大温哥华地区。",
     "visit_us": "拜访我们",

@@ -4,6 +4,7 @@ import { getPosts, getMarketNews } from '@/lib/api';
 import type { NewsItem } from '@/lib/api';
 import { Link } from '@/i18n/navigation';
 import type { Post, PostTranslation } from '@melli/types';
+import { getTranslations } from 'next-intl/server';
 import { getPageMetadata } from '@/lib/seo';
 
 export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
@@ -46,9 +47,9 @@ function localizedPost(post: Post, locale: string) {
   return { title: t?.title || post.title, excerpt: t?.excerpt || post.excerpt };
 }
 
-function OurPostCard({ post, locale }: { post: Post; locale: string }) {
+function OurPostCard({ post, locale, readMoreLabel }: { post: Post; locale: string; readMoreLabel: string }) {
   const { title, excerpt } = localizedPost(post, locale);
-  const isRtl = locale === 'fa';
+  const isRtl = locale === 'fa' || locale === 'ar';
   const date = post.publishedAt
     ? new Date(post.publishedAt).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' })
     : '';
@@ -73,13 +74,14 @@ function OurPostCard({ post, locale }: { post: Post; locale: string }) {
           </h3>
           {excerpt && <p className="text-sm text-ink-500 dark:text-zinc-400 line-clamp-2">{excerpt}</p>}
           {date && <p className="text-xs text-ink-400">{date}</p>}
+          <span className="mt-auto text-xs font-semibold text-gold-600 group-hover:underline">{readMoreLabel}</span>
         </div>
       </article>
     </Link>
   );
 }
 
-function NewsCard({ item }: { item: NewsItem }) {
+function NewsCard({ item, readMoreLabel }: { item: NewsItem; readMoreLabel: string }) {
   const grad = CATEGORY_GRADIENT[item.category] ?? CATEGORY_GRADIENT.fx!;
   const icon = CATEGORY_ICON[item.category] ?? '📰';
   const badge = SOURCE_BADGE[item.source] ?? 'bg-ink-600 text-white';
@@ -88,7 +90,6 @@ function NewsCard({ item }: { item: NewsItem }) {
   return (
     <a href={item.link} target="_blank" rel="noopener noreferrer" className="group">
       <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-ink-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-dark-border dark:bg-dark-card">
-        {/* Image or gradient placeholder */}
         {item.image ? (
           <div className="h-44 overflow-hidden">
             <img src={item.image} alt={item.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
@@ -115,7 +116,7 @@ function NewsCard({ item }: { item: NewsItem }) {
             </p>
           )}
           <span className="mt-auto text-xs font-semibold text-gold-600 group-hover:underline">
-            Read more →
+            {readMoreLabel}
           </span>
         </div>
       </article>
@@ -127,32 +128,37 @@ interface Props { params: { locale: string } }
 
 export default async function NewsPage({ params }: Props) {
   const { locale } = params;
+  const t = await getTranslations('news');
   const [posts, news] = await Promise.all([getPosts(), getMarketNews()]);
 
-  const vbce     = news.filter(n => n.source === 'vbce');
-  const rest     = news.filter(n => n.source !== 'vbce');
+  const vbce = news.filter(n => n.source === 'vbce');
+  const rest = news.filter(n => n.source !== 'vbce');
 
   return (
     <Container className="py-14">
       <div className="flex flex-col gap-12">
         <PageHeading
-          eyebrow="Market Watch"
-          title="News & Analysis"
-          description="Currency and gold market news from VBCE, FXStreet, and our team."
+          eyebrow={t('eyebrow')}
+          title={t('title')}
+          description={t('desc')}
         />
+
+        <p className="max-w-2xl text-sm leading-relaxed text-ink-500 dark:text-zinc-400">
+          {t('intro')}
+        </p>
 
         {/* VBCE — featured large cards */}
         {vbce.length > 0 && (
           <section className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
-              <h2 className="text-lg font-bold text-ink-900 dark:text-white">VBCE Market Watch</h2>
+              <h2 className="text-lg font-bold text-ink-900 dark:text-white">{t('vbce_title')}</h2>
               <span className="flex items-center gap-1.5 text-xs text-ink-400 dark:text-zinc-500">
                 <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-500" />
-                Daily FX Update
+                {t('vbce_badge')}
               </span>
             </div>
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {vbce.slice(0, 6).map((item, i) => <NewsCard key={i} item={item} />)}
+              {vbce.slice(0, 6).map((item, i) => <NewsCard key={i} item={item} readMoreLabel={t('read_more')} />)}
             </div>
           </section>
         )}
@@ -160,9 +166,9 @@ export default async function NewsPage({ params }: Props) {
         {/* Our posts */}
         {posts.length > 0 && (
           <section className="flex flex-col gap-4">
-            <h2 className="text-lg font-bold text-ink-900 dark:text-white">From Melli Exchange</h2>
+            <h2 className="text-lg font-bold text-ink-900 dark:text-white">{t('our_title')}</h2>
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {posts.map((post) => <OurPostCard key={post.id} post={post} locale={locale} />)}
+              {posts.map((post) => <OurPostCard key={post.id} post={post} locale={locale} readMoreLabel={t('read_more')} />)}
             </div>
           </section>
         )}
@@ -171,21 +177,21 @@ export default async function NewsPage({ params }: Props) {
         {rest.length > 0 && (
           <section className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
-              <h2 className="text-lg font-bold text-ink-900 dark:text-white">Live Market News</h2>
+              <h2 className="text-lg font-bold text-ink-900 dark:text-white">{t('market_title')}</h2>
               <span className="flex items-center gap-1.5 text-xs text-ink-400 dark:text-zinc-500">
                 <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-                FXStreet
+                {t('market_badge')}
               </span>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {rest.map((item, i) => <NewsCard key={i} item={item} />)}
+              {rest.map((item, i) => <NewsCard key={i} item={item} readMoreLabel={t('read_more')} />)}
             </div>
           </section>
         )}
 
         {news.length === 0 && posts.length === 0 && (
           <div className="py-20 text-center text-sm text-ink-400 dark:text-zinc-500">
-            News temporarily unavailable. Please check back soon.
+            {t('empty')}
           </div>
         )}
       </div>

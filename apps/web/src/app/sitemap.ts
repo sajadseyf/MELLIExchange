@@ -21,7 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const entries: MetadataRoute.Sitemap = [];
 
-  // Static pages — one entry per locale
+  // Static pages — one entry per locale, x-default points to the English URL
   for (const { path, priority, changeFrequency } of staticPages) {
     entries.push({
       url: `${BASE}/en${path}`,
@@ -29,9 +29,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency,
       priority,
       alternates: {
-        languages: Object.fromEntries(
-          locales.map((locale) => [locale, `${BASE}/${locale}${path}`]),
-        ),
+        languages: {
+          'x-default': `${BASE}/en${path}`,
+          ...Object.fromEntries(locales.map((locale) => [locale, `${BASE}/${locale}${path}`])),
+        },
       },
     });
   }
@@ -48,9 +49,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: 'weekly',
         priority: 0.6,
         alternates: {
-          languages: Object.fromEntries(
-            locales.map((locale) => [locale, `${BASE}/${locale}/news/${slug}`]),
-          ),
+          languages: {
+            'x-default': `${BASE}/en/news/${slug}`,
+            ...Object.fromEntries(locales.map((locale) => [locale, `${BASE}/${locale}/news/${slug}`])),
+          },
         },
       });
     }

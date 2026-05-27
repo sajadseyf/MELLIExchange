@@ -1,105 +1,83 @@
-'use client';
-
-import { useEffect, useState, useCallback } from 'react';
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { Container, Card } from '@melli/ui';
-import { useRouter } from 'next/navigation';
-import { useLocale, useTranslations } from 'next-intl';
-import ReactMarkdown from 'react-markdown';
-import type { Post } from '@melli/types';
+import { getPost } from '@/lib/api';
+import { pageAlternates } from '@/lib/seo';
+import { site } from '@/lib/site';
 import Link from 'next/link';
+import ReactMarkdown from 'react-markdown';
+import TranslatingBanner from './TranslatingBanner';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+interface Props { params: { locale: string; slug: string } }
 
-const TRANSLATED_LOCALES = ['fa', 'zh'] as const;
-type TranslatedLocale = typeof TRANSLATED_LOCALES[number];
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const post = await getPost(params.slug);
+  if (!post) return {};
 
-function needsTranslation(locale: string): locale is TranslatedLocale {
-  return (TRANSLATED_LOCALES as readonly string[]).includes(locale);
+  const locale = params.locale ?? 'en';
+  const tr = locale === 'fa' ? post.translations?.fa : locale === 'zh' ? post.translations?.zh : undefined;
+  const title = tr?.title || post.title;
+  const description = tr?.excerpt || post.excerpt || title;
+  const path = `/news/${params.slug}`;
+
+  return {
+    title: { absolute: `${title} | ${site.name}` },
+    description,
+    alternates: pageAlternates(path, locale),
+    openGraph: {
+      type: 'article',
+      title,
+      description,
+      url: `${site.url}/${locale}${path}`,
+      siteName: site.name,
+      ...(post.coverImage ? { images: [{ url: post.coverImage, alt: title }] } : {}),
+      publishedTime: post.publishedAt ?? undefined,
+    },
+  };
 }
 
-function getTranslation(post: Post, locale: string) {
-  if (locale === 'fa') return post.translations?.fa;
-  if (locale === 'zh') return post.translations?.zh;
-  return undefined;
-}
+export default async function PostPage({ params }: Props) {
+  const { locale, slug } = params;
+  const post = await getPost(slug);
 
-interface Props { params: { slug: string } }
+  if (!post) notFound();
 
-export default function PostPage({ params }: Props) {
-  const locale = useLocale();
-  const router = useRouter();
-
-  const [post,    setPost]    = useState<Post | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const fetchPost = useCallback(() => {
-    return fetch(`${API_URL}/api/posts/${params.slug}`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data: Post | null) => {
-        setPost(data);
-        setLoading(false);
-        return data;
-      })
-      .catch(() => { setLoading(false); return null; });
-  }, [params.slug]);
-
-  useEffect(() => {
-    fetchPost().then((data) => {
-      if (!data) return;
-      // If locale needs translation and it's missing, keep polling until ready
-      if (needsTranslation(locale) && !getTranslation(data, locale)?.title) {
-        const timer = setInterval(async () => {
-          const updated = await fetchPost();
-          if (updated && getTranslation(updated, locale)?.title) {
-            clearInterval(timer);
-          }
-        }, 15_000);
-        return () => clearInterval(timer);
-      }
-    });
-  }, [fetchPost, locale]);
-
-  if (loading) {
-    return (
-      <Container className="py-14">
-        <div className="flex h-64 items-center justify-center">
-          <div className="h-7 w-7 animate-spin rounded-full border-2 border-gold-400 border-t-transparent" />
-        </div>
-      </Container>
-    );
-  }
-
-  if (!post) { router.replace('/news'); return null; }
-
-  const tr      = getTranslation(post, locale);
+  const tr      = locale === 'fa' ? post.translations?.fa : locale === 'zh' ? post.translations?.zh : undefined;
   const title   = tr?.title   || post.title;
   const excerpt = tr?.excerpt || post.excerpt;
   const content = tr?.content || post.content;
-  const isRtl   = locale === 'fa';
-  const isTranslating = needsTranslation(locale) && !tr?.title;
+  const isRtl   = locale === 'fa' || locale === 'ar';
+  const needsTranslation = (locale === 'fa' || locale === 'zh') && !tr?.title;
 
   const date = post.publishedAt
     ? new Date(post.publishedAt).toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' })
     : '';
 
+  const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: title,
+    description: excerpt,
+    datePublished: post.publishedAt,
+    dateModified: (post as any).updatedAt ?? post.publishedAt,
+    author: { '@type': 'Organization', name: site.name, url: site.url },
+    publisher: { '@type': 'Organization', name: site.name, logo: `${site.url}/logo.png` },
+    url: `${site.url}/${locale}/news/${slug}`,
+    ...(post.coverImage ? { image: post.coverImage } : {}),
+  };
+
   return (
     <Container className="py-14">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
       <div className="mx-auto max-w-3xl">
         <Link
           href={`/${locale}/news`}
           className="mb-8 inline-flex items-center gap-1.5 text-sm text-ink-400 hover:text-ink-700 dark:text-zinc-500 dark:hover:text-zinc-300"
         >
-          ← Market Watch
+          ← {locale === 'fa' ? 'پایش بازار' : locale === 'ar' ? 'رصد السوق' : locale === 'zh' ? '市场观察' : 'Market Watch'}
         </Link>
 
-        {isTranslating && (
-          <div className="mb-4 flex items-center gap-2 rounded-lg border border-gold-200 bg-gold-50 px-4 py-3 text-sm text-gold-700 dark:border-gold-800 dark:bg-gold-900/20 dark:text-gold-400">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-gold-500 border-t-transparent" />
-            {locale === 'fa'
-              ? 'در حال ترجمه... چند لحظه صبر کنید، صفحه خودکار به‌روز می‌شود.'
-              : '正在翻译中，请稍候，页面将自动更新。'}
-          </div>
-        )}
+        {needsTranslation && <TranslatingBanner locale={locale} slug={slug} />}
 
         <Card className="overflow-hidden">
           {post.coverImage && (
