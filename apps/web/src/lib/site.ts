@@ -15,4 +15,8 @@ export const site = {
     { days: 'Mon – Sat', time: '10:00 AM – 7:00 PM' },
     { days: 'Sunday',    time: '10:00 AM – 5:00 PM' },
   ],
+  social: {
+    telegram:  'https://t.me/melliexchange',
+    instagram: 'https://instagram.com/melliexchange',
+  },
 };

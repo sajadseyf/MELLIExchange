@@ -4,5 +4,6 @@ import { routing } from './i18n/routing';
 export default createMiddleware(routing);
 
 export const config = {
-  matcher: ['/((?!api|_next|.*\\..*).*)'],
+  // Exclude /landing so it's served directly without locale redirect
+  matcher: ['/((?!api|_next|landing|.*\\..*).*)'],
 };
