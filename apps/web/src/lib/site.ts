@@ -17,6 +17,6 @@ export const site = {
   ],
   social: {
     telegram:  'https://t.me/melliexchange',
-    instagram: 'https://instagram.com/melliexchange',
+    instagram: 'https://instagram.com/melli_exchange.ltd',
   },
 };
