@@ -132,7 +132,7 @@ async function fromVBCE(_spreadPct: number): Promise<CurrencyRates | null> {
 
 async function fromArzSina(_spreadPct: number): Promise<CurrencyRates | null> {
   try {
-    const res = await fetch('https://arzsina.com', {
+    const res = await fetch('https://arzsina.com/cash-exchange-rates/', {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml',

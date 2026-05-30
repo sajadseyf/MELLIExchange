@@ -213,13 +213,13 @@ export function CompetitorRatesTable() {
             <thead className="border-b border-ink-100 bg-ink-50">
               <tr>
                 <th
-                  className="sticky left-0 bg-ink-50 px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-ink-500 cursor-pointer min-w-[160px]"
+                  className="sticky left-0 z-20 bg-ink-50 px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-ink-500 cursor-pointer min-w-[160px]"
                   onClick={() => toggleSort('priority')}
                 >
                   Currency {sortKey === 'priority' ? (sortAsc ? '↑' : '↓') : ''}
                 </th>
                 {SOURCES.map((src) => (
-                  <th key={src} colSpan={2} className="border-l border-ink-100 px-3 py-2 text-center text-xs font-medium uppercase tracking-wide text-ink-500">
+                  <th key={src} colSpan={2} className={`${src === 'own' ? 'sticky left-[160px] z-20 bg-ink-50 text-ink-800 font-semibold' : ''} border-l border-ink-100 px-3 py-2 text-center text-xs font-medium uppercase tracking-wide text-ink-500`}>
                     {SOURCE_LABELS[src]}
                   </th>
                 ))}
@@ -228,11 +228,11 @@ export function CompetitorRatesTable() {
                 </th>
               </tr>
               <tr className="border-b border-ink-100">
-                <th className="sticky left-0 bg-ink-50 px-3 py-1" />
+                <th className="sticky left-0 z-20 bg-ink-50 px-3 py-1" />
                 {SOURCES.map((src) => (
                   <>
-                    <th key={`${src}_buy`}  className={thCls(`${src}_buy`)}  onClick={() => toggleSort(`${src}_buy`)}>Buy {sortKey === `${src}_buy`  ? (sortAsc ? '↑' : '↓') : ''}</th>
-                    <th key={`${src}_sell`} className={thCls(`${src}_sell`)} onClick={() => toggleSort(`${src}_sell`)}>Sell {sortKey === `${src}_sell` ? (sortAsc ? '↑' : '↓') : ''}</th>
+                    <th key={`${src}_buy`}  className={`${src === 'own' ? 'sticky left-[160px] z-20 min-w-[88px] bg-ink-50' : ''} ${thCls(`${src}_buy`)}`}  onClick={() => toggleSort(`${src}_buy`)}>Buy {sortKey === `${src}_buy`  ? (sortAsc ? '↑' : '↓') : ''}</th>
+                    <th key={`${src}_sell`} className={`${src === 'own' ? 'sticky left-[248px] z-20 min-w-[88px] bg-ink-50 border-r-2 border-gold-300 shadow-[2px_0_8px_rgba(0,0,0,0.07)]' : ''} ${thCls(`${src}_sell`)}`} onClick={() => toggleSort(`${src}_sell`)}>Sell {sortKey === `${src}_sell` ? (sortAsc ? '↑' : '↓') : ''}</th>
                   </>
                 ))}
                 <th className="px-3 py-1 text-right text-xs font-medium text-amber-600">Buy ≥</th>
@@ -243,8 +243,8 @@ export function CompetitorRatesTable() {
               {rows.map(({ code, own, vanex, arzsina, vbce, daniel, moneyway, buyClass, sellClass, ownBuyIsBest, ownSellIsBest, targetBuy, targetSell }) => {
                 const info = CURRENCY_INFO[code];
                 return (
-                  <tr key={code} className="hover:bg-gold-50/30">
-                    <td className="sticky left-0 bg-white px-3 py-2">
+                  <tr key={code} className="group hover:bg-gold-50/30">
+                    <td className="sticky left-0 z-10 bg-white group-hover:bg-gold-50/30 px-3 py-2">
                       <div className="flex items-center gap-2">
                         {info ? (
                           <span className={`fi fi-${info.flag} rounded-sm`} style={{ width: 20, height: 15, display: 'inline-block', flexShrink: 0 }} />
@@ -257,14 +257,17 @@ export function CompetitorRatesTable() {
                         </div>
                       </div>
                     </td>
-                    {/* Own — click to edit inline */}
+                    {/* Own — click to edit inline; sticky so it stays visible while scrolling */}
                     {(['buy', 'sell'] as const).map((field) => {
                       const val = own?.[field];
                       const cls = field === 'buy' ? buyClass(val) : sellClass(val);
                       const notBest = field === 'buy' ? !ownBuyIsBest : !ownSellIsBest;
                       const isInline = inlineEdit?.code === code && inlineEdit?.field === field;
+                      const stickyBase = field === 'buy'
+                        ? 'sticky left-[160px] z-10 min-w-[88px] bg-white group-hover:bg-gold-50/30 border-l border-ink-50'
+                        : 'sticky left-[248px] z-10 min-w-[88px] bg-white group-hover:bg-gold-50/30 border-r-2 border-gold-300 shadow-[2px_0_8px_rgba(0,0,0,0.07)]';
                       return (
-                        <td key={field} className={`${field === 'buy' ? 'border-l border-ink-50' : ''} px-3 py-2 text-right font-mono ${cls}`}>
+                        <td key={field} className={`${stickyBase} px-3 py-2 text-right font-mono ${cls}`}>
                           {isInline ? (
                             <input
                               type="number"

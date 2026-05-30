@@ -17,44 +17,46 @@ const staticPages = [
   { path: '/contact',   priority: 0.6,  changeFrequency: 'monthly' },
 ] as const;
 
+function hreflang(path: string) {
+  return {
+    'x-default': `${BASE}/en${path}`,
+    ...Object.fromEntries(locales.map((l) => [l, `${BASE}/${l}${path}`])),
+  };
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const entries: MetadataRoute.Sitemap = [];
 
-  // Static pages — one entry per locale, x-default points to the English URL
+  // One <url> entry per locale per static page so Google indexes every locale URL directly
   for (const { path, priority, changeFrequency } of staticPages) {
-    entries.push({
-      url: `${BASE}/en${path}`,
-      lastModified: now,
-      changeFrequency,
-      priority,
-      alternates: {
-        languages: {
-          'x-default': `${BASE}/en${path}`,
-          ...Object.fromEntries(locales.map((locale) => [locale, `${BASE}/${locale}${path}`])),
-        },
-      },
-    });
+    for (const locale of locales) {
+      entries.push({
+        url: `${BASE}/${locale}${path}`,
+        lastModified: now,
+        changeFrequency,
+        priority: locale === 'en' ? priority : Math.round(priority * 0.9 * 10) / 10,
+        alternates: { languages: hreflang(path) },
+      });
+    }
   }
 
-  // Dynamic news/blog posts
+  // Dynamic news/blog posts — one entry per locale
   try {
     const posts = await getPosts();
     for (const post of posts) {
       const slug = (post as any).slug;
       if (!slug) continue;
-      entries.push({
-        url: `${BASE}/en/news/${slug}`,
-        lastModified: new Date((post as any).updatedAt ?? (post as any).createdAt ?? now),
-        changeFrequency: 'weekly',
-        priority: 0.6,
-        alternates: {
-          languages: {
-            'x-default': `${BASE}/en/news/${slug}`,
-            ...Object.fromEntries(locales.map((locale) => [locale, `${BASE}/${locale}/news/${slug}`])),
-          },
-        },
-      });
+      const lastModified = new Date((post as any).updatedAt ?? (post as any).createdAt ?? now);
+      for (const locale of locales) {
+        entries.push({
+          url: `${BASE}/${locale}/news/${slug}`,
+          lastModified,
+          changeFrequency: 'weekly',
+          priority: locale === 'en' ? 0.6 : 0.5,
+          alternates: { languages: hreflang(`/news/${slug}`) },
+        });
+      }
     }
   } catch {
     // posts unavailable — skip dynamic news entries
