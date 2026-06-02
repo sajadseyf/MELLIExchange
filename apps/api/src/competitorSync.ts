@@ -124,29 +124,46 @@ async function scrapeMoneyWay(): Promise<RateMap> {
   const res = await fetch('https://www.moneyway.com/rates/currencies', {
     headers: {
       'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.1 Safari/605.1.15',
-      'Accept': 'text/html,application/xhtml+xml',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       'Accept-Language': 'en-US,en;q=0.9',
     },
   });
   if (!res.ok) throw new Error(`MoneyWay HTML ${res.status}`);
   const html = await res.text();
 
-  if (!html.includes('cashCurrencyRates')) throw new Error('MoneyWay: cashCurrencyRates not found in page');
+  const startIdx = html.indexOf('cashCurrencyRates');
+  if (startIdx === -1) throw new Error('MoneyWay: cashCurrencyRates not found in page');
+  const arrStart = html.indexOf('[', startIdx);
+  if (arrStart === -1) throw new Error('MoneyWay: array bracket not found');
+
+  // Walk brackets to find the closing ] of the cashCurrencyRates array
+  let depth = 0, arrEnd = -1;
+  for (let i = arrStart; i < Math.min(arrStart + 50_000, html.length); i++) {
+    const ch = html[i];
+    if (ch === '[' || ch === '{') depth++;
+    else if (ch === ']' || ch === '}') {
+      depth--;
+      if (depth === 0) { arrEnd = i; break; }
+    }
+  }
+  if (arrEnd === -1) throw new Error('MoneyWay: unclosed array in page');
+
+  let items: Array<Record<string, unknown>>;
+  try {
+    items = JSON.parse(html.slice(arrStart, arrEnd + 1));
+  } catch {
+    throw new Error('MoneyWay: JSON parse failed for cashCurrencyRates');
+  }
 
   const map: RateMap = {};
-
-  // Match individual currency objects — avoids catastrophic backtracking of [\s\S]*? on large HTML.
-  // Object shape: {"code":"USD","buy":1.391,"sell":1.368,"rate_at":"...","icon":"...","name":"..."}
-  for (const m of html.matchAll(/\{"code":"([A-Z]{2,4})","buy":([\d.]+),"sell":([\d.]+)/g)) {
-    const code = m[1]!.trim().toUpperCase();
-    if (!code || code === 'CAD') continue;
-    const a = parseFloat(m[2]!);
-    const b = parseFloat(m[3]!);
+  for (const item of items) {
+    const code = String(item['code'] ?? '').trim().toUpperCase();
+    if (!code || code === 'CAD' || !/^[A-Z]{2,4}$/.test(code)) continue;
+    const a = parseFloat(String(item['buy'] ?? '0'));
+    const b = parseFloat(String(item['sell'] ?? '0'));
     if (!isFinite(a) || !isFinite(b) || a <= 0 || b <= 0) continue;
     // Normalise to exchange perspective: buy (lower) = what exchange pays, sell (higher) = what exchange charges
-    const buy  = Math.min(a, b);
-    const sell = Math.max(a, b);
-    if (!map[code]) map[code] = { buy, sell };
+    if (!map[code]) map[code] = { buy: Math.min(a, b), sell: Math.max(a, b) };
   }
 
   if (Object.keys(map).length === 0) throw new Error('MoneyWay: no rates parsed');
