@@ -23,16 +23,36 @@ async function scrapeVanex(): Promise<RateMap> {
   if (!res.ok) throw new Error(`Vanex RSC ${res.status}`);
   const text = await res.text();
 
+  // Walk every JSON object in the RSC payload — property order independent.
+  // buyCash = exchange pays customer (our "buy"); sellCash = exchange charges (our "sell").
   const map: RateMap = {};
-  // RSC payload embeds JSON objects: {"iso":"USD","isoName":"...","buyCash":1.36,"sellCash":1.39,...}
-  // buyCash = exchange pays customer for their foreign cash (our "buy")
-  // sellCash = exchange charges customer for foreign cash (our "sell")
-  for (const m of text.matchAll(/\{"iso":"([A-Z]{2,4})"[^}]+"buyCash":([\d.]+)[^}]+"sellCash":([\d.]+)/g)) {
-    const code = m[1]!;
-    if (code === 'CAD' || map[code]) continue;
-    const buy  = parseFloat(m[2]!);
-    const sell = parseFloat(m[3]!);
-    if (buy > 0 && sell > 0) map[code] = { buy, sell };
+  let i = 0;
+  while (i < text.length) {
+    const start = text.indexOf('{', i);
+    if (start === -1) break;
+
+    let depth = 0, end = -1;
+    for (let j = start; j < Math.min(start + 5000, text.length); j++) {
+      if (text[j] === '{') depth++;
+      else if (text[j] === '}') { depth--; if (depth === 0) { end = j; break; } }
+    }
+    if (end === -1) { i = start + 1; continue; }
+
+    const chunk = text.slice(start, end + 1);
+    if (chunk.includes('"buyCash"') && chunk.includes('"iso"')) {
+      try {
+        const obj = JSON.parse(chunk) as Record<string, unknown>;
+        const code = String(obj['iso'] ?? '').trim().toUpperCase();
+        if (code && code !== 'CAD' && /^[A-Z]{2,4}$/.test(code)) {
+          const a = parseFloat(String(obj['buyCash']  ?? '0'));
+          const b = parseFloat(String(obj['sellCash'] ?? '0'));
+          if (isFinite(a) && isFinite(b) && a > 0 && b > 0 && !map[code]) {
+            map[code] = { buy: Math.min(a, b), sell: Math.max(a, b) };
+          }
+        }
+      } catch { /* skip unparseable chunk */ }
+    }
+    i = end + 1;
   }
 
   if (Object.keys(map).length === 0) throw new Error('Vanex RSC: no rates parsed from payload');
@@ -131,43 +151,65 @@ async function scrapeMoneyWay(): Promise<RateMap> {
   if (!res.ok) throw new Error(`MoneyWay HTML ${res.status}`);
   const html = await res.text();
 
-  const startIdx = html.indexOf('cashCurrencyRates');
-  if (startIdx === -1) throw new Error('MoneyWay: cashCurrencyRates not found in page');
-  const arrStart = html.indexOf('[', startIdx);
-  if (arrStart === -1) throw new Error('MoneyWay: array bracket not found');
+  // Try several JS variable names that MoneyWay may use for their rates array
+  const VAR_NAMES = ['cashCurrencyRates', 'cashRates', 'currencyRates', 'currencies', 'rates'];
+  for (const varName of VAR_NAMES) {
+    const startIdx = html.indexOf(varName);
+    if (startIdx === -1) continue;
+    const arrStart = html.indexOf('[', startIdx);
+    if (arrStart === -1 || arrStart - startIdx > 30) continue;
 
-  // Walk brackets to find the closing ] of the cashCurrencyRates array
-  let depth = 0, arrEnd = -1;
-  for (let i = arrStart; i < Math.min(arrStart + 50_000, html.length); i++) {
-    const ch = html[i];
-    if (ch === '[' || ch === '{') depth++;
-    else if (ch === ']' || ch === '}') {
-      depth--;
-      if (depth === 0) { arrEnd = i; break; }
+    let depth = 0, arrEnd = -1;
+    for (let i = arrStart; i < Math.min(arrStart + 50_000, html.length); i++) {
+      const ch = html[i];
+      if (ch === '[' || ch === '{') depth++;
+      else if (ch === ']' || ch === '}') { depth--; if (depth === 0) { arrEnd = i; break; } }
     }
-  }
-  if (arrEnd === -1) throw new Error('MoneyWay: unclosed array in page');
+    if (arrEnd === -1) continue;
 
-  let items: Array<Record<string, unknown>>;
-  try {
-    items = JSON.parse(html.slice(arrStart, arrEnd + 1));
-  } catch {
-    throw new Error('MoneyWay: JSON parse failed for cashCurrencyRates');
+    try {
+      const items = JSON.parse(html.slice(arrStart, arrEnd + 1)) as Array<Record<string, unknown>>;
+      if (!Array.isArray(items) || items.length === 0) continue;
+
+      const map: RateMap = {};
+      for (const item of items) {
+        const code = String(item['code'] ?? item['iso'] ?? item['currency'] ?? '').trim().toUpperCase();
+        if (!code || code === 'CAD' || !/^[A-Z]{2,4}$/.test(code)) continue;
+        const a = parseFloat(String(item['buy'] ?? item['buyRate'] ?? item['buyCash'] ?? '0'));
+        const b = parseFloat(String(item['sell'] ?? item['sellRate'] ?? item['sellCash'] ?? '0'));
+        if (!isFinite(a) || !isFinite(b) || a <= 0 || b <= 0) continue;
+        if (!map[code]) map[code] = { buy: Math.min(a, b), sell: Math.max(a, b) };
+      }
+      if (Object.keys(map).length > 0) {
+        console.log(`[competitorSync] MoneyWay: parsed via JS var "${varName}"`);
+        return map;
+      }
+    } catch { continue; }
   }
 
+  // Cheerio table fallback — works if rates are in a plain HTML table
+  const $ = cheerio.load(html);
   const map: RateMap = {};
-  for (const item of items) {
-    const code = String(item['code'] ?? '').trim().toUpperCase();
-    if (!code || code === 'CAD' || !/^[A-Z]{2,4}$/.test(code)) continue;
-    const a = parseFloat(String(item['buy'] ?? '0'));
-    const b = parseFloat(String(item['sell'] ?? '0'));
-    if (!isFinite(a) || !isFinite(b) || a <= 0 || b <= 0) continue;
-    // Normalise to exchange perspective: buy (lower) = what exchange pays, sell (higher) = what exchange charges
-    if (!map[code]) map[code] = { buy: Math.min(a, b), sell: Math.max(a, b) };
+  $('table tr').each((_i, row) => {
+    const cells = $(row).find('td');
+    if (cells.length < 3) return;
+    const code = $(cells[0]).text().trim().toUpperCase();
+    if (!/^[A-Z]{2,4}$/.test(code) || code === 'CAD') return;
+    const nums = cells.toArray().slice(1)
+      .map((c) => parseFloat($(c).text().replace(/[, $]/g, '').trim()))
+      .filter((n) => isFinite(n) && n > 0.5 && n < 20);
+    if (nums.length >= 2) {
+      const [a, b] = nums as [number, number];
+      if (!map[code]) map[code] = { buy: Math.min(a, b), sell: Math.max(a, b) };
+    }
+  });
+
+  if (Object.keys(map).length > 0) {
+    console.log('[competitorSync] MoneyWay: parsed via HTML table fallback');
+    return map;
   }
 
-  if (Object.keys(map).length === 0) throw new Error('MoneyWay: no rates parsed');
-  return map;
+  throw new Error('MoneyWay: no rates parsed (tried JS vars + table)');
 }
 
 // ── VBCE API ─────────────────────────────────────────────────────────────────
