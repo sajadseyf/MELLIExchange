@@ -570,8 +570,10 @@ export async function syncPrices() {
   console.log('[priceSync] done');
 }
 
-// ── Preview: fetch all sources simultaneously ────────────────────────────────
-// Returns { sourceName: { currencyCode: {buy,sell} | null } }
+// ── Preview: fetch comparison rates for the admin currencies panel ───────────
+// Competitor sources (vanex/vbce/arzsina/daniel) come from the last DB snapshot
+// (populated by the 30-min competitor sync) — avoids 44+ outbound HTTP calls.
+// Only BoC, Frankfurter, and open.er-api are fetched live (each is a single call).
 
 export async function previewRates(): Promise<{
   sources: string[];
@@ -581,41 +583,48 @@ export async function previewRates(): Promise<{
   const spread  = (settings as any).spread   ?? 1.5;
   const apiKeys = (settings as any).apiKeys  ?? {};
 
-  const candidates: Array<{ name: string; fn: () => Promise<CurrencyRates | null> }> = [
-    { name: 'vanex_scrape',   fn: () => fromVanEx(spread) },
-    { name: 'vbce_scrape',    fn: () => fromVBCE(spread) },
-    { name: 'arzsina_scrape', fn: () => fromArzSina(spread) },
+  const bySource: Record<string, CurrencyRates | null> = {};
+
+  // ── Competitor DB sources (fast — last 30-min snapshot) ───────────────────
+  const DB_SOURCES: Array<{ dbName: string; label: string }> = [
+    { dbName: 'vanex',   label: 'vanex_scrape' },
+    { dbName: 'vbce',    label: 'vbce_scrape' },
+    { dbName: 'arzsina', label: 'arzsina_scrape' },
+    { dbName: 'daniel',  label: 'daniel_scrape' },
+  ];
+
+  await Promise.all(DB_SOURCES.map(async ({ dbName, label }) => {
+    try {
+      const doc = await CompetitorRateModel.findOne({ source: dbName }).sort({ recordedAt: -1 }).lean();
+      if (!doc) { bySource[label] = null; return; }
+      const map: CurrencyRates = new Map();
+      for (const entry of (doc as any).rates ?? []) {
+        if (entry.code && entry.buy > 0 && entry.sell > 0) map.set(entry.code, { buy: entry.buy, sell: entry.sell });
+      }
+      bySource[label] = map.size > 0 ? map : null;
+    } catch {
+      bySource[label] = null;
+    }
+  }));
+
+  // ── Live API sources (one HTTP call each, run in parallel) ────────────────
+  const liveSources: Array<{ name: string; fn: () => Promise<CurrencyRates | null> }> = [
     { name: 'bank_of_canada', fn: () => fromBankOfCanada(spread) },
     { name: 'frankfurter',    fn: () => fromFrankfurter(spread) },
     { name: 'open_er_api',    fn: () => fromOpenER(spread) },
   ];
   if (apiKeys.open_exchange_rates)
-    candidates.push({ name: 'open_exchange_rates', fn: () => fromOpenExchangeRates(apiKeys.open_exchange_rates, spread) });
+    liveSources.push({ name: 'open_exchange_rates', fn: () => fromOpenExchangeRates(apiKeys.open_exchange_rates, spread) });
   if (apiKeys.currency_api)
-    candidates.push({ name: 'currency_api', fn: () => fromCurrencyAPI(apiKeys.currency_api, spread) });
+    liveSources.push({ name: 'currency_api', fn: () => fromCurrencyAPI(apiKeys.currency_api, spread) });
 
-  const results = await Promise.allSettled(candidates.map((c) => c.fn()));
-
-  const bySource: Record<string, CurrencyRates | null> = {};
-  candidates.forEach((c, i) => {
-    const r = results[i];
-    bySource[c.name] = r?.status === 'fulfilled' ? r.value : null;
+  const liveResults = await Promise.allSettled(liveSources.map((s) => s.fn()));
+  liveSources.forEach((s, i) => {
+    const r = liveResults[i];
+    bySource[s.name] = r?.status === 'fulfilled' ? r.value : null;
   });
 
-  // Add Daniel from last competitor scrape (no real-time scrape needed)
-  const danielDoc = await CompetitorRateModel.findOne({ source: 'daniel' }).sort({ recordedAt: -1 }).lean();
-  if (danielDoc) {
-    const danielMap: CurrencyRates = new Map();
-    for (const entry of (danielDoc as any).rates ?? []) {
-      if (entry.code && entry.buy > 0 && entry.sell > 0) {
-        danielMap.set(entry.code, { buy: entry.buy, sell: entry.sell });
-      }
-    }
-    bySource['daniel_scrape'] = danielMap;
-    candidates.push({ name: 'daniel_scrape', fn: async () => null });
-  }
-
-  // Collect all currency codes seen across all sources
+  // ── Build response ────────────────────────────────────────────────────────
   const allCodes = new Set<string>();
   for (const rates of Object.values(bySource)) {
     if (rates) for (const code of rates.keys()) allCodes.add(code);
@@ -629,7 +638,8 @@ export async function previewRates(): Promise<{
     }
   }
 
-  return { sources: candidates.map((c) => c.name), rates };
+  const allSourceNames = [...DB_SOURCES.map((s) => s.label), ...liveSources.map((s) => s.name)];
+  return { sources: allSourceNames, rates };
 }
 
 // ── Cron ──────────────────────────────────────────────────────────────────────
