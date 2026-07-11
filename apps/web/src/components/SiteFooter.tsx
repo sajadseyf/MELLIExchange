@@ -53,7 +53,6 @@ export async function SiteFooter() {
           <div className="mt-5 flex flex-col gap-2 text-sm">
             <Link href="/currencies" className="text-navy-200 hover:text-gold-300 dark:text-zinc-400 dark:hover:text-gold-300">{tNav('currencies')}</Link>
             <Link href="/gold" className="text-navy-200 hover:text-gold-300 dark:text-zinc-400 dark:hover:text-gold-300">{tNav('gold')}</Link>
-            <Link href="/products" className="text-navy-200 hover:text-gold-300 dark:text-zinc-400 dark:hover:text-gold-300">{tNav('products')}</Link>
             <Link href="/about" className="text-navy-200 hover:text-gold-300 dark:text-zinc-400 dark:hover:text-gold-300">{tNav('about')}</Link>
             <Link href="/contact" className="text-navy-200 hover:text-gold-300 dark:text-zinc-400 dark:hover:text-gold-300">{tNav('contact')}</Link>
           </div>

@@ -16,7 +16,7 @@ export const site = {
     { days: 'Sunday',    time: '10:00 AM – 5:00 PM' },
   ],
   social: {
-    telegram:  'https://t.me/melliexchange',
-    instagram: 'https://instagram.com/melli_exchange.ltd',
+    telegram:  'https://t.me/melli_exchane',
+    instagram: 'https://instagram.com/melli_jewelry_exchange',
   },
 };

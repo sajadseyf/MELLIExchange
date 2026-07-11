@@ -10,7 +10,6 @@ const staticPages = [
   { path: '',           priority: 1.0,  changeFrequency: 'daily'   },
   { path: '/currencies',priority: 0.9,  changeFrequency: 'hourly'  },
   { path: '/gold',      priority: 0.9,  changeFrequency: 'hourly'  },
-  { path: '/products',  priority: 0.8,  changeFrequency: 'weekly'  },
   { path: '/news',      priority: 0.8,  changeFrequency: 'daily'   },
   { path: '/faq',       priority: 0.7,  changeFrequency: 'monthly' },
   { path: '/about',     priority: 0.6,  changeFrequency: 'monthly' },

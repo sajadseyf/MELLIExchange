@@ -16,7 +16,6 @@ export function SiteHeader() {
   const nav = [
     { href: '/currencies' as const, label: t('currencies') },
     { href: '/gold' as const,       label: t('gold') },
-    { href: '/products' as const,   label: t('products') },
     { href: '/faq' as const,        label: t('faq') },
     { href: '/about' as const,      label: t('about') },
     { href: '/contact' as const,    label: t('contact') },
