@@ -48,7 +48,6 @@ export default async function VCardPage() {
                 width={88}
                 height={88}
                 className="relative rounded-2xl"
-                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
               />
             </div>
 
