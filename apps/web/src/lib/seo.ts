@@ -133,19 +133,19 @@ const pageMeta: Record<PageKey, Record<Locale, PageMeta>> = {
   contact: {
     en: {
       title: 'Contact Melli Exchange | Currency Exchange Coquitlam BC',
-      description: 'Visit Melli Exchange at 1102-1163 Pinetree Way, Coquitlam BC. Call (778) 929-9447 or (604) 905-9033. Open Mon–Sat 10 AM–7 PM, Sun 10 AM–5 PM.',
+      description: 'Visit Melli Exchange at Unit 1102, Henderson Place Mall, Coquitlam BC. Call (778) 752-7386 or 1-877-867-7090. Open Mon–Sat 10 AM–7 PM, Sun 10 AM–5 PM.',
     },
     fa: {
       title: 'تماس با ما | صرافی ملی اکسچنج کوکیتلام',
-      description: 'به ملی اکسچنج در ۱۱۰۲-۱۱۶۳ Pinetree Way کوکیتلام مراجعه کنید. با (778) 929-9447 تماس بگیرید. ساعت کاری: دوشنبه تا شنبه ۱۰ صبح – ۷ عصر، یکشنبه ۱۰ صبح – ۵ عصر.',
+      description: 'به ملی اکسچنج در Unit 1102، Henderson Place Mall، کوکیتلام مراجعه کنید. با (778) 752-7386 تماس بگیرید. ساعت کاری: دوشنبه تا شنبه ۱۰ صبح – ۷ عصر، یکشنبه ۱۰ صبح – ۵ عصر.',
     },
     ar: {
       title: 'اتصل بنا | ملي إكسشينج كوكيتلام',
-      description: 'تفضل بزيارة ملي إكسشينج في 1102-1163 Pinetree Way، كوكيتلام. اتصل على (778) 929-9447. مفتوح الاثنين–السبت 10ص–7م، الأحد 10ص–5م.',
+      description: 'تفضل بزيارة ملي إكسشينج في Unit 1102، Henderson Place Mall، كوكيتلام. اتصل على (778) 752-7386. مفتوح الاثنين–السبت 10ص–7م، الأحد 10ص–5م.',
     },
     zh: {
       title: '联系我们 | Melli Exchange 高贵林货币兑换',
-      description: '前往高贵林Melli Exchange，地址：1102-1163 Pinetree Way，高贵林BC。电话：(778) 929-9447。营业时间：周一至周六10:00-19:00，周日10:00-17:00。',
+      description: '前往高贵林Melli Exchange，地址：Unit 1102, Henderson Place Mall，高贵林BC。电话：(778) 752-7386。营业时间：周一至周六10:00-19:00，周日10:00-17:00。',
     },
   },
   news: {

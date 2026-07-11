@@ -3,7 +3,7 @@ export const site = {
   name: 'Melli Exchange',
   tagline: 'Jewelry & Exchange',
   address: {
-    street: '1102-1163 Pinetree Wy',
+    street: 'Unit 1102, Henderson Place Mall, 1163 Pinetree Way',
     city: 'Coquitlam',
     region: 'BC',
     country: 'Canada',

@@ -123,8 +123,8 @@ export function WhyUs() {
           <div className="grid grid-cols-2 gap-4">
             <div className="rounded-xl2 border border-ink-100 bg-white p-5 shadow-card dark:border-dark-border dark:bg-dark-raised dark:shadow-none">
               <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-gold-600 dark:text-gold-400">Location</div>
-              <p className="text-sm text-ink-700 dark:text-zinc-300">1102-1163 Pinetree Wy</p>
-              <p className="text-sm text-ink-700 dark:text-zinc-300">Coquitlam, BC V3B 8A9</p>
+              <p className="text-sm text-ink-700 dark:text-zinc-300">Unit 1102, Henderson Place Mall</p>
+              <p className="text-sm text-ink-700 dark:text-zinc-300">1163 Pinetree Way, Coquitlam BC</p>
             </div>
             <div className="rounded-xl2 border border-ink-100 bg-white p-5 shadow-card dark:border-dark-border dark:bg-dark-raised dark:shadow-none">
               <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-gold-600 dark:text-gold-400">Hours</div>
