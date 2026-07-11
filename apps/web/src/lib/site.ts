@@ -9,7 +9,7 @@ export const site = {
     country: 'Canada',
     postal: 'V3B 8A9',
   },
-  phones: ['+1 (778) 929-9447', '+1 (604) 905-9033'],
+  phones: ['+1 (778) 752-7386', '1-877-867-7090'],
   email: 'info@melliexchange.ca',
   hours: [
     { days: 'Mon – Sat', time: '10:00 AM – 7:00 PM' },
