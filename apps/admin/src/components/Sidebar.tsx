@@ -16,9 +16,8 @@ const NAV = [
   {
     section: 'Market',
     items: [
-      { href: '/rates',  label: 'Competitor Rates', icon: '📊' },
-      { href: '/charts', label: 'Charts',           icon: '📈' },
-      { href: '/news',   label: 'News',             icon: '📰' },
+      { href: '/charts', label: 'Charts', icon: '📈' },
+      { href: '/news',   label: 'News',   icon: '📰' },
     ],
   },
   {
