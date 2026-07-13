@@ -723,9 +723,9 @@ export function startPriceSync() {
   syncGoldSpot().catch(console.error);
   cron.schedule('* * * * *', () => syncGoldSpot().catch(console.error));
 
-  // Competitor rates — every 30 min
+  // Competitor rates — every 5 min (also auto-applies target rates to CurrencyModel)
   syncCompetitorRates().catch(console.error);
-  cron.schedule('*/30 * * * *', () => syncCompetitorRates().catch(console.error));
+  cron.schedule('*/5 * * * *', () => syncCompetitorRates().catch(console.error));
 
-  console.log('[priceSync] scheduler started — spot 1 min · prices 15 min · competitor 30 min');
+  console.log('[priceSync] scheduler started — spot 1 min · prices 15 min · competitor 5 min');
 }
