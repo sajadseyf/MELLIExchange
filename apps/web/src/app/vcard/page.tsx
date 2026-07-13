@@ -1,6 +1,7 @@
-import { getCurrencies } from '@/lib/api';
+import { getCurrencies, getGoldPrices } from '@/lib/api';
 import { site } from '@/lib/site';
 import { SaveContactButton } from './SaveContactButton';
+import { FintracBadge } from './FintracBadge';
 
 export const revalidate = 60;
 
@@ -16,31 +17,41 @@ const TelegramIcon = () => (
   </svg>
 );
 
+const GoldBarIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+    <path d="M3 9h18l-2 8H5L3 9zm2-4h14l1 3H4L6 5zm3 0V3h6v2H9z"/>
+  </svg>
+);
+
 export default async function VCardPage() {
   let usd: { buy: number; sell: number } | null = null;
+  let gold18: number | null = null;
+
   try {
-    const currencies = await getCurrencies();
-    const found = currencies.find((c: any) => c.code === 'USD');
-    if (found) usd = { buy: found.buy, sell: found.sell };
+    const [currencies, goldPrices] = await Promise.all([getCurrencies(), getGoldPrices()]);
+    const foundUsd = currencies.find((c: any) => c.code === 'USD');
+    if (foundUsd) usd = { buy: foundUsd.buy, sell: foundUsd.sell };
+    const found18k = goldPrices.find((g) => g.karat === 18);
+    if (found18k) gold18 = found18k.pricePerGram;
   } catch {}
 
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('Unit 1102 Henderson Place Mall 1163 Pinetree Way Coquitlam BC')}`;
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#060b17] p-4"
-      style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(180,140,40,0.12) 0%, #060b17 60%)' }}>
+      style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(180,140,40,0.15) 0%, #060b17 65%)' }}>
 
       <div className="w-full max-w-sm">
 
         {/* Card */}
         <div className="overflow-hidden rounded-3xl border border-white/8 bg-gradient-to-b from-[#0e1729] to-[#080d19] shadow-2xl"
-          style={{ boxShadow: '0 0 80px rgba(180,140,40,0.12), 0 32px 64px rgba(0,0,0,0.6)' }}>
+          style={{ boxShadow: '0 0 100px rgba(180,140,40,0.15), 0 32px 64px rgba(0,0,0,0.6)' }}>
 
           {/* Header — logo + name */}
           <div className="flex flex-col items-center px-8 pt-10 pb-6">
             {/* Logo glow ring */}
             <div className="relative mb-5">
-              <div className="absolute inset-0 scale-125 rounded-full bg-gold-500/20 blur-xl" />
+              <div className="absolute inset-0 scale-125 rounded-full bg-amber-500/25 blur-2xl" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/logo.png"
@@ -56,27 +67,62 @@ export default async function VCardPage() {
               Currency Exchange &amp; Gold Jewelry
             </p>
 
-            {/* FINTRAC badge */}
-            <span className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-white/50">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              FINTRAC Registered · Est. 2014
-            </span>
+            <FintracBadge />
           </div>
 
-          {/* Live USD Rate */}
-          {usd && (
-            <div className="mx-5 mb-1 rounded-2xl border border-amber-500/20 bg-amber-500/8 px-5 py-3.5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-400/70">Live USD / CAD</p>
-                  <div className="mt-1 flex items-baseline gap-3">
-                    <span className="text-xs text-white/50">Buy <span className="text-base font-bold text-white">{usd.buy.toFixed(4)}</span></span>
-                    <span className="text-xs text-white/50">Sell <span className="text-base font-bold text-white">{usd.sell.toFixed(4)}</span></span>
+          {/* Live Rates */}
+          {(usd || gold18 !== null) && (
+            <div className="mx-5 mb-1 space-y-2.5">
+              {/* Section label */}
+              <div className="flex items-center gap-2">
+                <div className="h-px flex-1 bg-white/8" />
+                <span className="text-[9px] font-semibold uppercase tracking-[0.25em] text-white/30">Live Rates</span>
+                <div className="h-px flex-1 bg-white/8" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2.5">
+                {/* USD / CAD */}
+                {usd && (
+                  <div className="rounded-2xl border border-sky-500/20 bg-gradient-to-br from-sky-500/10 to-sky-500/5 p-3.5">
+                    <div className="mb-2 flex items-center justify-between">
+                      <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-sky-400/80">USD / CAD</p>
+                      <span className="text-base">💵</span>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-baseline justify-between">
+                        <span className="text-[10px] text-white/40">Buy</span>
+                        <span className="text-sm font-bold text-white">{usd.buy.toFixed(4)}</span>
+                      </div>
+                      <div className="flex items-baseline justify-between">
+                        <span className="text-[10px] text-white/40">Sell</span>
+                        <span className="text-sm font-bold text-white">{usd.sell.toFixed(4)}</span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/15 text-lg">
-                  💵
-                </div>
+                )}
+
+                {/* Gold 18K */}
+                {gold18 !== null && (
+                  <div className="rounded-2xl border border-amber-400/30 p-3.5"
+                    style={{ background: 'linear-gradient(135deg, rgba(217,170,50,0.15) 0%, rgba(180,130,30,0.08) 100%)' }}>
+                    <div className="mb-2 flex items-center justify-between">
+                      <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-amber-300/90">طلا ۱۸ عیار</p>
+                      <span className="text-amber-400/80"><GoldBarIcon /></span>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-baseline justify-between">
+                        <span className="text-[10px] text-white/40">هر گرم</span>
+                        <span className="text-sm font-bold text-amber-200">
+                          {usd ? `CA$${(gold18 * usd.sell).toFixed(2)}` : '—'}
+                        </span>
+                      </div>
+                      <div className="flex items-baseline justify-between">
+                        <span className="text-[10px] text-white/40">USD</span>
+                        <span className="text-[10px] font-semibold text-amber-400/60">${gold18.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}

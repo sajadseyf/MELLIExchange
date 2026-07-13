@@ -1,5 +1,7 @@
 import * as cheerio from 'cheerio';
 import { CompetitorRateModel } from './models/CompetitorRate.js';
+import { CurrencyModel } from './models/Currency.js';
+import { CurrencyPriceHistoryModel } from './models/CurrencyPriceHistory.js';
 import { SpotPriceModel } from './models/SpotPrice.js';
 import { RateAlertModel } from './models/RateAlert.js';
 import { getSettings } from './models/Settings.js';
@@ -398,18 +400,59 @@ export async function syncCompetitorRates() {
     { name: 'moneyway', fn: scrapeMoneyWay },
   ];
 
+  const successfulMaps: RateMap[] = [];
+
   for (const { name, fn } of sources) {
     try {
       const rates = await fn();
       const count = Object.keys(rates).length;
       if (count === 0) { console.warn(`[competitorSync] ${name}: 0 rates`); continue; }
 
+      successfulMaps.push(rates);
       const ratesArr = Object.entries(rates).map(([code, r]) => ({ code, buy: r.buy, sell: r.sell }));
       await CompetitorRateModel.create({ source: name, recordedAt: now, rates: ratesArr });
       await detectJumps(name, rates);
       console.log(`[competitorSync] ${name}: ${count} rates saved`);
     } catch (e) {
       console.error(`[competitorSync] ${name} failed:`, e);
+    }
+  }
+
+  // Apply target rates (max competitor buy / min competitor sell) to CurrencyModel
+  if (successfulMaps.length > 0) {
+    try {
+      const allCodes = new Set<string>();
+      for (const map of successfulMaps) for (const code of Object.keys(map)) allCodes.add(code);
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      let updated = 0;
+      for (const code of allCodes) {
+        const buys  = successfulMaps.map(m => m[code]?.buy ).filter((v): v is number => !!v && v > 0);
+        const sells = successfulMaps.map(m => m[code]?.sell).filter((v): v is number => !!v && v > 0);
+        if (!buys.length || !sells.length) continue;
+
+        const targetBuy  = Math.max(...buys);
+        const targetSell = Math.min(...sells);
+
+        const result = await CurrencyModel.findOneAndUpdate(
+          { code },
+          { $set: { buy: targetBuy, sell: targetSell } },
+          { new: true },
+        );
+        if (result) {
+          await CurrencyPriceHistoryModel.updateOne(
+            { code, recordedAt: today },
+            { $set: { buy: targetBuy, sell: targetSell, recordedAt: today, code } },
+            { upsert: true },
+          );
+          updated++;
+        }
+      }
+      console.log(`[competitorSync] applied target rates to ${updated} currencies`);
+    } catch (e) {
+      console.error('[competitorSync] apply target rates failed:', e);
     }
   }
 
