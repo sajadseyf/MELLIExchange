@@ -112,13 +112,13 @@ export default async function VCardPage() {
                     <div className="space-y-1">
                       <div className="flex items-baseline justify-between">
                         <span className="text-[10px] text-white/40">هر گرم</span>
-                        <span className="text-sm font-bold text-amber-200">
-                          {usd ? `CA$${(gold18 * usd.sell).toFixed(2)}` : '—'}
-                        </span>
+                        <span className="text-sm font-bold text-amber-200">CA${gold18.toFixed(2)}</span>
                       </div>
                       <div className="flex items-baseline justify-between">
                         <span className="text-[10px] text-white/40">USD</span>
-                        <span className="text-[10px] font-semibold text-amber-400/60">${gold18.toFixed(2)}</span>
+                        <span className="text-[10px] font-semibold text-amber-400/60">
+                          {usd ? `$${(gold18 / usd.sell).toFixed(2)}` : '—'}
+                        </span>
                       </div>
                     </div>
                   </div>
