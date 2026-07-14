@@ -45,13 +45,14 @@ function AnimNum({ value, fmt: f }: { value: number; fmt: (n: number) => string 
   return <span style={{ transition: 'color 0.4s', color: flash ? '#fff' : 'inherit' }}>{f(display)}</span>;
 }
 
+const VIDEOS = ['/tv-ad-1.mp4', '/tv-ad-2.mp4'];
+
 export default function TVDisplay({
-  initialCurrencies, initialGold, initialSpot, videoUrl,
+  initialCurrencies, initialGold, initialSpot,
 }: {
   initialCurrencies: Currency[];
   initialGold: GoldPrice[];
   initialSpot: SpotPrice | null;
-  videoUrl?: string;
 }) {
   const [currencies, setCurrencies]   = useState(initialCurrencies);
   const [gold, setGold]               = useState(initialGold);
@@ -60,6 +61,8 @@ export default function TVDisplay({
   const [pulse, setPulse]             = useState(false);
   const [lang, setLang]               = useState<'en' | 'fa'>('en');
   const [langVisible, setLangVisible] = useState(true);
+  const [videoIdx, setVideoIdx]       = useState(0);
+  const videoRef                      = useRef<HTMLVideoElement>(null);
 
   /* ── data refresh ── */
   const refresh = useCallback(async () => {
@@ -77,6 +80,11 @@ export default function TVDisplay({
   }, []);
 
   useEffect(() => { const id = setInterval(refresh, 30_000); return () => clearInterval(id); }, [refresh]);
+
+  /* ── cycle videos on ended ── */
+  const handleVideoEnded = useCallback(() => {
+    setVideoIdx(i => (i + 1) % VIDEOS.length);
+  }, []);
 
   /* ── language toggle every 8s with fade ── */
   useEffect(() => {
@@ -183,14 +191,11 @@ export default function TVDisplay({
               backdropFilter: 'blur(4px)',
               animation: `slideIn 0.6s ease ${i * 0.1}s both`,
             }}>
-              {/* Currency info */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1vw' }}>
-                <span style={{ fontSize: '3.5vw', lineHeight: 1 }}>{c.flag}</span>
-                <div>
-                  <div style={{ fontSize: '2vw', fontWeight: 800, color: '#fff', lineHeight: 1.1 }}>{c.code}</div>
-                  <div style={{ fontSize: '1vw', color: '#7a8eaf', marginTop: '0.2vw' }}>
-                    {isFa ? CURRENCY_FA[c.code] ?? c.name : c.name}
-                  </div>
+              {/* Currency info — flag only */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.5vw' }}>
+                <span style={{ fontSize: '5vw', lineHeight: 1, filter: 'drop-shadow(0 0 0.5vw rgba(255,255,255,0.15))' }}>{c.flag}</span>
+                <div style={{ fontSize: '1.1vw', color: '#7a8eaf' }}>
+                  {isFa ? CURRENCY_FA[c.code] ?? c.name : c.name}
                 </div>
               </div>
               {/* Buy */}
@@ -284,27 +289,14 @@ export default function TVDisplay({
             background: '#04080f',
             position: 'relative',
           }}>
-            {videoUrl ? (
-              <video
-                src={videoUrl}
-                autoPlay muted loop playsInline
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            ) : (
-              <div style={{
-                width: '100%', height: '100%', minHeight: '20vw',
-                display: 'flex', flexDirection: 'column',
-                alignItems: 'center', justifyContent: 'center',
-                gap: '1vw',
-                background: 'linear-gradient(135deg, #0d1a35, #091428)',
-              }}>
-                <div style={{ fontSize: '4vw', opacity: 0.3 }}>🎬</div>
-                <div style={{ fontSize: '0.9vw', color: '#3a4a6a', textAlign: 'center', lineHeight: 1.6 }}>
-                  {isFa ? 'ویدیو در اینجا پخش می‌شود' : 'Video plays here'}<br />
-                  <span style={{ fontSize: '0.75vw', opacity: 0.6 }}>upload via admin panel</span>
-                </div>
-              </div>
-            )}
+            <video
+              ref={videoRef}
+              key={VIDEOS[videoIdx]}
+              src={VIDEOS[videoIdx]}
+              autoPlay muted playsInline
+              onEnded={handleVideoEnded}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
             {/* Glowing border animation */}
             <div style={{
               position: 'absolute', inset: 0, borderRadius: '1vw', pointerEvents: 'none',
