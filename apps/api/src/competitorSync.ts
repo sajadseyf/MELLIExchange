@@ -494,7 +494,7 @@ export async function syncCompetitorRates() {
       ];
       for (const { karat, fraction } of karats) {
         const pricePerGram = Math.round(cadPerOz / TROY_OZ_GRAMS * fraction * 100) / 100;
-        await GoldPriceModel.findOneAndUpdate({ karat }, { pricePerGram }, { upsert: true, new: true });
+        await GoldPriceModel.findOneAndUpdate({ karat }, { $set: { pricePerGram } }, { upsert: true, new: true });
       }
       console.log(`[competitorSync] gold prices updated — 18k: CA$${Math.round(cadPerOz / TROY_OZ_GRAMS * 0.75 * 100) / 100}/g`);
     }
