@@ -2,9 +2,12 @@ import * as cheerio from 'cheerio';
 import { CompetitorRateModel } from './models/CompetitorRate.js';
 import { CurrencyModel } from './models/Currency.js';
 import { CurrencyPriceHistoryModel } from './models/CurrencyPriceHistory.js';
+import { GoldPriceModel } from './models/GoldPrice.js';
 import { SpotPriceModel } from './models/SpotPrice.js';
 import { RateAlertModel } from './models/RateAlert.js';
 import { getSettings } from './models/Settings.js';
+
+const TROY_OZ_GRAMS = 31.1035;
 
 type RateMap = Record<string, { buy: number; sell: number }>;
 
@@ -456,26 +459,47 @@ export async function syncCompetitorRates() {
     }
   }
 
-  // Kitco spot prices
+  // Gold spot + karat prices
   try {
     const spot = await scrapeKitco();
     if (spot) {
-      // Get USD/CAD for conversion
+      // Get USD/CAD from currencies we just updated, or fallback to open.er-api
       let usdCad = 1.36;
       try {
-        const r = await fetch('https://open.er-api.com/v6/latest/USD');
-        const d = (await r.json()) as { result: string; rates: Record<string, number> };
-        if (d.result === 'success') usdCad = d.rates['CAD'] ?? usdCad;
+        const usdDoc = await CurrencyModel.findOne({ code: 'USD' }).lean();
+        if (usdDoc && (usdDoc as any).sell > 0) {
+          usdCad = (usdDoc as any).sell;
+        } else {
+          const r = await fetch('https://open.er-api.com/v6/latest/USD');
+          const d = (await r.json()) as { result: string; rates: Record<string, number> };
+          if (d.result === 'success') usdCad = d.rates['CAD'] ?? usdCad;
+        }
       } catch { /* use default */ }
 
       await Promise.all([
         SpotPriceModel.create({ metal: 'gold',   priceUsd: spot.gold,   priceCad: spot.gold   * usdCad, change24h: spot.goldChange,   recordedAt: now }),
         SpotPriceModel.create({ metal: 'silver', priceUsd: spot.silver, priceCad: spot.silver * usdCad, change24h: spot.silverChange, recordedAt: now }),
       ]);
-      console.log(`[competitorSync] spot: gold $${spot.gold.toFixed(2)}, silver $${spot.silver.toFixed(2)}`);
+      console.log(`[competitorSync] spot: gold $${spot.gold.toFixed(2)} USD/oz · USD/CAD ${usdCad.toFixed(4)}`);
+
+      // Update GoldPriceModel for all karats
+      const cadPerOz = spot.gold * usdCad;
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const karats: Array<{ karat: 10 | 14 | 18 | 22 | 24; fraction: number }> = [
+        { karat: 10, fraction: 10 / 24 },
+        { karat: 14, fraction: 14 / 24 },
+        { karat: 18, fraction: 18 / 24 },
+        { karat: 22, fraction: 22 / 24 },
+        { karat: 24, fraction: 24 / 24 },
+      ];
+      for (const { karat, fraction } of karats) {
+        const pricePerGram = Math.round(cadPerOz / TROY_OZ_GRAMS * fraction * 100) / 100;
+        await GoldPriceModel.findOneAndUpdate({ karat }, { pricePerGram }, { upsert: true, new: true });
+      }
+      console.log(`[competitorSync] gold prices updated — 18k: CA$${Math.round(cadPerOz / TROY_OZ_GRAMS * 0.75 * 100) / 100}/g`);
     }
   } catch (e) {
-    console.error('[competitorSync] spot failed:', e);
+    console.error('[competitorSync] spot/gold failed:', e);
   }
 
   console.log('[competitorSync] done');
