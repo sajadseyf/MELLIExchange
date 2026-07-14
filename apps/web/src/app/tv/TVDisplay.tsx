@@ -8,6 +8,12 @@ interface SpotPrice  { priceUsd: number; priceCad: number; }
 
 const CURRENCY_FA: Record<string, string> = { USD: 'دلار آمریکا', EUR: 'یورو', GBP: 'پوند انگلیس' };
 
+function toFlagEmoji(code: string): string {
+  return code.toUpperCase().replace(/./g, c =>
+    String.fromCodePoint(0x1F1E6 - 65 + c.charCodeAt(0))
+  );
+}
+
 function fmt(n: number)     { return n.toLocaleString('en-CA', { minimumFractionDigits: 4, maximumFractionDigits: 4 }); }
 function fmtGold(n: number) { return n.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 
@@ -193,7 +199,7 @@ export default function TVDisplay({
             }}>
               {/* Currency info — flag only */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '1.5vw' }}>
-                <span style={{ fontSize: '5vw', lineHeight: 1, filter: 'drop-shadow(0 0 0.5vw rgba(255,255,255,0.15))' }}>{c.flag}</span>
+                <span style={{ fontSize: '5vw', lineHeight: 1, filter: 'drop-shadow(0 0 0.5vw rgba(255,255,255,0.15))' }}>{toFlagEmoji(c.flag)}</span>
                 <div style={{ fontSize: '1.1vw', color: '#7a8eaf' }}>
                   {isFa ? CURRENCY_FA[c.code] ?? c.name : c.name}
                 </div>
