@@ -23,12 +23,20 @@ const KARATS = [
 
 export default async function GoldPage({ params }: { params: { locale: string } }) {
   const locale = params.locale ?? 'en';
-  const [rows, currencies, spot, t] = await Promise.all([
+  const [rows, currencies, t] = await Promise.all([
     getGoldPrices(),
     getCurrencies(),
-    getGoldSpotPrice(),
     getTranslations('gold'),
   ]);
+
+  // Fetch live gold spot directly from Yahoo Finance (bypasses stale DB)
+  let liveSpot: { priceUsd: number; priceCad: number } | null = null;
+  try {
+    const apiBase = process.env.NEXT_PUBLIC_API_URL
+      ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+    const r = await fetch(`${apiBase}/api/gold-spot`, { next: { revalidate: 60 } });
+    if (r.ok) liveSpot = await r.json();
+  } catch { /* fall through to karat-based estimate */ }
 
   const webPageSchema = {
     '@context': 'https://schema.org',
@@ -50,14 +58,12 @@ export default async function GoldPage({ params }: { params: { locale: string } 
   const usdMid = usd ? (usd.buy + usd.sell) / 2 : null;
   const gold24 = rows.find((r) => r.karat === 24);
 
-  const usdPerOz = spot?.priceUsd
+  const usdPerOz = liveSpot?.priceUsd
     ?? ((gold24 && usdMid) ? (gold24.pricePerGram * TROY_OZ_GRAMS) / usdMid : null);
-  const cadPerOz = spot?.priceCad
+  const cadPerOz = liveSpot?.priceCad
     ?? (gold24 ? gold24.pricePerGram * TROY_OZ_GRAMS : null);
 
-  const updatedAt = spot?.recordedAt
-    ? new Date(spot.recordedAt).toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit' })
-    : null;
+  const updatedAt = liveSpot ? new Date().toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit' }) : null;
 
   return (
     <Container className="py-14">

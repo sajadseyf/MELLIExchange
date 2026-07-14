@@ -17,14 +17,15 @@ export function LiveGoldSpot({ initialUsd, label }: Props) {
 
     async function refresh() {
       try {
-        const res = await fetch(`/api/spot/latest`, { cache: 'no-store' });
+        const res = await fetch(`/api/gold-spot`, { cache: 'no-store' });
         if (!res.ok) return;
         const data = await res.json();
-        const p = data?.gold?.priceUsd;
+        const p = data?.priceUsd;
         if (p && p > 1000 && active) setPrice(p);
       } catch { /* ignore */ }
     }
 
+    refresh();
     const id = setInterval(refresh, 60_000);
     return () => { active = false; clearInterval(id); };
   }, []);
