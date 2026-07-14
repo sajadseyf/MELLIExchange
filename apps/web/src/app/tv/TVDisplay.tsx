@@ -1,76 +1,67 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 
-interface Currency {
-  code: string;
-  name: string;
-  flag: string;
-  buy: number;
-  sell: number;
-  order: number;
-  hidden: boolean;
-  contactUs: boolean;
-}
+interface Currency { code: string; name: string; flag: string; buy: number; sell: number; }
+interface GoldPrice { karat: number; pricePerGram: number; }
+interface SpotPrice  { priceUsd: number; priceCad: number; }
 
-interface GoldPrice {
-  karat: number;
-  pricePerGram: number;
-}
+const CURRENCY_FA: Record<string, string> = { USD: 'دلار آمریکا', EUR: 'یورو', GBP: 'پوند انگلیس' };
 
-interface SpotPrice {
-  priceUsd: number;
-  priceCad: number;
-}
+function fmt(n: number)     { return n.toLocaleString('en-CA', { minimumFractionDigits: 4, maximumFractionDigits: 4 }); }
+function fmtGold(n: number) { return n.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 
-function fmt(n: number) {
-  return n.toLocaleString('en-CA', { minimumFractionDigits: 4, maximumFractionDigits: 4 });
-}
-
-function fmtGold(n: number) {
-  return n.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-function Clock() {
-  const [time, setTime] = useState('');
-  const [date, setDate] = useState('');
-
+/* ── Live clock ── */
+function Clock({ lang }: { lang: 'en' | 'fa' }) {
+  const [t, setT] = useState('');
+  const [d, setD] = useState('');
   useEffect(() => {
     const tick = () => {
       const now = new Date();
-      setTime(now.toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }));
-      setDate(now.toLocaleDateString('en-CA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+      setT(now.toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }));
+      setD(now.toLocaleDateString(lang === 'fa' ? 'fa-IR' : 'en-CA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
     };
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, []);
-
+  }, [lang]);
   return (
-    <div className="text-right">
-      <div style={{ fontSize: '2.8vw', fontWeight: 700, color: '#fff', letterSpacing: '0.05em', fontVariantNumeric: 'tabular-nums' }}>
-        {time}
-      </div>
-      <div style={{ fontSize: '1.1vw', color: '#8b93a7', marginTop: '0.2vw' }}>{date}</div>
+    <div style={{ textAlign: 'right' }}>
+      <div style={{ fontSize: '2.6vw', fontWeight: 800, color: '#fff', letterSpacing: '0.06em', fontVariantNumeric: 'tabular-nums' }}>{t}</div>
+      <div style={{ fontSize: '1vw', color: '#7a8eaf', marginTop: '0.2vw' }}>{d}</div>
     </div>
   );
 }
 
+/* ── Animated number ── */
+function AnimNum({ value, fmt: f }: { value: number; fmt: (n: number) => string }) {
+  const [display, setDisplay] = useState(value);
+  const [flash, setFlash] = useState(false);
+  const prev = useRef(value);
+  useEffect(() => {
+    if (prev.current !== value) { setFlash(true); setTimeout(() => setFlash(false), 600); prev.current = value; }
+    setDisplay(value);
+  }, [value]);
+  return <span style={{ transition: 'color 0.4s', color: flash ? '#fff' : 'inherit' }}>{f(display)}</span>;
+}
+
 export default function TVDisplay({
-  initialCurrencies,
-  initialGold,
-  initialSpot,
+  initialCurrencies, initialGold, initialSpot, videoUrl,
 }: {
   initialCurrencies: Currency[];
   initialGold: GoldPrice[];
   initialSpot: SpotPrice | null;
+  videoUrl?: string;
 }) {
-  const [currencies, setCurrencies] = useState(initialCurrencies);
-  const [gold, setGold] = useState(initialGold);
-  const [spot, setSpot] = useState(initialSpot);
-  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
-  const [pulse, setPulse] = useState(false);
+  const [currencies, setCurrencies]   = useState(initialCurrencies);
+  const [gold, setGold]               = useState(initialGold);
+  const [spot, setSpot]               = useState(initialSpot);
+  const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [pulse, setPulse]             = useState(false);
+  const [lang, setLang]               = useState<'en' | 'fa'>('en');
+  const [langVisible, setLangVisible] = useState(true);
 
+  /* ── data refresh ── */
   const refresh = useCallback(async () => {
     try {
       const res = await fetch('/api/tv-data', { cache: 'no-store' });
@@ -82,231 +73,319 @@ export default function TVDisplay({
       setLastUpdated(new Date());
       setPulse(true);
       setTimeout(() => setPulse(false), 800);
-    } catch { /* keep existing data */ }
+    } catch { /* keep data */ }
   }, []);
 
+  useEffect(() => { const id = setInterval(refresh, 30_000); return () => clearInterval(id); }, [refresh]);
+
+  /* ── language toggle every 8s with fade ── */
   useEffect(() => {
-    const id = setInterval(refresh, 30_000);
+    const id = setInterval(() => {
+      setLangVisible(false);
+      setTimeout(() => { setLang(l => l === 'en' ? 'fa' : 'en'); setLangVisible(true); }, 500);
+    }, 8_000);
     return () => clearInterval(id);
-  }, [refresh]);
+  }, []);
 
   const rows = currencies
-    .filter((c) => ['USD', 'EUR', 'GBP'].includes(c.code))
+    .filter(c => ['USD', 'EUR', 'GBP'].includes(c.code))
     .sort((a, b) => ['USD', 'EUR', 'GBP'].indexOf(a.code) - ['USD', 'EUR', 'GBP'].indexOf(b.code));
 
-  const goldKarats = [10, 14, 18, 22, 24];
-  const goldMap = Object.fromEntries(gold.map((g) => [g.karat, g.pricePerGram]));
+  const gold18 = gold.find(g => g.karat === 18);
+  const isFa   = lang === 'fa';
+
+  const BUY_LABEL  = isFa ? 'خرید' : 'BUY';
+  const SELL_LABEL = isFa ? 'فروش' : 'SELL';
 
   return (
     <div style={{
-      width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column',
-      background: '#04060f', color: '#fff',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-      overflow: 'hidden',
+      width: '100vw', height: '100vh', overflow: 'hidden',
+      background: 'linear-gradient(135deg, #080f20 0%, #0d1a35 50%, #091428 100%)',
+      color: '#fff',
+      fontFamily: isFa
+        ? '"Vazirmatn", "Tahoma", "Arial", sans-serif'
+        : '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      direction: isFa ? 'rtl' : 'ltr',
+      display: 'flex', flexDirection: 'column',
+      transition: 'opacity 0.5s',
+      opacity: langVisible ? 1 : 0,
     }}>
 
-      {/* ── Header ── */}
+      {/* ── decorative blobs ── */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: '-10vw', left: '-5vw', width: '40vw', height: '40vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(29,78,216,0.15) 0%, transparent 70%)' }} />
+        <div style={{ position: 'absolute', bottom: '-8vw', right: '-5vw', width: '35vw', height: '35vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,151,42,0.10) 0%, transparent 70%)' }} />
+      </div>
+
+      {/* ── HEADER ── */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '1.2vw 2vw',
-        borderBottom: '1px solid rgba(200,151,42,0.25)',
-        background: 'linear-gradient(90deg, rgba(200,151,42,0.08) 0%, transparent 60%)',
-        flexShrink: 0,
+        padding: '1.2vw 2.5vw',
+        background: 'rgba(255,255,255,0.03)',
+        backdropFilter: 'blur(8px)',
+        borderBottom: '1px solid rgba(100,140,220,0.2)',
+        flexShrink: 0, zIndex: 1, position: 'relative',
       }}>
-        {/* Logo + Name */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.2vw' }}>
           <div style={{
-            width: '3.5vw', height: '3.5vw', borderRadius: '50%',
+            width: '4vw', height: '4vw', borderRadius: '50%',
             background: 'linear-gradient(135deg, #C8972A, #E8B84B)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 0 2vw rgba(200,151,42,0.4)',
-            fontSize: '1.8vw', flexShrink: 0,
-          }}>
-            M
-          </div>
+            fontSize: '2vw', fontWeight: 900, color: '#0d1a35',
+            boxShadow: '0 0 2vw rgba(200,151,42,0.5), 0 0 4vw rgba(200,151,42,0.2)',
+          }}>M</div>
           <div>
-            <div style={{ fontSize: '2vw', fontWeight: 800, letterSpacing: '0.02em', color: '#fff' }}>
-              MELLI EXCHANGE
+            <div style={{ fontSize: '2.2vw', fontWeight: 900, letterSpacing: isFa ? '0' : '0.06em', color: '#fff' }}>
+              {isFa ? 'صرافی ملی' : 'MELLI EXCHANGE'}
             </div>
-            <div style={{ fontSize: '0.95vw', color: '#C8972A', letterSpacing: '0.15em', marginTop: '0.1vw' }}>
-              CURRENCY · GOLD · COQUITLAM BC
+            <div style={{ fontSize: '0.9vw', color: '#C8972A', letterSpacing: isFa ? '0' : '0.18em', marginTop: '0.1vw' }}>
+              {isFa ? 'کوکیتلام، بریتیش کلمبیا · ارز · طلا' : 'CURRENCY · GOLD · COQUITLAM BC'}
             </div>
           </div>
         </div>
+        <Clock lang={lang} />
+      </div>
 
-        {/* Spot price + Clock */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '3vw' }}>
-          {spot && (
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '0.9vw', color: '#8b93a7', letterSpacing: '0.1em', marginBottom: '0.2vw' }}>
-                GOLD SPOT (USD/oz)
+      {/* ── BODY ── */}
+      <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative', zIndex: 1 }}>
+
+        {/* ── LEFT: currencies + gold ── */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '1.5vw 2.5vw', gap: '1.5vw' }}>
+
+          {/* Column headers */}
+          <div style={{
+            display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
+            padding: '0.6vw 1.5vw',
+            background: 'rgba(255,255,255,0.04)',
+            borderRadius: '0.8vw',
+            border: '1px solid rgba(100,140,220,0.15)',
+          }}>
+            <div style={{ fontSize: '1.1vw', color: '#7a8eaf', fontWeight: 700, letterSpacing: isFa ? 0 : '0.12em' }}>
+              {isFa ? 'ارز' : 'CURRENCY'}
+            </div>
+            <div style={{ fontSize: '1.1vw', color: '#4ade80', fontWeight: 700, textAlign: 'center', letterSpacing: isFa ? 0 : '0.12em' }}>
+              {BUY_LABEL}
+            </div>
+            <div style={{ fontSize: '1.1vw', color: '#f59e0b', fontWeight: 700, textAlign: 'center', letterSpacing: isFa ? 0 : '0.12em' }}>
+              {SELL_LABEL}
+            </div>
+          </div>
+
+          {/* Currency rows */}
+          {rows.map((c, i) => (
+            <div key={c.code} style={{
+              display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
+              padding: '1.4vw 1.5vw',
+              background: 'linear-gradient(90deg, rgba(29,58,130,0.25) 0%, rgba(15,30,70,0.15) 100%)',
+              borderRadius: '1vw',
+              border: '1px solid rgba(100,140,220,0.12)',
+              boxShadow: '0 0.3vw 1.5vw rgba(0,0,0,0.3)',
+              backdropFilter: 'blur(4px)',
+              animation: `slideIn 0.6s ease ${i * 0.1}s both`,
+            }}>
+              {/* Currency info */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1vw' }}>
+                <span style={{ fontSize: '3.5vw', lineHeight: 1 }}>{c.flag}</span>
+                <div>
+                  <div style={{ fontSize: '2vw', fontWeight: 800, color: '#fff', lineHeight: 1.1 }}>{c.code}</div>
+                  <div style={{ fontSize: '1vw', color: '#7a8eaf', marginTop: '0.2vw' }}>
+                    {isFa ? CURRENCY_FA[c.code] ?? c.name : c.name}
+                  </div>
+                </div>
               </div>
-              <div style={{ fontSize: '1.8vw', fontWeight: 700, color: '#E8B84B', fontVariantNumeric: 'tabular-nums' }}>
-                ${spot.priceUsd.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {/* Buy */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{
+                  fontSize: '2.6vw', fontWeight: 800, color: '#4ade80',
+                  fontVariantNumeric: 'tabular-nums', letterSpacing: '0.02em',
+                  textShadow: '0 0 2vw rgba(74,222,128,0.4)',
+                }}>
+                  <AnimNum value={c.buy} fmt={fmt} />
+                </div>
+              </div>
+              {/* Sell */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{
+                  fontSize: '2.6vw', fontWeight: 800, color: '#f59e0b',
+                  fontVariantNumeric: 'tabular-nums', letterSpacing: '0.02em',
+                  textShadow: '0 0 2vw rgba(245,158,11,0.4)',
+                }}>
+                  <AnimNum value={c.sell} fmt={fmt} />
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {/* ── 18K Gold bar ── */}
+          {gold18 && (
+            <div style={{
+              display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
+              padding: '1.4vw 1.5vw',
+              background: 'linear-gradient(90deg, rgba(120,80,10,0.35) 0%, rgba(80,50,5,0.2) 100%)',
+              borderRadius: '1vw',
+              border: '1px solid rgba(200,151,42,0.35)',
+              boxShadow: '0 0 2vw rgba(200,151,42,0.15), 0 0.3vw 1.5vw rgba(0,0,0,0.3)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1vw' }}>
+                <div style={{
+                  width: '3.5vw', height: '3.5vw', borderRadius: '0.6vw',
+                  background: 'linear-gradient(135deg, #C8972A, #E8B84B, #C8972A)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '1.1vw', fontWeight: 900, color: '#1a0f00',
+                  boxShadow: '0 0 1vw rgba(200,151,42,0.5)',
+                  flexShrink: 0,
+                }}>
+                  18K
+                </div>
+                <div>
+                  <div style={{ fontSize: '1.8vw', fontWeight: 800, color: '#E8B84B', lineHeight: 1.1 }}>
+                    {isFa ? '۱۸ عیار' : '18K GOLD'}
+                  </div>
+                  <div style={{ fontSize: '1vw', color: '#a07830', marginTop: '0.2vw' }}>
+                    {isFa ? 'طلای ۷۵٪ · قیمت هر گرم' : '75% purity · per gram'}
+                  </div>
+                </div>
+              </div>
+              <div />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{
+                    fontSize: '2.8vw', fontWeight: 900, color: '#E8B84B',
+                    fontVariantNumeric: 'tabular-nums',
+                    textShadow: '0 0 2vw rgba(232,184,75,0.6)',
+                  }}>
+                    $<AnimNum value={gold18.pricePerGram} fmt={fmtGold} />
+                  </div>
+                  <div style={{ fontSize: '0.9vw', color: '#a07830', marginTop: '0.2vw' }}>
+                    {isFa ? 'دلار کانادا / گرم' : 'CAD / gram'}
+                  </div>
+                </div>
               </div>
             </div>
           )}
-          <Clock />
         </div>
-      </div>
 
-      {/* ── Body: currencies + gold ── */}
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        {/* ── RIGHT: video + spot ── */}
+        <div style={{
+          width: '30vw', flexShrink: 0,
+          display: 'flex', flexDirection: 'column',
+          borderLeft: '1px solid rgba(100,140,220,0.15)',
+          background: 'rgba(0,0,0,0.2)',
+          padding: '1.5vw',
+          gap: '1.5vw',
+        }}>
 
-        {/* ── Currency Table ── */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          {/* Table header */}
+          {/* Video */}
           <div style={{
-            display: 'grid', gridTemplateColumns: '3fr 1fr 1fr',
-            padding: '0.7vw 2vw',
-            background: 'rgba(255,255,255,0.03)',
-            borderBottom: '1px solid rgba(255,255,255,0.07)',
-            flexShrink: 0,
+            flex: 1,
+            borderRadius: '1vw',
+            overflow: 'hidden',
+            border: '1px solid rgba(100,140,220,0.2)',
+            background: '#04080f',
+            position: 'relative',
           }}>
-            <div style={{ fontSize: '1vw', color: '#8b93a7', letterSpacing: '0.12em', fontWeight: 600 }}>CURRENCY</div>
-            <div style={{ fontSize: '1vw', color: '#4ade80', letterSpacing: '0.12em', fontWeight: 600, textAlign: 'right' }}>BUY (خرید)</div>
-            <div style={{ fontSize: '1vw', color: '#f59e0b', letterSpacing: '0.12em', fontWeight: 600, textAlign: 'right' }}>SELL (فروش)</div>
-          </div>
-
-          {/* Rows */}
-          <div style={{ flex: 1, overflow: 'hidden' }}>
-            {rows.map((c, i) => (
-              <div key={c.code} style={{
-                display: 'grid', gridTemplateColumns: '3fr 1fr 1fr',
-                padding: `${Math.max(0.5, 5.5 / rows.length)}vw 2vw`,
-                borderBottom: '1px solid rgba(255,255,255,0.05)',
-                background: i % 2 === 0 ? 'rgba(255,255,255,0.015)' : 'transparent',
-                transition: 'background 0.3s',
+            {videoUrl ? (
+              <video
+                src={videoUrl}
+                autoPlay muted loop playsInline
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            ) : (
+              <div style={{
+                width: '100%', height: '100%', minHeight: '20vw',
+                display: 'flex', flexDirection: 'column',
+                alignItems: 'center', justifyContent: 'center',
+                gap: '1vw',
+                background: 'linear-gradient(135deg, #0d1a35, #091428)',
               }}>
-                {/* Currency info */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1vw' }}>
-                  <span style={{ fontSize: `${Math.min(2.5, 4 / Math.sqrt(rows.length))}vw` }}>{c.flag}</span>
-                  <div>
-                    <div style={{ fontSize: `${Math.min(1.6, 3 / Math.sqrt(rows.length))}vw`, fontWeight: 700, color: '#fff' }}>
-                      {c.code}
-                    </div>
-                    <div style={{ fontSize: `${Math.min(1, 2 / Math.sqrt(rows.length))}vw`, color: '#8b93a7', marginTop: '0.1vw' }}>
-                      {c.name}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Buy */}
-                <div style={{
-                  textAlign: 'right',
-                  fontSize: `${Math.min(1.9, 3.5 / Math.sqrt(rows.length))}vw`,
-                  fontWeight: 700,
-                  color: '#4ade80',
-                  fontVariantNumeric: 'tabular-nums',
-                  letterSpacing: '0.02em',
-                }}>
-                  {fmt(c.buy)}
-                </div>
-
-                {/* Sell */}
-                <div style={{
-                  textAlign: 'right',
-                  fontSize: `${Math.min(1.9, 3.5 / Math.sqrt(rows.length))}vw`,
-                  fontWeight: 700,
-                  color: '#f59e0b',
-                  fontVariantNumeric: 'tabular-nums',
-                  letterSpacing: '0.02em',
-                }}>
-                  {fmt(c.sell)}
+                <div style={{ fontSize: '4vw', opacity: 0.3 }}>🎬</div>
+                <div style={{ fontSize: '0.9vw', color: '#3a4a6a', textAlign: 'center', lineHeight: 1.6 }}>
+                  {isFa ? 'ویدیو در اینجا پخش می‌شود' : 'Video plays here'}<br />
+                  <span style={{ fontSize: '0.75vw', opacity: 0.6 }}>upload via admin panel</span>
                 </div>
               </div>
-            ))}
+            )}
+            {/* Glowing border animation */}
+            <div style={{
+              position: 'absolute', inset: 0, borderRadius: '1vw', pointerEvents: 'none',
+              boxShadow: 'inset 0 0 2vw rgba(29,78,216,0.15)',
+            }} />
           </div>
-        </div>
 
-        {/* ── Gold Panel ── */}
-        <div style={{
-          width: '22vw', flexShrink: 0,
-          borderLeft: '1px solid rgba(200,151,42,0.2)',
-          background: 'linear-gradient(180deg, rgba(200,151,42,0.06) 0%, rgba(200,151,42,0.02) 100%)',
-          display: 'flex', flexDirection: 'column',
-        }}>
-          {/* Gold header */}
+          {/* Gold spot */}
+          {spot && (
+            <div style={{
+              padding: '1.2vw',
+              background: 'linear-gradient(135deg, rgba(120,80,10,0.2), rgba(80,50,5,0.1))',
+              borderRadius: '0.8vw',
+              border: '1px solid rgba(200,151,42,0.25)',
+              textAlign: 'center',
+            }}>
+              <div style={{ fontSize: '0.8vw', color: '#a07830', letterSpacing: '0.15em', marginBottom: '0.4vw' }}>
+                {isFa ? 'قیمت جهانی طلا (USD/oz)' : 'WORLD GOLD PRICE (USD/oz)'}
+              </div>
+              <div style={{
+                fontSize: '2.2vw', fontWeight: 900, color: '#E8B84B',
+                fontVariantNumeric: 'tabular-nums',
+                textShadow: '0 0 1.5vw rgba(232,184,75,0.5)',
+              }}>
+                ${spot.priceUsd.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+              <div style={{ fontSize: '0.8vw', color: '#7a8eaf', marginTop: '0.3vw' }}>
+                C${spot.priceCad.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CAD
+              </div>
+            </div>
+          )}
+
+          {/* Last updated indicator */}
           <div style={{
-            padding: '1vw 1.5vw',
-            borderBottom: '1px solid rgba(200,151,42,0.2)',
-            background: 'rgba(200,151,42,0.1)',
-          }}>
-            <div style={{ fontSize: '1vw', color: '#C8972A', letterSpacing: '0.15em', fontWeight: 700 }}>GOLD PRICES</div>
-            <div style={{ fontSize: '0.8vw', color: '#8b93a7', marginTop: '0.2vw' }}>CAD / gram (per karat)</div>
-          </div>
-
-          {/* Karat rows */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly', padding: '0.5vw 0' }}>
-            {goldKarats.map((k) => {
-              const price = goldMap[k];
-              const purity = k === 24 ? '99.9%' : k === 22 ? '91.6%' : k === 18 ? '75%' : k === 14 ? '58.5%' : '41.7%';
-              return (
-                <div key={k} style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '0.8vw 1.5vw',
-                  borderBottom: '1px solid rgba(255,255,255,0.04)',
-                }}>
-                  <div>
-                    <div style={{
-                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                      width: '3.2vw', height: '3.2vw', borderRadius: '0.5vw',
-                      background: `linear-gradient(135deg, rgba(200,151,42,${0.1 + k/24 * 0.3}), rgba(200,151,42,${0.05 + k/24 * 0.15}))`,
-                      border: `1px solid rgba(200,151,42,${0.2 + k/24 * 0.3})`,
-                      fontSize: '1.1vw', fontWeight: 800, color: '#E8B84B',
-                    }}>
-                      {k}K
-                    </div>
-                    <div style={{ fontSize: '0.75vw', color: '#8b93a7', marginTop: '0.3vw', textAlign: 'center' }}>{purity}</div>
-                  </div>
-                  <div style={{
-                    textAlign: 'right',
-                    fontSize: '1.6vw', fontWeight: 800,
-                    color: '#E8B84B',
-                    fontVariantNumeric: 'tabular-nums',
-                  }}>
-                    {price ? `$${fmtGold(price)}` : '—'}
-                    <div style={{ fontSize: '0.7vw', color: '#8b93a7', fontWeight: 400 }}>CAD/g</div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Last updated */}
-          <div style={{
-            padding: '0.8vw 1.5vw',
-            borderTop: '1px solid rgba(200,151,42,0.15)',
-            display: 'flex', alignItems: 'center', gap: '0.5vw',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6vw',
+            padding: '0.5vw',
           }}>
             <div style={{
-              width: '0.6vw', height: '0.6vw', borderRadius: '50%',
-              background: pulse ? '#4ade80' : '#2d6a4f',
-              transition: 'background 0.3s',
-              boxShadow: pulse ? '0 0 0.5vw #4ade80' : 'none',
+              width: '0.7vw', height: '0.7vw', borderRadius: '50%',
+              background: pulse ? '#4ade80' : '#1d4a2a',
+              boxShadow: pulse ? '0 0 0.8vw #4ade80' : 'none',
+              transition: 'all 0.4s',
             }} />
-            <div style={{ fontSize: '0.75vw', color: '#8b93a7' }}>
-              Updated {lastUpdated.toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            <div style={{ fontSize: '0.75vw', color: '#3a4a6a' }}>
+              {isFa ? 'آخرین به‌روزرسانی:' : 'Updated:'}{' '}
+              {lastUpdated.toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Footer ── */}
+      {/* ── FOOTER ticker ── */}
       <div style={{
-        padding: '0.5vw 2vw',
-        borderTop: '1px solid rgba(255,255,255,0.06)',
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        flexShrink: 0,
-        background: 'rgba(0,0,0,0.3)',
+        flexShrink: 0, overflow: 'hidden', height: '2.8vw',
+        background: 'rgba(29,58,130,0.25)',
+        borderTop: '1px solid rgba(100,140,220,0.2)',
+        display: 'flex', alignItems: 'center',
+        position: 'relative', zIndex: 1,
       }}>
-        <div style={{ fontSize: '0.75vw', color: '#8b93a7' }}>
-          Unit 1102 Henderson Place Mall · 1163 Pinetree Way, Coquitlam BC · Tel: (604) 492-3338
-        </div>
-        <div style={{ fontSize: '0.75vw', color: '#8b93a7' }}>
-          FINTRAC Registered · All prices in CAD · Auto-refreshes every 30s
+        <div style={{
+          whiteSpace: 'nowrap', fontSize: '1vw', color: '#7a8eaf',
+          animation: 'ticker 25s linear infinite',
+          paddingLeft: '100%',
+        }}>
+          {isFa
+            ? '📍 واحد ۱۱۰۲ هندرسون پلیس مال · ۱۱۶۳ پاین‌تری وی، کوکیتلام BC &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; 📞 (604) 492-3338 &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ ثبت‌شده در FINTRAC &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; 🌐 www.melliexchange.ca &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; همه قیمت‌ها به دلار کانادا &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; 📍 واحد ۱۱۰۲ هندرسون پلیس مال'
+            : '📍 Unit 1102 Henderson Place Mall · 1163 Pinetree Way, Coquitlam BC &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; 📞 (604) 492-3338 &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ FINTRAC Registered &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; 🌐 www.melliexchange.ca &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; All prices in CAD &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; 📍 Unit 1102 Henderson Place Mall'
+          }
         </div>
       </div>
+
+      <style>{`
+        @keyframes ticker {
+          0%   { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        @keyframes slideIn {
+          from { opacity: 0; transform: translateY(1vw); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }
