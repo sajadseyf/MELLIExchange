@@ -452,20 +452,46 @@ export async function syncPrices() {
     case 'currency_api':         currencyRates = await fromCurrencyAPI(apiKeys.currency_api ?? '', spreadPct); break;
   }
 
-  // ── Fetch gold price ─────────────────────────────────────────────────────
+  // ── Fetch gold price (waterfall — first success wins) ────────────────────
   let goldUSD: number | null = null;
-  let vbceUsdCad: number | null = null; // VBCE also gives USD/CAD in one call
+  let vbceUsdCad: number | null = null;
+
+  // Build ordered list: preferred source first, then fallbacks
+  type GoldFetcher = () => Promise<number | { goldUSD: number; usdCad: number } | null>;
+  const primaryFetchers: Array<{ name: string; fn: GoldFetcher }> = [];
 
   switch (goldSource) {
-    case 'vbce_metal': {
-      const r = await goldFromVBCEMetal();
-      if (r) { goldUSD = r.goldUSD; vbceUsdCad = r.usdCad; }
-      break;
+    case 'vbce_metal':    primaryFetchers.push({ name: 'vbce_metal',    fn: goldFromVBCEMetal }); break;
+    case 'kitco':         primaryFetchers.push({ name: 'kitco',         fn: goldFromKitco }); break;
+    case 'yahoo_finance': primaryFetchers.push({ name: 'yahoo_finance', fn: goldFromYahoo }); break;
+    case 'metals_api':    primaryFetchers.push({ name: 'metals_api',    fn: () => goldFromMetalsAPI(apiKeys.metals_api ?? '') }); break;
+    case 'gold_api':      primaryFetchers.push({ name: 'gold_api',      fn: () => goldFromGoldAPI(apiKeys.gold_api ?? '') }); break;
+  }
+
+  // Always append fallbacks (skipping the one already chosen as primary)
+  const fallbacks: Array<{ name: string; fn: GoldFetcher }> = [
+    { name: 'vbce_metal',    fn: goldFromVBCEMetal },
+    { name: 'yahoo_finance', fn: goldFromYahoo },
+    { name: 'kitco',         fn: goldFromKitco },
+  ].filter(f => f.name !== goldSource);
+
+  for (const { name, fn } of [...primaryFetchers, ...fallbacks]) {
+    try {
+      const result = await fn();
+      if (!result) continue;
+      if (typeof result === 'object' && 'goldUSD' in result) {
+        goldUSD = result.goldUSD;
+        vbceUsdCad = result.usdCad;
+      } else if (typeof result === 'number' && result > 0) {
+        goldUSD = result;
+      }
+      if (goldUSD && goldUSD > 0) {
+        console.log(`[priceSync] gold sourced from: ${name}`);
+        break;
+      }
+    } catch (e) {
+      console.warn(`[priceSync] gold source ${name} threw:`, e);
     }
-    case 'kitco':         goldUSD = await goldFromKitco(); break;
-    case 'yahoo_finance': goldUSD = await goldFromYahoo(); break;
-    case 'metals_api':    goldUSD = await goldFromMetalsAPI(apiKeys.metals_api ?? ''); break;
-    case 'gold_api':      goldUSD = await goldFromGoldAPI(apiKeys.gold_api ?? ''); break;
   }
 
   // Derive USD/CAD — prefer VBCE (already fetched), then currency rates, then open.er-api
@@ -494,16 +520,23 @@ export async function syncPrices() {
       validatedGold = null;
     } else {
       // Compare against most recent stored value — reject if >25% deviation
+      // Skip this check if last update was more than 7 days ago (stale data)
       const lastRecord = await GoldPriceHistoryModel
         .findOne({ karat: 24 })
         .sort({ recordedAt: -1 })
         .lean();
       if (lastRecord) {
-        const lastPrice = lastRecord.pricePerGram;
-        const deviation = Math.abs(validatedGold - lastPrice) / lastPrice;
-        if (deviation > 0.25) {
-          console.warn(`[priceSync] gold rejected — ${(deviation * 100).toFixed(1)}% deviation from last known $${lastPrice.toFixed(2)}: new $${validatedGold.toFixed(2)} CAD/g`);
-          validatedGold = null;
+        const ageMs = Date.now() - new Date((lastRecord as any).recordedAt).getTime();
+        const stale = ageMs > 7 * 24 * 60 * 60 * 1000;
+        if (!stale) {
+          const lastPrice = lastRecord.pricePerGram;
+          const deviation = Math.abs(validatedGold - lastPrice) / lastPrice;
+          if (deviation > 0.25) {
+            console.warn(`[priceSync] gold rejected — ${(deviation * 100).toFixed(1)}% deviation from last known $${lastPrice.toFixed(2)}: new $${validatedGold.toFixed(2)} CAD/g`);
+            validatedGold = null;
+          }
+        } else {
+          console.log(`[priceSync] gold — skipping deviation check (last record is stale: ${Math.round(ageMs / 86400000)}d old)`);
         }
       }
     }
