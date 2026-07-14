@@ -63,7 +63,7 @@ router.put('/:karat', requireAuth, async (req, res) => {
   }
   const updated = await GoldPriceModel.findOneAndUpdate(
     { karat },
-    { pricePerGram: parsed.data.pricePerGram },
+    { $set: { pricePerGram: parsed.data.pricePerGram } },
     { new: true, upsert: true },
   );
 

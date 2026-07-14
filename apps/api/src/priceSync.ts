@@ -554,7 +554,7 @@ export async function syncPrices() {
     ];
     for (const { karat, fraction } of karats) {
       const price = Math.round(goldCADperGram * fraction * 100) / 100;
-      await GoldPriceModel.findOneAndUpdate({ karat }, { pricePerGram: price }, { upsert: true, new: true });
+      await GoldPriceModel.findOneAndUpdate({ karat }, { $set: { pricePerGram: price } }, { upsert: true, new: true });
       await GoldPriceHistoryModel.updateOne(
         { karat, recordedAt: today },
         { $set: { pricePerGram: price, karat, recordedAt: today } },
