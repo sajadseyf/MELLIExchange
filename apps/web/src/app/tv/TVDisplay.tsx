@@ -370,8 +370,8 @@ export default function TVDisplay({
           paddingLeft: '100%',
         }}>
           {isFa
-            ? '📍 واحد ۱۱۰۲ هندرسون پلیس مال · ۱۱۶۳ پاین‌تری وی، کوکیتلام BC &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; 📞 (604) 492-3338 &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ ثبت‌شده در FINTRAC &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; 🌐 www.melliexchange.ca &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; همه قیمت‌ها به دلار کانادا &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; 📍 واحد ۱۱۰۲ هندرسون پلیس مال'
-            : '📍 Unit 1102 Henderson Place Mall · 1163 Pinetree Way, Coquitlam BC &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; 📞 (604) 492-3338 &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ FINTRAC Registered &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; 🌐 www.melliexchange.ca &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; All prices in CAD &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; 📍 Unit 1102 Henderson Place Mall'
+            ? '✅ خرید و فروش طلا &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ تعمیرات تخصصی طلا و جواهر &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ کیفیت تضمین‌شده &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ قیمت‌های رقابتی و منصفانه، به قیمت ایران &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ خرید و فروش طلا &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ تعمیرات تخصصی طلا و جواهر &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ کیفیت تضمین‌شده &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ قیمت‌های رقابتی و منصفانه، به قیمت ایران'
+            : '✅ Gold Buying & Selling &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ Professional Gold & Jewelry Repair &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ Guaranteed Quality &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ Competitive & Fair Prices — Iran Market Rates &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ Gold Buying & Selling &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ Professional Gold & Jewelry Repair &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ Guaranteed Quality &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ Competitive & Fair Prices — Iran Market Rates'
           }
         </div>
       </div>
