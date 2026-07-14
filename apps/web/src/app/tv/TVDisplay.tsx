@@ -367,10 +367,7 @@ export default function TVDisplay({
           animation: 'ticker 25s linear infinite',
           paddingLeft: '100%',
         }}>
-          {isFa
-            ? '✅ خرید و فروش طلا &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ تعمیرات تخصصی طلا و جواهر &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ کیفیت تضمین‌شده &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ قیمت‌های رقابتی و منصفانه، به قیمت ایران &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ خرید و فروش طلا &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ تعمیرات تخصصی طلا و جواهر &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ کیفیت تضمین‌شده &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ قیمت‌های رقابتی و منصفانه، به قیمت ایران'
-            : '✅ Gold Buying & Selling &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ Professional Gold & Jewelry Repair &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ Guaranteed Quality &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ Competitive & Fair Prices — Iran Market Rates &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ Gold Buying & Selling &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ Professional Gold & Jewelry Repair &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ Guaranteed Quality &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ Competitive & Fair Prices — Iran Market Rates'
-          }
+          {'🌟 افتتاح طلافروشی ملی 🌟 &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; با افتخار، طلافروشی "ملی"؛ همراه جدید جامعه ایرانی کوکیتلام 🎉 &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; 💎 مجموعه‌ای متنوع از زیورآلات طلا، از مدل‌های ظریف و سبک تا طرح‌های لوکس و سنگین، با تنوع بالا و مناسب هر سلیقه &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ خرید و فروش طلا &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ تعمیرات تخصصی طلا و جواهر &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ کیفیت تضمین‌شده &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; ✅ قیمت‌های رقابتی و منصفانه، به قیمت ایران &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; 📍 پاساژ هندرسون، طبقه همکف، واحد ۱۱۰۲ &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; منتظر دیدار گرم شما عزیزان هستیم 🌹 &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp; از اینکه ما را به دوستان خود معرفی می‌کنید سپاسگزاریم 🌹'}
         </div>
       </div>
 
