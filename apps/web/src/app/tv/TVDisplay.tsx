@@ -87,6 +87,13 @@ export default function TVDisplay({
 
   useEffect(() => { const id = setInterval(refresh, 30_000); return () => clearInterval(id); }, [refresh]);
 
+  /* refresh immediately when tab becomes visible again */
+  useEffect(() => {
+    const onVisible = () => { if (document.visibilityState === 'visible') refresh(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [refresh]);
+
   /* ── cycle videos on ended ── */
   const handleVideoEnded = useCallback(() => {
     setVideoIdx(i => (i + 1) % VIDEOS.length);
