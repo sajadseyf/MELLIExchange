@@ -91,8 +91,8 @@ export default function TVDisplay({
   }, [refresh]);
 
   const rows = currencies
-    .filter((c) => !c.hidden && !c.contactUs)
-    .sort((a, b) => a.order - b.order);
+    .filter((c) => ['USD', 'EUR', 'GBP'].includes(c.code))
+    .sort((a, b) => ['USD', 'EUR', 'GBP'].indexOf(a.code) - ['USD', 'EUR', 'GBP'].indexOf(b.code));
 
   const goldKarats = [10, 14, 18, 22, 24];
   const goldMap = Object.fromEntries(gold.map((g) => [g.karat, g.pricePerGram]));
