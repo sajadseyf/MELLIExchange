@@ -26,7 +26,15 @@
     "title": "货币计算器",
     "sub": "参考汇率 — 以柜台为准",
     "i_have": "我有",
-    "i_get": "我得到"
+    "i_get": "我得到",
+    "buy": "购买",
+    "sell": "出售",
+    "i_want_to_buy": "我想购买",
+    "i_want_to_sell": "我想出售",
+    "you_pay": "您支付",
+    "you_receive": "您收到",
+    "we_sell_at": "我们的卖出价",
+    "we_buy_at": "我们的买入价"
   },
   "home": {
     "hero_eyebrow": "黄金与货币兑换",

@@ -26,7 +26,15 @@
     "title": "Currency Calculator",
     "sub": "Indicative rates — confirmed at counter",
     "i_have": "I have",
-    "i_get": "I get"
+    "i_get": "I get",
+    "buy": "BUY",
+    "sell": "SELL",
+    "i_want_to_buy": "I want to buy",
+    "i_want_to_sell": "I want to sell",
+    "you_pay": "You pay",
+    "you_receive": "You receive",
+    "we_sell_at": "Our sell rate",
+    "we_buy_at": "Our buy rate"
   },
   "home": {
     "hero_eyebrow": "FINTRAC Registered · Coquitlam, BC",
