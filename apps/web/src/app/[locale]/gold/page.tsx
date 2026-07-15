@@ -23,20 +23,12 @@ const KARATS = [
 
 export default async function GoldPage({ params }: { params: { locale: string } }) {
   const locale = params.locale ?? 'en';
-  const [rows, currencies, t] = await Promise.all([
+  const [rows, currencies, liveSpot, t] = await Promise.all([
     getGoldPrices(),
     getCurrencies(),
+    getGoldSpotPrice(),
     getTranslations('gold'),
   ]);
-
-  // Fetch live gold spot directly from Yahoo Finance (bypasses stale DB)
-  let liveSpot: { priceUsd: number; priceCad: number } | null = null;
-  try {
-    const apiBase = process.env.NEXT_PUBLIC_API_URL
-      ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
-    const r = await fetch(`${apiBase}/api/gold-spot`, { next: { revalidate: 60 } });
-    if (r.ok) liveSpot = await r.json();
-  } catch { /* fall through to karat-based estimate */ }
 
   const webPageSchema = {
     '@context': 'https://schema.org',
