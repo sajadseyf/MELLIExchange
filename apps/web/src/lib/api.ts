@@ -96,6 +96,20 @@ export interface SpotPrice {
 }
 
 export async function getGoldSpotPrice(): Promise<SpotPrice | null> {
+  // Import inline to avoid bundling issues — this runs only on the server (Vercel)
+  const { fetchKitcoSpot } = await import('./gold-spot');
+  const kitco = await fetchKitcoSpot();
+  if (kitco) {
+    return {
+      priceUsd:  kitco.priceUsd,
+      priceCad:  kitco.priceCad,
+      bid:       kitco.bid,
+      ask:       kitco.ask,
+      change24h: 0,
+      recordedAt: new Date().toISOString(),
+    };
+  }
+  // Fallback to Express/MongoDB if Kitco is unavailable
   try {
     const data = await fetchJson<{ gold: SpotPrice | null; silver: SpotPrice | null }>('/api/spot/latest');
     return data.gold;

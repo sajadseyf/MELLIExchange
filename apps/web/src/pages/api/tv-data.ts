@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { fetchKitcoSpot } from '@/lib/gold-spot';
 
 function getApiBase() {
   if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
@@ -10,15 +11,15 @@ export default async function handler(_req: NextApiRequest, res: NextApiResponse
   res.setHeader('Cache-Control', 's-maxage=30, stale-while-revalidate=60');
 
   const base = getApiBase();
-  const [cRes, gRes, sRes] = await Promise.allSettled([
-    fetch(`${base}/api/currencies`, { signal: AbortSignal.timeout(5000) }),
-    fetch(`${base}/api/gold`,       { signal: AbortSignal.timeout(5000) }),
-    fetch(`${base}/api/spot/latest`,{ signal: AbortSignal.timeout(5000) }),
+  const [cRes, gRes, kitco] = await Promise.all([
+    fetch(`${base}/api/currencies`, { signal: AbortSignal.timeout(5000) }).catch(() => null),
+    fetch(`${base}/api/gold`,       { signal: AbortSignal.timeout(5000) }).catch(() => null),
+    fetchKitcoSpot(),
   ]);
 
-  const currencies = cRes.status === 'fulfilled' && cRes.value.ok ? await cRes.value.json() : [];
-  const gold       = gRes.status === 'fulfilled' && gRes.value.ok ? await gRes.value.json() : [];
-  const spotData   = sRes.status === 'fulfilled' && sRes.value.ok ? await sRes.value.json() : null;
+  const currencies = cRes?.ok ? await cRes.json() : [];
+  const gold       = gRes?.ok ? await gRes.json() : [];
+  const spot       = kitco ? { priceUsd: kitco.priceUsd, priceCad: kitco.priceCad } : null;
 
-  res.json({ currencies, gold, spot: spotData?.gold ?? null });
+  res.json({ currencies, gold, spot });
 }
