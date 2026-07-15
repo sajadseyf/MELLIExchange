@@ -211,24 +211,24 @@ export default function TVDisplay({
                   {isFa ? CURRENCY_FA[c.code] ?? c.name : c.name}
                 </div>
               </div>
-              {/* Buy */}
+              {/* Buy — always the lower rate */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{
                   fontSize: '2.6vw', fontWeight: 800, color: '#4ade80',
                   fontVariantNumeric: 'tabular-nums', letterSpacing: '0.02em',
                   textShadow: '0 0 2vw rgba(74,222,128,0.4)',
                 }}>
-                  <AnimNum value={c.buy} fmt={fmt} />
+                  <AnimNum value={Math.min(c.buy, c.sell)} fmt={fmt} />
                 </div>
               </div>
-              {/* Sell */}
+              {/* Sell — always the higher rate */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{
                   fontSize: '2.6vw', fontWeight: 800, color: '#f59e0b',
                   fontVariantNumeric: 'tabular-nums', letterSpacing: '0.02em',
                   textShadow: '0 0 2vw rgba(245,158,11,0.4)',
                 }}>
-                  <AnimNum value={c.sell} fmt={fmt} />
+                  <AnimNum value={Math.max(c.buy, c.sell)} fmt={fmt} />
                 </div>
               </div>
             </div>

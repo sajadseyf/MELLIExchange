@@ -49,10 +49,10 @@ export async function RatesTable({ rows, compact = false }: Props) {
                   <td className="hidden px-6 py-4 text-start text-ink-500 dark:text-zinc-500 md:table-cell">{c.symbol}</td>
                 )}
                 <td className="px-6 py-4 text-end tabular-nums font-medium text-ink-900 dark:text-zinc-200">
-                  {c.contactUs ? <span className="text-sm font-medium text-blue-600 dark:text-blue-400">{t('contact_us')}</span> : formatRate(c.buy)}
+                  {c.contactUs ? <span className="text-sm font-medium text-blue-600 dark:text-blue-400">{t('contact_us')}</span> : formatRate(Math.min(c.buy, c.sell))}
                 </td>
                 <td className="px-6 py-4 text-end tabular-nums font-medium text-gold-700 dark:text-gold-400">
-                  {c.contactUs ? <span className="text-sm font-medium text-blue-600 dark:text-blue-400">{t('contact_us')}</span> : formatRate(c.sell)}
+                  {c.contactUs ? <span className="text-sm font-medium text-blue-600 dark:text-blue-400">{t('contact_us')}</span> : formatRate(Math.max(c.buy, c.sell))}
                 </td>
               </tr>
             ))}
@@ -72,11 +72,11 @@ export async function RatesTable({ rows, compact = false }: Props) {
               <div className="mt-1 flex gap-4 text-sm tabular-nums">
                 <span className="text-ink-600 dark:text-zinc-400">
                   <span className="text-xs text-ink-400 dark:text-zinc-500">{t('buy')} </span>
-                  {c.contactUs ? <span className="text-blue-600 dark:text-blue-400">{t('contact_us')}</span> : formatRate(c.buy)}
+                  {c.contactUs ? <span className="text-blue-600 dark:text-blue-400">{t('contact_us')}</span> : formatRate(Math.min(c.buy, c.sell))}
                 </span>
                 <span className="font-medium text-gold-700 dark:text-gold-400">
                   <span className="text-xs text-ink-400 dark:text-zinc-500">{t('sell')} </span>
-                  {c.contactUs ? <span className="text-blue-600 dark:text-blue-400">{t('contact_us')}</span> : formatRate(c.sell)}
+                  {c.contactUs ? <span className="text-blue-600 dark:text-blue-400">{t('contact_us')}</span> : formatRate(Math.max(c.buy, c.sell))}
                 </span>
               </div>
             </div>
