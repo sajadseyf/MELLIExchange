@@ -31,11 +31,11 @@ export function CurrencyCalculator({ currencies }: Props) {
     const weBuy  = Math.min(cur.buy, cur.sell); // exchange buys foreign from customer
     const weSell = Math.max(cur.buy, cur.sell); // exchange sells foreign to customer
 
-    if (mode === 'buy') {
-      // Customer BUYS foreign with CAD → exchange sells → weSell
+    if (mode === 'sell') {
+      // WE sell foreign to customer → customer pays CAD → weSell rate (higher)
       return { rate: weSell, rateLabel: `1 ${foreignCode} = ${weSell.toFixed(4)} CAD` };
     } else {
-      // Customer SELLS foreign for CAD → exchange buys → weBuy
+      // WE buy foreign from customer → customer gets CAD → weBuy rate (lower)
       return { rate: weBuy, rateLabel: `1 ${foreignCode} = ${weBuy.toFixed(4)} CAD` };
     }
   }, [foreignCode, mode, currencies]);
