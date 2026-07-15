@@ -435,7 +435,7 @@ export async function syncPrices() {
   const settings = await SettingsModel.findOne().lean() ?? await SettingsModel.create({});
   const spreadPct       = (settings as any).spread         ?? 1.5;
   const currencySource  = (settings as any).currencySource ?? 'vanex_scrape';
-  const goldSource      = (settings as any).goldSource     ?? 'yahoo_finance';
+  const goldSource      = (settings as any).goldSource     ?? 'kitco';
   const apiKeys         = (settings as any).apiKeys        ?? {};
 
   // ── Fetch currency rates ──────────────────────────────────────────────────
