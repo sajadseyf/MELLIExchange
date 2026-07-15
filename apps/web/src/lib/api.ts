@@ -8,13 +8,6 @@ function getApiBase() {
 }
 const API_URL = getApiBase();
 
-// Base URL for Next.js API routes (not the Express API)
-function getSelfBase() {
-  if (typeof window !== 'undefined') return '';
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  return 'http://localhost:3000';
-}
-
 async function fetchJson<T>(path: string): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
     next: { revalidate: 30 },
@@ -104,17 +97,8 @@ export interface SpotPrice {
 
 export async function getGoldSpotPrice(): Promise<SpotPrice | null> {
   try {
-    const res = await fetch(`${getSelfBase()}/api/gold-spot`, { next: { revalidate: 60 } });
-    if (!res.ok) return null;
-    const d = await res.json();
-    return {
-      priceUsd:  d.priceUsd,
-      priceCad:  d.priceCad,
-      bid:       d.bid  ?? 0,
-      ask:       d.ask  ?? 0,
-      change24h: 0,
-      recordedAt: new Date().toISOString(),
-    };
+    const data = await fetchJson<{ gold: SpotPrice | null; silver: SpotPrice | null }>('/api/spot/latest');
+    return data.gold;
   } catch {
     return null;
   }
