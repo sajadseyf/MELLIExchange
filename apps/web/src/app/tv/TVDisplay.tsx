@@ -112,7 +112,11 @@ export default function TVDisplay({
     .filter(c => ['USD', 'EUR', 'GBP'].includes(c.code))
     .sort((a, b) => ['USD', 'EUR', 'GBP'].indexOf(a.code) - ['USD', 'EUR', 'GBP'].indexOf(b.code));
 
-  const gold18 = gold.find(g => g.karat === 18);
+  // Compute 18K price from live Kitco spot — same formula everywhere
+  const TROY_OZ_GRAMS = 31.1035;
+  const gold18PricePerGram = spot
+    ? Math.round(spot.priceCad / TROY_OZ_GRAMS * (18 / 24) * 100) / 100
+    : gold.find(g => g.karat === 18)?.pricePerGram ?? null;
   const isFa   = lang === 'fa';
 
   const BUY_LABEL  = isFa ? 'خرید' : 'BUY';
@@ -235,7 +239,7 @@ export default function TVDisplay({
           ))}
 
           {/* ── 18K Gold bar ── */}
-          {gold18 && (
+          {gold18PricePerGram !== null && (
             <div style={{
               display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
               padding: '1.4vw 1.5vw',
@@ -272,7 +276,7 @@ export default function TVDisplay({
                     fontVariantNumeric: 'tabular-nums',
                     textShadow: '0 0 2vw rgba(232,184,75,0.6)',
                   }}>
-                    $<AnimNum value={gold18.pricePerGram} fmt={fmtGold} />
+                    $<AnimNum value={gold18PricePerGram!} fmt={fmtGold} />
                   </div>
                   <div style={{ fontSize: '0.9vw', color: '#a07830', marginTop: '0.2vw' }}>
                     {isFa ? 'دلار کانادا / گرم' : 'CAD / gram'}

@@ -75,12 +75,20 @@ export default async function HomePage() {
   ]);
   const featured = currencies.slice(0, 6);
 
-  // Use Kitco spot price directly; fall back to back-calculation only if spot is unavailable
   const gold24  = gold.find((r) => r.karat === 24);
   const usd     = currencies.find((c) => c.code === 'USD');
   const usdMid  = usd ? (usd.buy + usd.sell) / 2 : null;
   const usdPerOz = spot?.priceUsd
     ?? ((gold24 && usdMid) ? (gold24.pricePerGram * TROY_OZ_GRAMS) / usdMid : null);
+
+  // Recompute per-gram karat prices from live Kitco spot so they match the displayed USD/oz
+  const cadPerOz = spot?.priceCad ?? (gold24 ? gold24.pricePerGram * TROY_OZ_GRAMS : null);
+  const goldWithLivePrice = cadPerOz
+    ? gold.map((g) => ({
+        ...g,
+        pricePerGram: Math.round(cadPerOz / TROY_OZ_GRAMS * (g.karat / 24) * 100) / 100,
+      }))
+    : gold;
 
   const stats = [
     { value: '14+', label: t('stat_currencies') },
@@ -294,7 +302,7 @@ export default async function HomePage() {
                 </div>
               )}
 
-              <GoldCards rows={gold} stacked />
+              <GoldCards rows={goldWithLivePrice} stacked />
             </div>
           </div>
         </Container>

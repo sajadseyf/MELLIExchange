@@ -55,6 +55,13 @@ export default async function GoldPage({ params }: { params: { locale: string } 
   const cadPerOz = liveSpot?.priceCad
     ?? (gold24 ? gold24.pricePerGram * TROY_OZ_GRAMS : null);
 
+  // Compute per-gram prices from live Kitco spot (consistent with displayed USD/oz)
+  // Falls back to MongoDB value only if spot is unavailable
+  const liveKaratPrice = (k: number): number | undefined => {
+    if (cadPerOz) return Math.round(cadPerOz / TROY_OZ_GRAMS * (k / 24) * 100) / 100;
+    return rows.find((r) => r.karat === k)?.pricePerGram;
+  };
+
   const updatedAt = liveSpot ? new Date().toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit' }) : null;
 
   return (
@@ -108,22 +115,19 @@ export default async function GoldPage({ params }: { params: { locale: string } 
           </h2>
 
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-            {KARATS.map(({ k, purity, alloy, color, label }) => {
-              const row = rows.find((r) => r.karat === k);
-              return (
-                <KaratCard
-                  key={k}
-                  k={k}
-                  purity={purity}
-                  alloy={alloy}
-                  color={color}
-                  label={label}
-                  pricePerGram={row?.pricePerGram}
-                  purityLabel={t('purity')}
-                  alloyLabel={t('alloy')}
-                />
-              );
-            })}
+            {KARATS.map(({ k, purity, alloy, color, label }) => (
+              <KaratCard
+                key={k}
+                k={k}
+                purity={purity}
+                alloy={alloy}
+                color={color}
+                label={label}
+                pricePerGram={liveKaratPrice(k)}
+                purityLabel={t('purity')}
+                alloyLabel={t('alloy')}
+              />
+            ))}
           </div>
 
           <div className="mt-4 flex flex-wrap justify-center gap-6 rounded-xl border border-ink-100 bg-ink-50/60 px-6 py-4 dark:border-dark-border dark:bg-dark-raised/30">
