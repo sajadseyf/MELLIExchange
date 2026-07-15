@@ -58,9 +58,9 @@ export function CurrencyCalculator({ currencies }: Props) {
   const selectClass =
     'h-11 w-[110px] appearance-none rounded-lg border border-ink-200 bg-white pl-9 pr-7 text-sm font-medium text-ink-900 focus:outline-none focus:ring-2 focus:ring-gold-400 dark:border-dark-border dark:bg-dark-raised dark:text-white';
 
-  // In BUY mode: customer gives CAD (top) → gets foreign (bottom)
-  // In SELL mode: customer gives foreign (top) → gets CAD (bottom)
-  const topIsCad = mode === 'buy';
+  // SELL = we sell foreign → customer pays CAD (top) → gets foreign (bottom)
+  // BUY  = we buy foreign  → customer brings foreign (top) → gets CAD (bottom)
+  const topIsCad = mode === 'sell';
 
   return (
     <div className="flex h-full flex-col">
