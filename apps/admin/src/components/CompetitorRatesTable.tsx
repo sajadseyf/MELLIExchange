@@ -4,7 +4,8 @@ import { useEffect, useState, useMemo, useRef } from 'react';
 import { Card, Button } from '@melli/ui';
 import { api, ApiError } from '@/lib/api';
 
-interface RateMap { [code: string]: { buy: number; sell: number } }
+type Tier = 'high' | 'medium' | 'low';
+interface RateMap { [code: string]: { buy: number; sell: number; tier?: Tier } }
 interface SourceData { rates: RateMap; recordedAt: string | null }
 interface CompetitorData {
   own:      SourceData;
@@ -113,6 +114,11 @@ export function CompetitorRatesTable() {
     }
   }
 
+  async function saveTier(code: string, tier: Tier) {
+    await api(`/api/currencies/${code}`, { method: 'PUT', body: JSON.stringify({ tier }) });
+    await load();
+  }
+
   async function applyTargetRates() {
     if (!data || applying) return;
     setApplying(true);
@@ -156,14 +162,20 @@ export function CompetitorRatesTable() {
     return [...codes];
   }, [data]);
 
+  const MEDIUM_MARGIN = 0.005; // 0.5% wider spread for medium-tier currencies
+
   // Compute non-optimal updates from ALL codes (not filtered) so auto-apply covers every currency
   const nonOptimalRates = useMemo(() => {
     if (!data) return [];
-    const EPS = 0.00001;
+    const EPS = 0.0001;
     return allCodes.flatMap((code) => {
-      const own      = data.own.rates[code];
+      const own = data.own.rates[code];
       // Only update currencies we already track — skip codes not in our DB
       if (!own?.buy || !own?.sell) return [];
+
+      const tier = own.tier ?? 'high';
+      // Low tier = manual management, never auto-update
+      if (tier === 'low') return [];
 
       const vanex    = data.vanex.rates[code];
       const arzsina  = data.arzsina.rates[code];
@@ -171,21 +183,20 @@ export function CompetitorRatesTable() {
       const daniel   = data.daniel.rates[code];
       const moneyway = data.moneyway.rates[code];
 
-      const allBuys  = [own.buy,  vanex?.buy,  arzsina?.buy,  vbce?.buy,  daniel?.buy,  moneyway?.buy ].filter((v): v is number => !!v && v > 0);
-      const allSells = [own.sell, vanex?.sell, arzsina?.sell, vbce?.sell, daniel?.sell, moneyway?.sell].filter((v): v is number => !!v && v > 0);
-      const maxBuy   = allBuys.length  ? Math.max(...allBuys)  : 0;
-      const minSell  = allSells.length ? Math.min(...allSells) : 0;
-      const ownBuyIsBest  = Math.abs(own.buy  - maxBuy)  < EPS;
-      const ownSellIsBest = Math.abs(own.sell - minSell) < EPS;
+      const competitorBuys  = [vanex?.buy,  arzsina?.buy,  vbce?.buy,  daniel?.buy,  moneyway?.buy ].filter((v): v is number => !!v && v > 0);
+      const competitorSells = [vanex?.sell, arzsina?.sell, vbce?.sell, daniel?.sell, moneyway?.sell].filter((v): v is number => !!v && v > 0);
+      if (!competitorBuys.length && !competitorSells.length) return [];
 
-      const competitorBuys  = [vanex?.buy,  arzsina?.buy,  vbce?.buy,  daniel?.buy,  moneyway?.buy ].filter((v): v is number => !!v);
-      const competitorSells = [vanex?.sell, arzsina?.sell, vbce?.sell, daniel?.sell, moneyway?.sell].filter((v): v is number => !!v);
-      const targetBuy  = competitorBuys.length  ? Math.max(...competitorBuys)  : null;
-      const targetSell = competitorSells.length ? Math.min(...competitorSells) : null;
+      const bestBuy  = competitorBuys.length  ? Math.max(...competitorBuys)  : null;
+      const bestSell = competitorSells.length ? Math.min(...competitorSells) : null;
+
+      // Tier-adjusted targets: medium pulls back by MEDIUM_MARGIN, high matches exactly
+      const targetBuy  = bestBuy  !== null ? Math.round(bestBuy  * (tier === 'medium' ? 1 - MEDIUM_MARGIN : 1) * 10000) / 10000 : null;
+      const targetSell = bestSell !== null ? Math.round(bestSell * (tier === 'medium' ? 1 + MEDIUM_MARGIN : 1) * 10000) / 10000 : null;
 
       const body: Record<string, number> = {};
-      if (targetBuy  !== null && !ownBuyIsBest)  body.buy  = targetBuy;
-      if (targetSell !== null && !ownSellIsBest) body.sell = targetSell;
+      if (targetBuy  !== null && Math.abs(own.buy  - targetBuy)  > EPS) body.buy  = targetBuy;
+      if (targetSell !== null && Math.abs(own.sell - targetSell) > EPS) body.sell = targetSell;
       return Object.keys(body).length ? [{ code, body }] : [];
     });
   }, [data, allCodes]);
@@ -224,18 +235,23 @@ export function CompetitorRatesTable() {
       const minSell = sellValues.length ? Math.min(...sellValues) : 0;
 
       const EPS = 0.00001;
+      const tier = (own?.tier ?? 'high') as Tier;
+
       const buyClass  = (v?: number) => !v || v <= 0 ? '' : Math.abs(v - maxBuy)  < EPS ? 'text-emerald-600 font-semibold' : 'text-red-500';
       const sellClass = (v?: number) => !v || v <= 0 ? '' : Math.abs(v - minSell) < EPS ? 'text-emerald-600 font-semibold' : 'text-red-500';
-
-      const ownBuyIsBest  = !!own?.buy  && own.buy  > 0 && Math.abs(own.buy  - maxBuy)  < EPS;
-      const ownSellIsBest = !!own?.sell && own.sell > 0 && Math.abs(own.sell - minSell) < EPS;
 
       const competitorBuys  = [vanex?.buy,  arzsina?.buy,  vbce?.buy,  daniel?.buy,  moneyway?.buy ].filter((v): v is number => !!v);
       const competitorSells = [vanex?.sell, arzsina?.sell, vbce?.sell, daniel?.sell, moneyway?.sell].filter((v): v is number => !!v);
       const targetBuy  = competitorBuys.length  ? Math.max(...competitorBuys)  : null;
       const targetSell = competitorSells.length ? Math.min(...competitorSells) : null;
 
-      return { code, own, vanex, arzsina, vbce, daniel, moneyway, buyClass, sellClass, ownBuyIsBest, ownSellIsBest, targetBuy, targetSell };
+      // For ⚠️ display: high = must match best; medium = within MEDIUM_MARGIN of best; low = no warning
+      const adjBuy  = targetBuy  !== null ? Math.round(targetBuy  * (tier === 'medium' ? 1 - MEDIUM_MARGIN : 1) * 10000) / 10000 : null;
+      const adjSell = targetSell !== null ? Math.round(targetSell * (tier === 'medium' ? 1 + MEDIUM_MARGIN : 1) * 10000) / 10000 : null;
+      const ownBuyIsBest  = tier === 'low' || (!!own?.buy  && adjBuy  !== null && Math.abs(own.buy  - adjBuy)  < 0.0001);
+      const ownSellIsBest = tier === 'low' || (!!own?.sell && adjSell !== null && Math.abs(own.sell - adjSell) < 0.0001);
+
+      return { code, own, tier, vanex, arzsina, vbce, daniel, moneyway, buyClass, sellClass, ownBuyIsBest, ownSellIsBest, targetBuy, targetSell };
     }).sort((a, b) => {
       let va: number | string = 0;
       let vb: number | string = 0;
@@ -324,8 +340,14 @@ export function CompetitorRatesTable() {
               </tr>
             </thead>
             <tbody className="divide-y divide-ink-50">
-              {rows.map(({ code, own, vanex, arzsina, vbce, daniel, moneyway, buyClass, sellClass, ownBuyIsBest, ownSellIsBest, targetBuy, targetSell }) => {
+              {rows.map(({ code, own, tier, vanex, arzsina, vbce, daniel, moneyway, buyClass, sellClass, ownBuyIsBest, ownSellIsBest, targetBuy, targetSell }) => {
                 const info = CURRENCY_INFO[code];
+                const TIER_CFG: Record<Tier, { label: string; cls: string; next: Tier; title: string }> = {
+                  high:   { label: 'H', cls: 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200', next: 'medium', title: 'High demand — auto-match best competitor rate' },
+                  medium: { label: 'M', cls: 'bg-amber-100   text-amber-700   hover:bg-amber-200',   next: 'low',    title: 'Medium demand — 0.5% wider spread than best' },
+                  low:    { label: 'L', cls: 'bg-gray-100    text-gray-500    hover:bg-gray-200',    next: 'high',   title: 'Low demand — manual rate, no auto-optimize' },
+                };
+                const tc = TIER_CFG[tier];
                 return (
                   <tr key={code} className="group hover:bg-gold-50/30">
                     <td className="sticky left-0 z-10 bg-white group-hover:bg-gold-50/30 px-3 py-2">
@@ -336,7 +358,18 @@ export function CompetitorRatesTable() {
                           <span className="inline-block h-[15px] w-[20px] rounded-sm bg-ink-200 flex-shrink-0" />
                         )}
                         <div>
-                          <span className="font-mono font-semibold text-ink-800">{code}</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-mono font-semibold text-ink-800">{code}</span>
+                            {own && (
+                              <button
+                                onClick={() => saveTier(code, tc.next)}
+                                title={tc.title}
+                                className={`inline-flex h-4 w-4 items-center justify-center rounded text-[9px] font-bold leading-none transition-colors ${tc.cls}`}
+                              >
+                                {tc.label}
+                              </button>
+                            )}
+                          </div>
                           {info && <p className="text-[10px] text-ink-400 leading-tight">{info.name}</p>}
                         </div>
                       </div>

@@ -26,6 +26,7 @@ function serialize(doc: any) {
     buy: doc.buy,
     sell: doc.sell,
     order: doc.order ?? 0,
+    tier: (doc.tier ?? 'high') as 'high' | 'medium' | 'low',
     contactUs: doc.contactUs ?? false,
     hidden: doc.hidden ?? false,
     updatedAt: doc.updatedAt?.toISOString?.() ?? new Date().toISOString(),
@@ -140,8 +141,9 @@ router.post('/', requireAuth, async (req, res) => {
 });
 
 const updateSchema = upsertSchema.partial().omit({ code: true }).extend({
+  tier:      z.enum(['high', 'medium', 'low']).optional(),
   contactUs: z.boolean().optional(),
-  hidden: z.boolean().optional(),
+  hidden:    z.boolean().optional(),
 });
 
 router.put('/:code', requireAuth, async (req, res) => {

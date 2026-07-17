@@ -8,6 +8,7 @@ export interface Currency {
   buy: number;
   sell: number;
   order: number;
+  tier: 'high' | 'medium' | 'low';
   contactUs: boolean;
   hidden: boolean;
   updatedAt: string;

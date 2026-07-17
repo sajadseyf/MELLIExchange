@@ -10,6 +10,7 @@ const currencySchema = new Schema(
     buy: { type: Number, required: true, min: 0 },
     sell: { type: Number, required: true, min: 0 },
     order:     { type: Number, default: 0 },
+    tier:      { type: String, enum: ['high', 'medium', 'low'], default: 'high' },
     contactUs: { type: Boolean, default: false },
     hidden:    { type: Boolean, default: false },
   },

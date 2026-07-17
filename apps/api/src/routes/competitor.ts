@@ -24,8 +24,8 @@ router.get('/latest', requireAuth, async (_req, res) => {
     return { rates: m, recordedAt: doc?.recordedAt ?? null };
   };
 
-  const ownMap: Record<string, { buy: number; sell: number }> = {};
-  for (const c of own) ownMap[c.code] = { buy: c.buy, sell: c.sell };
+  const ownMap: Record<string, { buy: number; sell: number; tier: 'high' | 'medium' | 'low' }> = {};
+  for (const c of own) ownMap[c.code] = { buy: c.buy, sell: c.sell, tier: ((c as any).tier ?? 'high') as 'high' | 'medium' | 'low' };
 
   res.json({
     own:      { rates: ownMap, recordedAt: own[0] ? (own[0] as any).updatedAt : null },
