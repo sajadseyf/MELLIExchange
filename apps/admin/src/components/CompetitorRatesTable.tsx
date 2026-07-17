@@ -68,8 +68,10 @@ export function CompetitorRatesTable() {
   const [filter,     setFilter]     = useState('');
   const [sortKey,    setSortKey]    = useState<SortKey>('priority');
   const [sortAsc,    setSortAsc]    = useState(true);
+  const [applying,   setApplying]   = useState(false);
   const [inlineEdit, setInlineEdit] = useState<{ code: string; field: 'buy' | 'sell'; value: string } | null>(null);
-  const inlineSaving = useRef(false);
+  const inlineSaving  = useRef(false);
+  const autoApplying  = useRef(false);
 
   async function load() {
     try {
@@ -111,7 +113,35 @@ export function CompetitorRatesTable() {
     }
   }
 
-  useEffect(() => { load(); }, []);
+  async function applyTargetRates() {
+    if (!data || applying) return;
+    setApplying(true);
+    try {
+      const toUpdate = rows.filter((r) =>
+        (r.targetBuy !== null && !r.ownBuyIsBest) ||
+        (r.targetSell !== null && !r.ownSellIsBest)
+      );
+      await Promise.all(
+        toUpdate.map((r) => {
+          const body: Record<string, number> = {};
+          if (r.targetBuy  !== null && !r.ownBuyIsBest)  body.buy  = r.targetBuy;
+          if (r.targetSell !== null && !r.ownSellIsBest) body.sell = r.targetSell;
+          return api(`/api/currencies/${r.code}`, { method: 'PUT', body: JSON.stringify(body) });
+        })
+      );
+      await load();
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : 'Apply failed');
+    } finally {
+      setApplying(false);
+    }
+  }
+
+  useEffect(() => {
+    load();
+    const id = setInterval(load, 60_000);
+    return () => clearInterval(id);
+  }, []);
 
   const allCodes = useMemo(() => {
     if (!data) return [];
@@ -125,6 +155,51 @@ export function CompetitorRatesTable() {
     ]);
     return [...codes];
   }, [data]);
+
+  // Compute non-optimal updates from ALL codes (not filtered) so auto-apply covers every currency
+  const nonOptimalRates = useMemo(() => {
+    if (!data) return [];
+    const EPS = 0.00001;
+    return allCodes.flatMap((code) => {
+      const own      = data.own.rates[code];
+      const vanex    = data.vanex.rates[code];
+      const arzsina  = data.arzsina.rates[code];
+      const vbce     = data.vbce.rates[code];
+      const daniel   = data.daniel.rates[code];
+      const moneyway = data.moneyway.rates[code];
+
+      const allBuys  = [own?.buy,  vanex?.buy,  arzsina?.buy,  vbce?.buy,  daniel?.buy,  moneyway?.buy ].filter((v): v is number => !!v && v > 0);
+      const allSells = [own?.sell, vanex?.sell, arzsina?.sell, vbce?.sell, daniel?.sell, moneyway?.sell].filter((v): v is number => !!v && v > 0);
+      const maxBuy   = allBuys.length  ? Math.max(...allBuys)  : 0;
+      const minSell  = allSells.length ? Math.min(...allSells) : 0;
+      const ownBuyIsBest  = !!own?.buy  && own.buy  > 0 && Math.abs(own.buy  - maxBuy)  < EPS;
+      const ownSellIsBest = !!own?.sell && own.sell > 0 && Math.abs(own.sell - minSell) < EPS;
+
+      const competitorBuys  = [vanex?.buy,  arzsina?.buy,  vbce?.buy,  daniel?.buy,  moneyway?.buy ].filter((v): v is number => !!v);
+      const competitorSells = [vanex?.sell, arzsina?.sell, vbce?.sell, daniel?.sell, moneyway?.sell].filter((v): v is number => !!v);
+      const targetBuy  = competitorBuys.length  ? Math.max(...competitorBuys)  : null;
+      const targetSell = competitorSells.length ? Math.min(...competitorSells) : null;
+
+      const body: Record<string, number> = {};
+      if (targetBuy  !== null && !ownBuyIsBest)  body.buy  = targetBuy;
+      if (targetSell !== null && !ownSellIsBest) body.sell = targetSell;
+      return Object.keys(body).length ? [{ code, body }] : [];
+    });
+  }, [data, allCodes]);
+
+  // Auto-apply optimal rates whenever competitor data changes
+  useEffect(() => {
+    if (nonOptimalRates.length === 0 || autoApplying.current) return;
+    autoApplying.current = true;
+    Promise.all(
+      nonOptimalRates.map(({ code, body }) =>
+        api(`/api/currencies/${code}`, { method: 'PUT', body: JSON.stringify(body) }).catch(() => {})
+      )
+    )
+      .then(() => load())
+      .finally(() => { autoApplying.current = false; });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nonOptimalRates]);
 
   const rows = useMemo(() => {
     if (!data) return [];
@@ -200,7 +275,13 @@ export function CompetitorRatesTable() {
         <Button size="sm" variant="ghost" onClick={refresh} disabled={refreshing}>
           {refreshing ? 'Refreshing…' : '↻ Refresh now'}
         </Button>
-        {updatedAt && <span className="text-xs text-ink-400">Last updated: {updatedAt}</span>}
+        {nonOptimalRates.length > 0
+          ? <span className="text-xs text-amber-600 font-medium">⚡ Auto-optimizing {nonOptimalRates.length} rate{nonOptimalRates.length > 1 ? 's' : ''}…</span>
+          : rows.length > 0
+            ? <span className="text-xs text-emerald-600 font-medium">✓ All rates optimal</span>
+            : null
+        }
+        {updatedAt && <span className="text-xs text-ink-400">Last updated: {updatedAt} · auto-refreshes every 60s</span>}
       </div>
 
       {error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</p>}
