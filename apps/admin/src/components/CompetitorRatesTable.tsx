@@ -162,18 +162,21 @@ export function CompetitorRatesTable() {
     const EPS = 0.00001;
     return allCodes.flatMap((code) => {
       const own      = data.own.rates[code];
+      // Only update currencies we already track — skip codes not in our DB
+      if (!own?.buy || !own?.sell) return [];
+
       const vanex    = data.vanex.rates[code];
       const arzsina  = data.arzsina.rates[code];
       const vbce     = data.vbce.rates[code];
       const daniel   = data.daniel.rates[code];
       const moneyway = data.moneyway.rates[code];
 
-      const allBuys  = [own?.buy,  vanex?.buy,  arzsina?.buy,  vbce?.buy,  daniel?.buy,  moneyway?.buy ].filter((v): v is number => !!v && v > 0);
-      const allSells = [own?.sell, vanex?.sell, arzsina?.sell, vbce?.sell, daniel?.sell, moneyway?.sell].filter((v): v is number => !!v && v > 0);
+      const allBuys  = [own.buy,  vanex?.buy,  arzsina?.buy,  vbce?.buy,  daniel?.buy,  moneyway?.buy ].filter((v): v is number => !!v && v > 0);
+      const allSells = [own.sell, vanex?.sell, arzsina?.sell, vbce?.sell, daniel?.sell, moneyway?.sell].filter((v): v is number => !!v && v > 0);
       const maxBuy   = allBuys.length  ? Math.max(...allBuys)  : 0;
       const minSell  = allSells.length ? Math.min(...allSells) : 0;
-      const ownBuyIsBest  = !!own?.buy  && own.buy  > 0 && Math.abs(own.buy  - maxBuy)  < EPS;
-      const ownSellIsBest = !!own?.sell && own.sell > 0 && Math.abs(own.sell - minSell) < EPS;
+      const ownBuyIsBest  = Math.abs(own.buy  - maxBuy)  < EPS;
+      const ownSellIsBest = Math.abs(own.sell - minSell) < EPS;
 
       const competitorBuys  = [vanex?.buy,  arzsina?.buy,  vbce?.buy,  daniel?.buy,  moneyway?.buy ].filter((v): v is number => !!v);
       const competitorSells = [vanex?.sell, arzsina?.sell, vbce?.sell, daniel?.sell, moneyway?.sell].filter((v): v is number => !!v);
