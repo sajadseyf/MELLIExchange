@@ -10,7 +10,10 @@ export async function connectDb(): Promise<void> {
   mongoose.set('strictQuery', true);
   await mongoose.connect(env.mongoUri, {
     bufferCommands: false,
-    maxPoolSize: 5,
+    maxPoolSize: 3,          // M0 free tier: keep pool small
+    minPoolSize: 1,
+    maxIdleTimeMS: 60_000,   // release idle connections after 60s
+    heartbeatFrequencyMS: 30_000,
     serverSelectionTimeoutMS: 8000,
     connectTimeoutMS: 8000,
     socketTimeoutMS: 30000,
