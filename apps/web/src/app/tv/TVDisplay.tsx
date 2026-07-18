@@ -73,7 +73,7 @@ export default function TVDisplay({
   const [lang, setLang]               = useState<'en' | 'fa'>('en');
   const [langVisible, setLangVisible] = useState(true);
   const [videoIdx, setVideoIdx]       = useState(0);
-  const [ytMuted, setYtMuted]         = useState(true);
+  const [musicOn, setMusicOn]         = useState(false);
   const videoRef                      = useRef<HTMLVideoElement>(null);
   const iframeRef                     = useRef<HTMLIFrameElement>(null);
 
@@ -106,14 +106,15 @@ export default function TVDisplay({
     setVideoIdx(i => (i + 1) % LOCAL_VIDEOS.length);
   }, []);
 
-  /* ── unmute YouTube via postMessage — no iframe reload needed ── */
-  const unmuteYT = useCallback(() => {
+  /* ── toggle YouTube background music via postMessage ── */
+  const toggleMusic = useCallback(() => {
+    const func = musicOn ? 'mute' : 'unMute';
     iframeRef.current?.contentWindow?.postMessage(
-      JSON.stringify({ event: 'command', func: 'unMute', args: [] }),
+      JSON.stringify({ event: 'command', func, args: [] }),
       '*',
     );
-    setYtMuted(false);
-  }, []);
+    setMusicOn(m => !m);
+  }, [musicOn]);
 
   /* ── language toggle every 8s with fade ── */
   useEffect(() => {
@@ -158,6 +159,17 @@ export default function TVDisplay({
         <div style={{ position: 'absolute', bottom: '-8vw', right: '-5vw', width: '35vw', height: '35vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,151,42,0.10) 0%, transparent 70%)' }} />
       </div>
 
+      {/* ── Hidden YouTube audio player (1px — browser keeps it alive) ── */}
+      {YOUTUBE_VIDEO_ID && (
+        <iframe
+          ref={iframeRef}
+          src={`https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?autoplay=1&mute=1&enablejsapi=1&controls=0&disablekb=1&loop=1&playlist=${YOUTUBE_VIDEO_ID}`}
+          allow="autoplay; encrypted-media"
+          style={{ position: 'fixed', width: '1px', height: '1px', bottom: 0, left: 0, border: 'none', pointerEvents: 'none' }}
+          aria-hidden="true"
+        />
+      )}
+
       {/* ── HEADER ── */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -184,7 +196,29 @@ export default function TVDisplay({
             </div>
           </div>
         </div>
-        <Clock lang={lang} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2vw' }}>
+          {/* Music toggle button — hidden YouTube iframe plays in background */}
+          {YOUTUBE_VIDEO_ID && (
+            <button
+              onClick={toggleMusic}
+              title={musicOn ? 'Mute music' : 'Play background music'}
+              style={{
+                background: musicOn ? 'rgba(200,151,42,0.15)' : 'rgba(255,255,255,0.05)',
+                border: `1px solid ${musicOn ? 'rgba(200,151,42,0.5)' : 'rgba(100,140,220,0.2)'}`,
+                borderRadius: '50%',
+                width: '3vw', height: '3vw',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer',
+                fontSize: '1.3vw',
+                transition: 'all 0.3s',
+                flexShrink: 0,
+              }}
+            >
+              {musicOn ? '🎵' : '🔇'}
+            </button>
+          )}
+          <Clock lang={lang} />
+        </div>
       </div>
 
       {/* ── BODY ── */}
@@ -322,50 +356,14 @@ export default function TVDisplay({
             background: '#04080f',
             position: 'relative',
           }}>
-            {YOUTUBE_VIDEO_ID ? (
-              <>
-                <iframe
-                  ref={iframeRef}
-                  src={`https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?autoplay=1&mute=1&enablejsapi=1&controls=0&disablekb=1&modestbranding=1&rel=0&iv_load_policy=3`}
-                  allow="autoplay; encrypted-media"
-                  allowFullScreen
-                  style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
-                />
-                {ytMuted && (
-                  <button
-                    onClick={unmuteYT}
-                    style={{
-                      position: 'absolute', bottom: '1.2vw', left: '50%',
-                      transform: 'translateX(-50%)',
-                      background: 'rgba(0,0,0,0.75)',
-                      border: '1px solid rgba(200,151,42,0.6)',
-                      borderRadius: '2vw',
-                      color: '#C8972A',
-                      padding: '0.6vw 1.4vw',
-                      cursor: 'pointer',
-                      fontSize: '0.85vw',
-                      fontWeight: 600,
-                      letterSpacing: '0.05em',
-                      zIndex: 10,
-                      backdropFilter: 'blur(4px)',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    🔇 {isFa ? 'برای روشن کردن صدا کلیک کنید' : 'Click to enable sound'}
-                  </button>
-                )}
-              </>
-            ) : (
-              /* Fallback: local .mp4 files */
-              <video
-                ref={videoRef}
-                key={LOCAL_VIDEOS[videoIdx]}
-                src={LOCAL_VIDEOS[videoIdx]}
-                autoPlay muted playsInline
-                onEnded={handleVideoEnded}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            )}
+            <video
+              ref={videoRef}
+              key={LOCAL_VIDEOS[videoIdx]}
+              src={LOCAL_VIDEOS[videoIdx]}
+              autoPlay muted playsInline
+              onEnded={handleVideoEnded}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
             <div style={{
               position: 'absolute', inset: 0, borderRadius: '1vw', pointerEvents: 'none',
               boxShadow: 'inset 0 0 2vw rgba(29,78,216,0.15)',
