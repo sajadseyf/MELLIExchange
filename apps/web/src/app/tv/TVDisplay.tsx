@@ -187,6 +187,7 @@ export default function TVDisplay({
       display: 'flex', flexDirection: 'column',
       transition: 'opacity 0.5s',
       opacity: langVisible ? 1 : 0,
+      position: 'relative', zIndex: 1,
     }}>
 
       {/* ── decorative blobs ── */}
@@ -195,24 +196,16 @@ export default function TVDisplay({
         <div style={{ position: 'absolute', bottom: '-8vw', right: '-5vw', width: '35vw', height: '35vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,151,42,0.10) 0%, transparent 70%)' }} />
       </div>
 
-      {/* ── YouTube audio player — on-screen so browser never throttles it ── */}
+      {/* ── YouTube audio player — fixed behind main content (zIndex 0 < main zIndex 1) ── */}
+      {/* Browser sees it in-viewport so no throttling; main gradient background covers it */}
       {YOUTUBE_VIDEO_ID && (
         <div style={{
-          position: 'fixed', bottom: '3.5vw', left: '1vw',
-          width: '160px', height: '90px',
-          zIndex: 2, borderRadius: '8px', overflow: 'hidden',
+          position: 'fixed', bottom: 0, right: 0,
+          width: '320px', height: '180px',
+          zIndex: 0,
           pointerEvents: 'none',
         }} aria-hidden="true">
-          {/* YT IFrame API renders iframe here */}
           <div id="yt-bg-player" style={{ width: '100%', height: '100%' }} />
-          {/* Dark cover — hides the video, audio still plays */}
-          <div style={{
-            position: 'absolute', inset: 0,
-            background: 'rgba(8,15,32,0.96)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <span style={{ fontSize: '28px', opacity: musicOn ? 1 : 0.3, transition: 'opacity 0.4s' }}>🎵</span>
-          </div>
         </div>
       )}
 
