@@ -73,8 +73,9 @@ export default function TVDisplay({
   const [lang, setLang]               = useState<'en' | 'fa'>('en');
   const [langVisible, setLangVisible] = useState(true);
   const [videoIdx, setVideoIdx]       = useState(0);
-  const [ytStarted, setYtStarted]     = useState(false);
+  const [ytMuted, setYtMuted]         = useState(true);
   const videoRef                      = useRef<HTMLVideoElement>(null);
+  const iframeRef                     = useRef<HTMLIFrameElement>(null);
 
   /* ── data refresh ── */
   const refresh = useCallback(async () => {
@@ -103,6 +104,15 @@ export default function TVDisplay({
   /* ── cycle local videos on ended (fallback when no YOUTUBE_VIDEO_ID) ── */
   const handleVideoEnded = useCallback(() => {
     setVideoIdx(i => (i + 1) % LOCAL_VIDEOS.length);
+  }, []);
+
+  /* ── unmute YouTube via postMessage — no iframe reload needed ── */
+  const unmuteYT = useCallback(() => {
+    iframeRef.current?.contentWindow?.postMessage(
+      JSON.stringify({ event: 'command', func: 'unMute', args: [] }),
+      '*',
+    );
+    setYtMuted(false);
   }, []);
 
   /* ── language toggle every 8s with fade ── */
@@ -313,44 +323,38 @@ export default function TVDisplay({
             position: 'relative',
           }}>
             {YOUTUBE_VIDEO_ID ? (
-              ytStarted ? (
+              <>
                 <iframe
-                  src={`https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?autoplay=1&controls=0&disablekb=1&modestbranding=1&rel=0&iv_load_policy=3`}
+                  ref={iframeRef}
+                  src={`https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?autoplay=1&mute=1&enablejsapi=1&controls=0&disablekb=1&modestbranding=1&rel=0&iv_load_policy=3`}
                   allow="autoplay; encrypted-media"
                   allowFullScreen
-                  style={{ width: '100%', height: '100%', border: 'none' }}
+                  style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
                 />
-              ) : (
-                /* Tap-to-start overlay — needed so browser allows audio autoplay */
-                <div
-                  onClick={() => setYtStarted(true)}
-                  style={{
-                    width: '100%', height: '100%',
-                    display: 'flex', flexDirection: 'column',
-                    alignItems: 'center', justifyContent: 'center',
-                    cursor: 'pointer', gap: '1vw',
-                    background: 'linear-gradient(135deg, rgba(8,15,32,0.95), rgba(13,26,53,0.95))',
-                  }}
-                >
-                  <div style={{
-                    width: '5vw', height: '5vw', borderRadius: '50%',
-                    background: 'rgba(200,151,42,0.15)',
-                    border: '2px solid rgba(200,151,42,0.5)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '2.5vw',
-                    boxShadow: '0 0 2vw rgba(200,151,42,0.2)',
-                    animation: 'pulse 2s ease-in-out infinite',
-                  }}>▶</div>
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '0.9vw', color: '#C8972A', letterSpacing: '0.1em' }}>
-                      {isFa ? 'برای شروع موسیقی لمس کنید' : 'TAP TO START MUSIC'}
-                    </div>
-                    <div style={{ fontSize: '0.7vw', color: '#3a4a6a', marginTop: '0.4vw' }}>
-                      {isFa ? 'پخش ۱۲ ساعته · یوتیوب' : '12-hour ambient · YouTube'}
-                    </div>
-                  </div>
-                </div>
-              )
+                {ytMuted && (
+                  <button
+                    onClick={unmuteYT}
+                    style={{
+                      position: 'absolute', bottom: '1.2vw', left: '50%',
+                      transform: 'translateX(-50%)',
+                      background: 'rgba(0,0,0,0.75)',
+                      border: '1px solid rgba(200,151,42,0.6)',
+                      borderRadius: '2vw',
+                      color: '#C8972A',
+                      padding: '0.6vw 1.4vw',
+                      cursor: 'pointer',
+                      fontSize: '0.85vw',
+                      fontWeight: 600,
+                      letterSpacing: '0.05em',
+                      zIndex: 10,
+                      backdropFilter: 'blur(4px)',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    🔇 {isFa ? 'برای روشن کردن صدا کلیک کنید' : 'Click to enable sound'}
+                  </button>
+                )}
+              </>
             ) : (
               /* Fallback: local .mp4 files */
               <video
