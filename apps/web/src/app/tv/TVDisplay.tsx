@@ -195,13 +195,25 @@ export default function TVDisplay({
         <div style={{ position: 'absolute', bottom: '-8vw', right: '-5vw', width: '35vw', height: '35vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,151,42,0.10) 0%, transparent 70%)' }} />
       </div>
 
-      {/* ── YouTube IFrame API mounts player into this div (off-screen, real size) ── */}
+      {/* ── YouTube audio player — on-screen so browser never throttles it ── */}
       {YOUTUBE_VIDEO_ID && (
-        <div
-          id="yt-bg-player"
-          style={{ position: 'fixed', left: '-400px', top: 0, width: '320px', height: '180px', pointerEvents: 'none' }}
-          aria-hidden="true"
-        />
+        <div style={{
+          position: 'fixed', bottom: '3.5vw', left: '1vw',
+          width: '160px', height: '90px',
+          zIndex: 2, borderRadius: '8px', overflow: 'hidden',
+          pointerEvents: 'none',
+        }} aria-hidden="true">
+          {/* YT IFrame API renders iframe here */}
+          <div id="yt-bg-player" style={{ width: '100%', height: '100%' }} />
+          {/* Dark cover — hides the video, audio still plays */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'rgba(8,15,32,0.96)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <span style={{ fontSize: '28px', opacity: musicOn ? 1 : 0.3, transition: 'opacity 0.4s' }}>🎵</span>
+          </div>
+        </div>
       )}
 
       {/* ── HEADER ── */}
