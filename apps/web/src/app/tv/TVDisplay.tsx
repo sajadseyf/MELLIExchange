@@ -120,6 +120,12 @@ export default function TVDisplay({
         },
         events: {
           onReady: (e: any) => { e.target.playVideo(); setPlayerReady(true); },
+          onStateChange: (e: any) => {
+            // 0 = ended, 2 = paused — auto-resume so music never cuts off
+            if (e.data === 0 || e.data === 2) {
+              setTimeout(() => e.target.playVideo(), 500);
+            }
+          },
         },
       });
     };
@@ -196,17 +202,6 @@ export default function TVDisplay({
         <div style={{ position: 'absolute', bottom: '-8vw', right: '-5vw', width: '35vw', height: '35vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,151,42,0.10) 0%, transparent 70%)' }} />
       </div>
 
-      {/* ── YouTube audio player — opacity 0: invisible but in-viewport so browser won't throttle ── */}
-      {YOUTUBE_VIDEO_ID && (
-        <div style={{
-          position: 'fixed', bottom: 0, right: 0,
-          width: '160px', height: '90px',
-          opacity: 0, pointerEvents: 'none',
-          zIndex: 0,
-        }} aria-hidden="true">
-          <div id="yt-bg-player" style={{ width: '100%', height: '100%' }} />
-        </div>
-      )}
 
       {/* ── HEADER ── */}
       <div style={{
@@ -387,7 +382,7 @@ export default function TVDisplay({
           gap: '1.5vw',
         }}>
 
-          {/* Video / YouTube player */}
+          {/* Video panel — YouTube player hidden behind local video */}
           <div style={{
             flex: 1,
             borderRadius: '1vw',
@@ -396,16 +391,20 @@ export default function TVDisplay({
             background: '#04080f',
             position: 'relative',
           }}>
+            {/* YouTube audio: sits behind local video so browser never throttles it */}
+            {YOUTUBE_VIDEO_ID && (
+              <div id="yt-bg-player" style={{ position: 'absolute', inset: 0, zIndex: 0 }} />
+            )}
             <video
               ref={videoRef}
               key={LOCAL_VIDEOS[videoIdx]}
               src={LOCAL_VIDEOS[videoIdx]}
               autoPlay muted playsInline
               onEnded={handleVideoEnded}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              style={{ position: 'relative', zIndex: 1, width: '100%', height: '100%', objectFit: 'cover' }}
             />
             <div style={{
-              position: 'absolute', inset: 0, borderRadius: '1vw', pointerEvents: 'none',
+              position: 'absolute', inset: 0, borderRadius: '1vw', pointerEvents: 'none', zIndex: 2,
               boxShadow: 'inset 0 0 2vw rgba(29,78,216,0.15)',
             }} />
           </div>
