@@ -117,7 +117,6 @@ export default function TVDisplay({
         playerVars: {
           autoplay: 1, mute: 1, controls: 0,
           disablekb: 1, modestbranding: 1, rel: 0, iv_load_policy: 3,
-          loop: 1, playlist: YOUTUBE_VIDEO_ID,
         },
         events: {
           onReady: (e: any) => { e.target.playVideo(); setPlayerReady(true); },
@@ -196,11 +195,11 @@ export default function TVDisplay({
         <div style={{ position: 'absolute', bottom: '-8vw', right: '-5vw', width: '35vw', height: '35vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,151,42,0.10) 0%, transparent 70%)' }} />
       </div>
 
-      {/* ── YouTube IFrame API mounts player into this div ── */}
+      {/* ── YouTube IFrame API mounts player into this div (off-screen, real size) ── */}
       {YOUTUBE_VIDEO_ID && (
         <div
           id="yt-bg-player"
-          style={{ position: 'fixed', width: '2px', height: '2px', bottom: 0, left: 0, opacity: 0.01, pointerEvents: 'none' }}
+          style={{ position: 'fixed', left: '-400px', top: 0, width: '320px', height: '180px', pointerEvents: 'none' }}
           aria-hidden="true"
         />
       )}
