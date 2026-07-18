@@ -196,14 +196,13 @@ export default function TVDisplay({
         <div style={{ position: 'absolute', bottom: '-8vw', right: '-5vw', width: '35vw', height: '35vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,151,42,0.10) 0%, transparent 70%)' }} />
       </div>
 
-      {/* ── YouTube audio player — fixed behind main content (zIndex 0 < main zIndex 1) ── */}
-      {/* Browser sees it in-viewport so no throttling; main gradient background covers it */}
+      {/* ── YouTube audio player — opacity 0: invisible but in-viewport so browser won't throttle ── */}
       {YOUTUBE_VIDEO_ID && (
         <div style={{
           position: 'fixed', bottom: 0, right: 0,
-          width: '320px', height: '180px',
+          width: '160px', height: '90px',
+          opacity: 0, pointerEvents: 'none',
           zIndex: 0,
-          pointerEvents: 'none',
         }} aria-hidden="true">
           <div id="yt-bg-player" style={{ width: '100%', height: '100%' }} />
         </div>
