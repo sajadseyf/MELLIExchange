@@ -119,7 +119,14 @@ export default function TVDisplay({
           disablekb: 1, modestbranding: 1, rel: 0, iv_load_policy: 3,
         },
         events: {
-          onReady: (e: any) => { e.target.playVideo(); setPlayerReady(true); },
+          onReady: (e: any) => {
+            e.target.playVideo();
+            // Try immediate unmute — works if Chrome has granted audio autoplay for this domain
+            e.target.unMute();
+            e.target.setVolume(80);
+            setMusicOn(true);
+            setPlayerReady(true);
+          },
           onStateChange: (e: any) => {
             // 0 = ended, 2 = paused — auto-resume so music never cuts off
             if (e.data === 0 || e.data === 2) {
@@ -145,6 +152,22 @@ export default function TVDisplay({
 
     return () => { playerRef.current?.destroy?.(); };
   }, []);
+
+  /* ── unlock audio on first interaction anywhere on the page ── */
+  useEffect(() => {
+    if (!playerReady || musicOn) return;
+    const unlock = () => {
+      playerRef.current?.unMute();
+      playerRef.current?.setVolume(80);
+      setMusicOn(true);
+    };
+    document.addEventListener('click', unlock, { once: true });
+    document.addEventListener('touchstart', unlock, { once: true });
+    return () => {
+      document.removeEventListener('click', unlock);
+      document.removeEventListener('touchstart', unlock);
+    };
+  }, [playerReady, musicOn]);
 
   /* ── toggle YouTube background music via IFrame API ── */
   const toggleMusic = useCallback(() => {
