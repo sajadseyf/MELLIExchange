@@ -164,7 +164,7 @@ export default function TVDisplay({
         <iframe
           ref={iframeRef}
           src={`https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?autoplay=1&mute=1&enablejsapi=1&controls=0&disablekb=1&loop=1&playlist=${YOUTUBE_VIDEO_ID}`}
-          allow="autoplay; encrypted-media"
+          allow="autoplay; encrypted-media; fullscreen"
           style={{ position: 'fixed', width: '1px', height: '1px', bottom: 0, left: 0, border: 'none', pointerEvents: 'none' }}
           aria-hidden="true"
         />
