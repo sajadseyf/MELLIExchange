@@ -54,7 +54,7 @@ function AnimNum({ value, fmt: f }: { value: number; fmt: (n: number) => string 
 // ── YouTube ambient music player ──────────────────────────────────────────────
 // Paste your YouTube video ID here (the part after ?v= or youtu.be/)
 // e.g. for https://www.youtube.com/watch?v=jfKfPfyJRdk → 'jfKfPfyJRdk'
-const YOUTUBE_VIDEO_ID = '9UMxZofMNbA';
+const YOUTUBE_VIDEO_ID = 'lh4JdZTJe7k';
 
 const LOCAL_VIDEOS = ['/tv-ad-1.mp4', '/tv-ad-2.mp4'];
 
