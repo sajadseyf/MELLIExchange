@@ -51,7 +51,12 @@ function AnimNum({ value, fmt: f }: { value: number; fmt: (n: number) => string 
   return <span style={{ transition: 'color 0.4s', color: flash ? '#fff' : 'inherit' }}>{f(display)}</span>;
 }
 
-const VIDEOS = ['/tv-ad-1.mp4', '/tv-ad-2.mp4'];
+// ── YouTube ambient music player ──────────────────────────────────────────────
+// Paste your YouTube video ID here (the part after ?v= or youtu.be/)
+// e.g. for https://www.youtube.com/watch?v=jfKfPfyJRdk → 'jfKfPfyJRdk'
+const YOUTUBE_VIDEO_ID = '9UMxZofMNbA';
+
+const LOCAL_VIDEOS = ['/tv-ad-1.mp4', '/tv-ad-2.mp4'];
 
 export default function TVDisplay({
   initialCurrencies, initialGold, initialSpot,
@@ -68,6 +73,7 @@ export default function TVDisplay({
   const [lang, setLang]               = useState<'en' | 'fa'>('en');
   const [langVisible, setLangVisible] = useState(true);
   const [videoIdx, setVideoIdx]       = useState(0);
+  const [ytStarted, setYtStarted]     = useState(false);
   const videoRef                      = useRef<HTMLVideoElement>(null);
 
   /* ── data refresh ── */
@@ -94,9 +100,9 @@ export default function TVDisplay({
     return () => document.removeEventListener('visibilitychange', onVisible);
   }, [refresh]);
 
-  /* ── cycle videos on ended ── */
+  /* ── cycle local videos on ended (fallback when no YOUTUBE_VIDEO_ID) ── */
   const handleVideoEnded = useCallback(() => {
-    setVideoIdx(i => (i + 1) % VIDEOS.length);
+    setVideoIdx(i => (i + 1) % LOCAL_VIDEOS.length);
   }, []);
 
   /* ── language toggle every 8s with fade ── */
@@ -297,7 +303,7 @@ export default function TVDisplay({
           gap: '1.5vw',
         }}>
 
-          {/* Video */}
+          {/* Video / YouTube player */}
           <div style={{
             flex: 1,
             borderRadius: '1vw',
@@ -306,15 +312,56 @@ export default function TVDisplay({
             background: '#04080f',
             position: 'relative',
           }}>
-            <video
-              ref={videoRef}
-              key={VIDEOS[videoIdx]}
-              src={VIDEOS[videoIdx]}
-              autoPlay muted playsInline
-              onEnded={handleVideoEnded}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-            {/* Glowing border animation */}
+            {YOUTUBE_VIDEO_ID ? (
+              ytStarted ? (
+                <iframe
+                  src={`https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?autoplay=1&controls=0&disablekb=1&modestbranding=1&rel=0&iv_load_policy=3`}
+                  allow="autoplay; encrypted-media"
+                  allowFullScreen
+                  style={{ width: '100%', height: '100%', border: 'none' }}
+                />
+              ) : (
+                /* Tap-to-start overlay — needed so browser allows audio autoplay */
+                <div
+                  onClick={() => setYtStarted(true)}
+                  style={{
+                    width: '100%', height: '100%',
+                    display: 'flex', flexDirection: 'column',
+                    alignItems: 'center', justifyContent: 'center',
+                    cursor: 'pointer', gap: '1vw',
+                    background: 'linear-gradient(135deg, rgba(8,15,32,0.95), rgba(13,26,53,0.95))',
+                  }}
+                >
+                  <div style={{
+                    width: '5vw', height: '5vw', borderRadius: '50%',
+                    background: 'rgba(200,151,42,0.15)',
+                    border: '2px solid rgba(200,151,42,0.5)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '2.5vw',
+                    boxShadow: '0 0 2vw rgba(200,151,42,0.2)',
+                    animation: 'pulse 2s ease-in-out infinite',
+                  }}>▶</div>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '0.9vw', color: '#C8972A', letterSpacing: '0.1em' }}>
+                      {isFa ? 'برای شروع موسیقی لمس کنید' : 'TAP TO START MUSIC'}
+                    </div>
+                    <div style={{ fontSize: '0.7vw', color: '#3a4a6a', marginTop: '0.4vw' }}>
+                      {isFa ? 'پخش ۱۲ ساعته · یوتیوب' : '12-hour ambient · YouTube'}
+                    </div>
+                  </div>
+                </div>
+              )
+            ) : (
+              /* Fallback: local .mp4 files */
+              <video
+                ref={videoRef}
+                key={LOCAL_VIDEOS[videoIdx]}
+                src={LOCAL_VIDEOS[videoIdx]}
+                autoPlay muted playsInline
+                onEnded={handleVideoEnded}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            )}
             <div style={{
               position: 'absolute', inset: 0, borderRadius: '1vw', pointerEvents: 'none',
               boxShadow: 'inset 0 0 2vw rgba(29,78,216,0.15)',
@@ -390,6 +437,10 @@ export default function TVDisplay({
         @keyframes slideIn {
           from { opacity: 0; transform: translateY(1vw); }
           to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+          0%, 100% { transform: scale(1);    box-shadow: 0 0 2vw rgba(200,151,42,0.2); }
+          50%       { transform: scale(1.08); box-shadow: 0 0 3vw rgba(200,151,42,0.5); }
         }
       `}</style>
     </div>
