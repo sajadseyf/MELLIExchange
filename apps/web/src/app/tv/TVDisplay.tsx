@@ -74,8 +74,9 @@ export default function TVDisplay({
   const [langVisible, setLangVisible] = useState(true);
   const [videoIdx, setVideoIdx]       = useState(0);
   const [musicOn, setMusicOn]         = useState(false);
+  const [playerReady, setPlayerReady] = useState(false);
   const videoRef                      = useRef<HTMLVideoElement>(null);
-  const iframeRef                     = useRef<HTMLIFrameElement>(null);
+  const playerRef                     = useRef<any>(null);
 
   /* ── data refresh ── */
   const refresh = useCallback(async () => {
@@ -106,15 +107,51 @@ export default function TVDisplay({
     setVideoIdx(i => (i + 1) % LOCAL_VIDEOS.length);
   }, []);
 
-  /* ── toggle YouTube background music via postMessage ── */
+  /* ── load YouTube IFrame API once, create player when ready ── */
+  useEffect(() => {
+    if (!YOUTUBE_VIDEO_ID) return;
+
+    const init = () => {
+      playerRef.current = new (window as any).YT.Player('yt-bg-player', {
+        videoId: YOUTUBE_VIDEO_ID,
+        playerVars: {
+          autoplay: 1, mute: 1, controls: 0,
+          disablekb: 1, modestbranding: 1, rel: 0, iv_load_policy: 3,
+          loop: 1, playlist: YOUTUBE_VIDEO_ID,
+        },
+        events: {
+          onReady: (e: any) => { e.target.playVideo(); setPlayerReady(true); },
+        },
+      });
+    };
+
+    if ((window as any).YT?.Player) {
+      init();
+    } else {
+      const prev = (window as any).onYouTubeIframeAPIReady;
+      (window as any).onYouTubeIframeAPIReady = () => { prev?.(); init(); };
+      if (!document.getElementById('yt-api-script')) {
+        const s = document.createElement('script');
+        s.id = 'yt-api-script';
+        s.src = 'https://www.youtube.com/iframe_api';
+        document.head.appendChild(s);
+      }
+    }
+
+    return () => { playerRef.current?.destroy?.(); };
+  }, []);
+
+  /* ── toggle YouTube background music via IFrame API ── */
   const toggleMusic = useCallback(() => {
-    const func = musicOn ? 'mute' : 'unMute';
-    iframeRef.current?.contentWindow?.postMessage(
-      JSON.stringify({ event: 'command', func, args: [] }),
-      '*',
-    );
+    if (!playerRef.current || !playerReady) return;
+    if (musicOn) {
+      playerRef.current.mute();
+    } else {
+      playerRef.current.unMute();
+      playerRef.current.setVolume(80);
+    }
     setMusicOn(m => !m);
-  }, [musicOn]);
+  }, [musicOn, playerReady]);
 
   /* ── language toggle every 8s with fade ── */
   useEffect(() => {
@@ -159,13 +196,11 @@ export default function TVDisplay({
         <div style={{ position: 'absolute', bottom: '-8vw', right: '-5vw', width: '35vw', height: '35vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,151,42,0.10) 0%, transparent 70%)' }} />
       </div>
 
-      {/* ── Hidden YouTube audio player (1px — browser keeps it alive) ── */}
+      {/* ── YouTube IFrame API mounts player into this div ── */}
       {YOUTUBE_VIDEO_ID && (
-        <iframe
-          ref={iframeRef}
-          src={`https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?autoplay=1&mute=1&enablejsapi=1&controls=0&disablekb=1&loop=1&playlist=${YOUTUBE_VIDEO_ID}`}
-          allow="autoplay; encrypted-media; fullscreen"
-          style={{ position: 'fixed', width: '1px', height: '1px', bottom: 0, left: 0, border: 'none', pointerEvents: 'none' }}
+        <div
+          id="yt-bg-player"
+          style={{ position: 'fixed', width: '2px', height: '2px', bottom: 0, left: 0, opacity: 0.01, pointerEvents: 'none' }}
           aria-hidden="true"
         />
       )}
@@ -197,24 +232,26 @@ export default function TVDisplay({
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '2vw' }}>
-          {/* Music toggle button — hidden YouTube iframe plays in background */}
+          {/* Music toggle button */}
           {YOUTUBE_VIDEO_ID && (
             <button
               onClick={toggleMusic}
-              title={musicOn ? 'Mute music' : 'Play background music'}
+              disabled={!playerReady}
+              title={!playerReady ? 'Loading…' : musicOn ? 'Mute music' : 'Play background music'}
               style={{
                 background: musicOn ? 'rgba(200,151,42,0.15)' : 'rgba(255,255,255,0.05)',
                 border: `1px solid ${musicOn ? 'rgba(200,151,42,0.5)' : 'rgba(100,140,220,0.2)'}`,
                 borderRadius: '50%',
                 width: '3vw', height: '3vw',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer',
+                cursor: playerReady ? 'pointer' : 'default',
                 fontSize: '1.3vw',
+                opacity: playerReady ? 1 : 0.4,
                 transition: 'all 0.3s',
                 flexShrink: 0,
               }}
             >
-              {musicOn ? '🎵' : '🔇'}
+              {!playerReady ? '⏳' : musicOn ? '🎵' : '🔇'}
             </button>
           )}
           <Clock lang={lang} />
