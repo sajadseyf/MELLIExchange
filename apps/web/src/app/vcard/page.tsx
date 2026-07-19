@@ -1,4 +1,4 @@
-import { getCurrencies, getGoldPrices } from '@/lib/api';
+import { getCurrencies, getGoldPrices, getGoldSpotPrice } from '@/lib/api';
 import { site } from '@/lib/site';
 import { SaveContactButton } from './SaveContactButton';
 import { FintracBadge } from './FintracBadge';
@@ -28,11 +28,14 @@ export default async function VCardPage() {
   let gold18: number | null = null;
 
   try {
-    const [currencies, goldPrices] = await Promise.all([getCurrencies(), getGoldPrices()]);
+    const [currencies, spot, goldPrices] = await Promise.all([getCurrencies(), getGoldSpotPrice(), getGoldPrices()]);
     const foundUsd = currencies.find((c: any) => c.code === 'USD');
     if (foundUsd) usd = { buy: foundUsd.buy, sell: foundUsd.sell };
-    const found18k = goldPrices.find((g) => g.karat === 18);
-    if (found18k) gold18 = found18k.pricePerGram;
+    // Use live Kitco spot price (same formula as TV page), fallback to DB
+    const TROY_OZ_GRAMS = 31.1035;
+    gold18 = spot
+      ? Math.round(spot.priceCad / TROY_OZ_GRAMS * (18 / 24) * 100) / 100
+      : (goldPrices.find((g) => g.karat === 18)?.pricePerGram ?? null);
   } catch {}
 
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('Unit 1102 Henderson Place Mall 1163 Pinetree Way Coquitlam BC')}`;
