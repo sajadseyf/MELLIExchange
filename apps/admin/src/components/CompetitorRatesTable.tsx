@@ -17,7 +17,7 @@ interface CompetitorData {
 }
 
 const SOURCES = ['own', 'vanex', 'arzsina', 'vbce', 'daniel', 'moneyway'] as const;
-const SOURCE_LABELS: Record<string, string> = { own: 'My Rate', vanex: 'Vanex', arzsina: 'ArzSina', vbce: 'VBCE', daniel: 'Daniel', moneyway: 'MoneyWay' };
+const SOURCE_LABELS: Record<string, string> = { own: 'My Rate', vanex: 'Vanex*', arzsina: 'ArzSina', vbce: 'VBCE', daniel: 'Daniel', moneyway: 'MoneyWay' };
 
 // Most-used currencies in Canada, in order
 const PRIORITY = ['USD', 'EUR', 'GBP', 'AUD', 'CHF', 'JPY', 'AED', 'HKD', 'CNY', 'INR', 'MXN', 'TRY', 'SEK', 'KRW', 'PHP'];
@@ -183,8 +183,9 @@ export function CompetitorRatesTable() {
       const daniel   = data.daniel.rates[code];
       const moneyway = data.moneyway.rates[code];
 
-      const competitorBuys  = [vanex?.buy,  arzsina?.buy,  vbce?.buy,  daniel?.buy,  moneyway?.buy ].filter((v): v is number => !!v && v > 0);
-      const competitorSells = [vanex?.sell, arzsina?.sell, vbce?.sell, daniel?.sell, moneyway?.sell].filter((v): v is number => !!v && v > 0);
+      // Vanex excluded from optimization — shown in table but not used in calculations
+      const competitorBuys  = [arzsina?.buy,  vbce?.buy,  daniel?.buy,  moneyway?.buy ].filter((v): v is number => !!v && v > 0);
+      const competitorSells = [arzsina?.sell, vbce?.sell, daniel?.sell, moneyway?.sell].filter((v): v is number => !!v && v > 0);
       if (!competitorBuys.length && !competitorSells.length) return [];
 
       const bestBuy  = competitorBuys.length  ? Math.max(...competitorBuys)  : null;
@@ -228,8 +229,9 @@ export function CompetitorRatesTable() {
       const daniel   = data.daniel.rates[code];
       const moneyway = data.moneyway.rates[code];
 
-      const buyValues  = [own?.buy,  vanex?.buy,  arzsina?.buy,  vbce?.buy,  daniel?.buy,  moneyway?.buy ].filter((v): v is number => !!v && v > 0);
-      const sellValues = [own?.sell, vanex?.sell, arzsina?.sell, vbce?.sell, daniel?.sell, moneyway?.sell].filter((v): v is number => !!v && v > 0);
+      // Vanex excluded from best-rate calculations (still displayed in its column)
+      const buyValues  = [own?.buy,  arzsina?.buy,  vbce?.buy,  daniel?.buy,  moneyway?.buy ].filter((v): v is number => !!v && v > 0);
+      const sellValues = [own?.sell, arzsina?.sell, vbce?.sell, daniel?.sell, moneyway?.sell].filter((v): v is number => !!v && v > 0);
 
       const maxBuy  = buyValues.length  ? Math.max(...buyValues)  : 0;
       const minSell = sellValues.length ? Math.min(...sellValues) : 0;
@@ -240,8 +242,8 @@ export function CompetitorRatesTable() {
       const buyClass  = (v?: number) => !v || v <= 0 ? '' : Math.abs(v - maxBuy)  < EPS ? 'text-emerald-600 font-semibold' : 'text-red-500';
       const sellClass = (v?: number) => !v || v <= 0 ? '' : Math.abs(v - minSell) < EPS ? 'text-emerald-600 font-semibold' : 'text-red-500';
 
-      const competitorBuys  = [vanex?.buy,  arzsina?.buy,  vbce?.buy,  daniel?.buy,  moneyway?.buy ].filter((v): v is number => !!v);
-      const competitorSells = [vanex?.sell, arzsina?.sell, vbce?.sell, daniel?.sell, moneyway?.sell].filter((v): v is number => !!v);
+      const competitorBuys  = [arzsina?.buy,  vbce?.buy,  daniel?.buy,  moneyway?.buy ].filter((v): v is number => !!v);
+      const competitorSells = [arzsina?.sell, vbce?.sell, daniel?.sell, moneyway?.sell].filter((v): v is number => !!v);
       const targetBuy  = competitorBuys.length  ? Math.max(...competitorBuys)  : null;
       const targetSell = competitorSells.length ? Math.min(...competitorSells) : null;
 
