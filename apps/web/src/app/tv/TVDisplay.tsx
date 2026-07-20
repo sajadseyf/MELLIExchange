@@ -393,28 +393,6 @@ export default function TVDisplay({
               </div>
             </div>
           )}
-
-          {/* ── Ticker banner (below prices) ── */}
-          <div style={{
-            overflow: 'hidden',
-            borderRadius: '0.8vw',
-            background: 'rgba(29,58,130,0.3)',
-            border: '1px solid rgba(100,140,220,0.25)',
-            padding: '0.9vw 0',
-            flexShrink: 0,
-          }}>
-            <div style={{
-              whiteSpace: 'nowrap',
-              fontSize: '1.5vw',
-              fontWeight: 600,
-              color: '#c8d8f0',
-              animation: 'ticker 22s linear infinite',
-              paddingLeft: '100%',
-              letterSpacing: '0.04em',
-            }}>
-              {'🌟 خوش آمدید 🌟   ·   🔧 تعمیرات تخصصی طلا و جواهر   ·   💰 قیمت‌های منصفانه به قیمت ایران   ·   ✨ تعمیرات حرفه‌ای با کیفیت تضمین‌شده   ·   🌟 خوش آمدید 🌟   ·   🔧 تعمیرات تخصصی طلا و جواهر   ·   💰 قیمت‌های منصفانه به قیمت ایران   ·   ✨ تعمیرات حرفه‌ای با کیفیت تضمین‌شده'}
-            </div>
-          </div>
         </div>
 
         {/* ── RIGHT: video + spot ── */}
@@ -495,6 +473,23 @@ export default function TVDisplay({
               {lastUpdated.toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* ── FOOTER ticker ── */}
+      <div style={{
+        flexShrink: 0, overflow: 'hidden', height: '2.8vw',
+        background: 'rgba(29,58,130,0.25)',
+        borderTop: '1px solid rgba(100,140,220,0.2)',
+        display: 'flex', alignItems: 'center',
+        position: 'relative', zIndex: 1,
+      }}>
+        <div style={{
+          whiteSpace: 'nowrap', fontSize: '1vw', color: '#7a8eaf',
+          animation: 'ticker 25s linear infinite',
+          paddingLeft: '100%',
+        }}>
+          {'🌟 خوش آمدید 🌟   ·   🔧 تعمیرات تخصصی طلا و جواهر   ·   💰 قیمت‌های منصفانه به قیمت ایران   ·   ✨ تعمیرات حرفه‌ای با کیفیت تضمین‌شده   ·   🌟 خوش آمدید 🌟   ·   🔧 تعمیرات تخصصی طلا و جواهر   ·   💰 قیمت‌های منصفانه به قیمت ایران   ·   ✨ تعمیرات حرفه‌ای با کیفیت تضمین‌شده'}
         </div>
       </div>
 
