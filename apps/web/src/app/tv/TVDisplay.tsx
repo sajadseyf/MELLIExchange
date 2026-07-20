@@ -33,8 +33,8 @@ function Clock({ lang }: { lang: 'en' | 'fa' }) {
   }, [lang]);
   return (
     <div style={{ textAlign: 'right' }}>
-      <div style={{ fontSize: '2vw', fontWeight: 800, color: '#fff', letterSpacing: '0.06em', fontVariantNumeric: 'tabular-nums' }}>{t}</div>
-      <div style={{ fontSize: '0.75vw', color: '#7a8eaf', marginTop: '0.1vw' }}>{d}</div>
+      <div style={{ fontSize: '2.6vw', fontWeight: 800, color: '#fff', letterSpacing: '0.06em', fontVariantNumeric: 'tabular-nums' }}>{t}</div>
+      <div style={{ fontSize: '1vw', color: '#7a8eaf', marginTop: '0.2vw' }}>{d}</div>
     </div>
   );
 }
@@ -225,33 +225,35 @@ export default function TVDisplay({
         <div style={{ position: 'absolute', bottom: '-8vw', right: '-5vw', width: '35vw', height: '35vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,151,42,0.10) 0%, transparent 70%)' }} />
       </div>
 
+
       {/* ── HEADER ── */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0.6vw 2vw',
+        padding: '1.2vw 2.5vw',
         background: 'rgba(255,255,255,0.03)',
         backdropFilter: 'blur(8px)',
         borderBottom: '1px solid rgba(100,140,220,0.2)',
         flexShrink: 0, zIndex: 1, position: 'relative',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.9vw' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.2vw' }}>
           <div style={{
-            width: '3vw', height: '3vw', borderRadius: '50%',
+            width: '4vw', height: '4vw', borderRadius: '50%',
             background: 'linear-gradient(135deg, #C8972A, #E8B84B)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '1.5vw', fontWeight: 900, color: '#0d1a35',
-            boxShadow: '0 0 1.5vw rgba(200,151,42,0.5)',
+            fontSize: '2vw', fontWeight: 900, color: '#0d1a35',
+            boxShadow: '0 0 2vw rgba(200,151,42,0.5), 0 0 4vw rgba(200,151,42,0.2)',
           }}>M</div>
           <div>
-            <div style={{ fontSize: '1.7vw', fontWeight: 900, letterSpacing: isFa ? '0' : '0.06em', color: '#fff' }}>
+            <div style={{ fontSize: '2.2vw', fontWeight: 900, letterSpacing: isFa ? '0' : '0.06em', color: '#fff' }}>
               {isFa ? 'صرافی ملی' : 'MELLI EXCHANGE'}
             </div>
-            <div style={{ fontSize: '0.75vw', color: '#C8972A', letterSpacing: isFa ? '0' : '0.18em' }}>
+            <div style={{ fontSize: '0.9vw', color: '#C8972A', letterSpacing: isFa ? '0' : '0.18em', marginTop: '0.1vw' }}>
               {isFa ? 'کوکیتلام، بریتیش کلمبیا · ارز · طلا' : 'CURRENCY · GOLD · COQUITLAM BC'}
             </div>
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5vw' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2vw' }}>
+          {/* Music toggle button */}
           {YOUTUBE_VIDEO_ID && (
             <button
               onClick={toggleMusic}
@@ -261,10 +263,10 @@ export default function TVDisplay({
                 background: musicOn ? 'rgba(200,151,42,0.15)' : 'rgba(255,255,255,0.05)',
                 border: `1px solid ${musicOn ? 'rgba(200,151,42,0.5)' : 'rgba(100,140,220,0.2)'}`,
                 borderRadius: '50%',
-                width: '2.2vw', height: '2.2vw',
+                width: '3vw', height: '3vw',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: playerReady ? 'pointer' : 'default',
-                fontSize: '1vw',
+                fontSize: '1.3vw',
                 opacity: playerReady ? 1 : 0.4,
                 transition: 'all 0.3s',
                 flexShrink: 0,
@@ -281,23 +283,23 @@ export default function TVDisplay({
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative', zIndex: 1 }}>
 
         {/* ── LEFT: currencies + gold ── */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '0.8vw 1.8vw', gap: '0.65vw' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '1.5vw 2.5vw', gap: '1.5vw' }}>
 
           {/* Column headers */}
           <div style={{
             display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
-            padding: '0.35vw 1.2vw',
+            padding: '0.6vw 1.5vw',
             background: 'rgba(255,255,255,0.04)',
-            borderRadius: '0.6vw',
+            borderRadius: '0.8vw',
             border: '1px solid rgba(100,140,220,0.15)',
           }}>
-            <div style={{ fontSize: '0.9vw', color: '#7a8eaf', fontWeight: 700, letterSpacing: isFa ? 0 : '0.12em' }}>
+            <div style={{ fontSize: '1.1vw', color: '#7a8eaf', fontWeight: 700, letterSpacing: isFa ? 0 : '0.12em' }}>
               {isFa ? 'ارز' : 'CURRENCY'}
             </div>
-            <div style={{ fontSize: '0.9vw', color: '#4ade80', fontWeight: 700, textAlign: 'center', letterSpacing: isFa ? 0 : '0.12em' }}>
+            <div style={{ fontSize: '1.1vw', color: '#4ade80', fontWeight: 700, textAlign: 'center', letterSpacing: isFa ? 0 : '0.12em' }}>
               {BUY_LABEL}
             </div>
-            <div style={{ fontSize: '0.9vw', color: '#f59e0b', fontWeight: 700, textAlign: 'center', letterSpacing: isFa ? 0 : '0.12em' }}>
+            <div style={{ fontSize: '1.1vw', color: '#f59e0b', fontWeight: 700, textAlign: 'center', letterSpacing: isFa ? 0 : '0.12em' }}>
               {SELL_LABEL}
             </div>
           </div>
@@ -306,34 +308,37 @@ export default function TVDisplay({
           {rows.map((c, i) => (
             <div key={c.code} style={{
               display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
-              padding: '0.9vw 1.2vw',
+              padding: '1.4vw 1.5vw',
               background: 'linear-gradient(90deg, rgba(29,58,130,0.25) 0%, rgba(15,30,70,0.15) 100%)',
-              borderRadius: '0.8vw',
+              borderRadius: '1vw',
               border: '1px solid rgba(100,140,220,0.12)',
-              boxShadow: '0 0.2vw 1vw rgba(0,0,0,0.3)',
+              boxShadow: '0 0.3vw 1.5vw rgba(0,0,0,0.3)',
               backdropFilter: 'blur(4px)',
               animation: `slideIn 0.6s ease ${i * 0.1}s both`,
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1vw' }}>
-                <span style={{ fontSize: '3.5vw', lineHeight: 1, filter: 'drop-shadow(0 0 0.4vw rgba(255,255,255,0.15))' }}>{toFlagEmoji(c.flag)}</span>
-                <div style={{ fontSize: '0.95vw', color: '#7a8eaf' }}>
+              {/* Currency info — flag only */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.5vw' }}>
+                <span style={{ fontSize: '5vw', lineHeight: 1, filter: 'drop-shadow(0 0 0.5vw rgba(255,255,255,0.15))' }}>{toFlagEmoji(c.flag)}</span>
+                <div style={{ fontSize: '1.1vw', color: '#7a8eaf' }}>
                   {isFa ? CURRENCY_FA[c.code] ?? c.name : c.name}
                 </div>
               </div>
+              {/* Buy — always the lower rate */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{
-                  fontSize: '2.2vw', fontWeight: 800, color: '#4ade80',
+                  fontSize: '2.6vw', fontWeight: 800, color: '#4ade80',
                   fontVariantNumeric: 'tabular-nums', letterSpacing: '0.02em',
-                  textShadow: '0 0 1.5vw rgba(74,222,128,0.4)',
+                  textShadow: '0 0 2vw rgba(74,222,128,0.4)',
                 }}>
                   <AnimNum value={Math.min(c.buy, c.sell)} fmt={fmt} />
                 </div>
               </div>
+              {/* Sell — always the higher rate */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{
-                  fontSize: '2.2vw', fontWeight: 800, color: '#f59e0b',
+                  fontSize: '2.6vw', fontWeight: 800, color: '#f59e0b',
                   fontVariantNumeric: 'tabular-nums', letterSpacing: '0.02em',
-                  textShadow: '0 0 1.5vw rgba(245,158,11,0.4)',
+                  textShadow: '0 0 2vw rgba(245,158,11,0.4)',
                 }}>
                   <AnimNum value={Math.max(c.buy, c.sell)} fmt={fmt} />
                 </div>
@@ -345,28 +350,28 @@ export default function TVDisplay({
           {gold18PricePerGram !== null && (
             <div style={{
               display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
-              padding: '0.9vw 1.2vw',
+              padding: '1.4vw 1.5vw',
               background: 'linear-gradient(90deg, rgba(120,80,10,0.35) 0%, rgba(80,50,5,0.2) 100%)',
-              borderRadius: '0.8vw',
+              borderRadius: '1vw',
               border: '1px solid rgba(200,151,42,0.35)',
-              boxShadow: '0 0 1.5vw rgba(200,151,42,0.15), 0 0.2vw 1vw rgba(0,0,0,0.3)',
+              boxShadow: '0 0 2vw rgba(200,151,42,0.15), 0 0.3vw 1.5vw rgba(0,0,0,0.3)',
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.8vw' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1vw' }}>
                 <div style={{
-                  width: '2.8vw', height: '2.8vw', borderRadius: '0.5vw',
+                  width: '3.5vw', height: '3.5vw', borderRadius: '0.6vw',
                   background: 'linear-gradient(135deg, #C8972A, #E8B84B, #C8972A)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '0.9vw', fontWeight: 900, color: '#1a0f00',
-                  boxShadow: '0 0 0.8vw rgba(200,151,42,0.5)',
+                  fontSize: '1.1vw', fontWeight: 900, color: '#1a0f00',
+                  boxShadow: '0 0 1vw rgba(200,151,42,0.5)',
                   flexShrink: 0,
                 }}>
                   18K
                 </div>
                 <div>
-                  <div style={{ fontSize: '1.5vw', fontWeight: 800, color: '#E8B84B', lineHeight: 1.1 }}>
+                  <div style={{ fontSize: '1.8vw', fontWeight: 800, color: '#E8B84B', lineHeight: 1.1 }}>
                     {isFa ? '۱۸ عیار' : '18K GOLD'}
                   </div>
-                  <div style={{ fontSize: '0.8vw', color: '#a07830', marginTop: '0.1vw' }}>
+                  <div style={{ fontSize: '1vw', color: '#a07830', marginTop: '0.2vw' }}>
                     {isFa ? 'طلای ۷۵٪ · قیمت هر گرم' : '75% purity · per gram'}
                   </div>
                 </div>
@@ -375,40 +380,63 @@ export default function TVDisplay({
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{
-                    fontSize: '2.3vw', fontWeight: 900, color: '#E8B84B',
+                    fontSize: '2.8vw', fontWeight: 900, color: '#E8B84B',
                     fontVariantNumeric: 'tabular-nums',
-                    textShadow: '0 0 1.5vw rgba(232,184,75,0.6)',
+                    textShadow: '0 0 2vw rgba(232,184,75,0.6)',
                   }}>
                     $<AnimNum value={gold18PricePerGram!} fmt={fmtGold} />
                   </div>
-                  <div style={{ fontSize: '0.75vw', color: '#a07830', marginTop: '0.1vw' }}>
+                  <div style={{ fontSize: '0.9vw', color: '#a07830', marginTop: '0.2vw' }}>
                     {isFa ? 'دلار کانادا / گرم' : 'CAD / gram'}
                   </div>
                 </div>
               </div>
             </div>
           )}
+
+          {/* ── Ticker banner (below prices) ── */}
+          <div style={{
+            overflow: 'hidden',
+            borderRadius: '0.8vw',
+            background: 'rgba(29,58,130,0.3)',
+            border: '1px solid rgba(100,140,220,0.25)',
+            padding: '0.9vw 0',
+            flexShrink: 0,
+          }}>
+            <div style={{
+              whiteSpace: 'nowrap',
+              fontSize: '1.5vw',
+              fontWeight: 600,
+              color: '#c8d8f0',
+              animation: 'ticker 22s linear infinite',
+              paddingLeft: '100%',
+              letterSpacing: '0.04em',
+            }}>
+              {'🌟 خوش آمدید 🌟   ·   🔧 تعمیرات تخصصی طلا و جواهر   ·   💰 قیمت‌های منصفانه به قیمت ایران   ·   ✨ تعمیرات حرفه‌ای با کیفیت تضمین‌شده   ·   🌟 خوش آمدید 🌟   ·   🔧 تعمیرات تخصصی طلا و جواهر   ·   💰 قیمت‌های منصفانه به قیمت ایران   ·   ✨ تعمیرات حرفه‌ای با کیفیت تضمین‌شده'}
+            </div>
+          </div>
         </div>
 
         {/* ── RIGHT: video + spot ── */}
         <div style={{
-          width: '22vw', flexShrink: 0,
+          width: '30vw', flexShrink: 0,
           display: 'flex', flexDirection: 'column',
           borderLeft: '1px solid rgba(100,140,220,0.15)',
           background: 'rgba(0,0,0,0.2)',
-          padding: '0.8vw',
-          gap: '0.8vw',
+          padding: '1.5vw',
+          gap: '1.5vw',
         }}>
 
           {/* Video panel — YouTube player hidden behind local video */}
           <div style={{
             flex: 1,
-            borderRadius: '0.8vw',
+            borderRadius: '1vw',
             overflow: 'hidden',
             border: '1px solid rgba(100,140,220,0.2)',
             background: '#04080f',
             position: 'relative',
           }}>
+            {/* YouTube audio: sits behind local video so browser never throttles it */}
             {YOUTUBE_VIDEO_ID && (
               <div id="yt-bg-player" style={{ position: 'absolute', inset: 0, zIndex: 0 }} />
             )}
@@ -421,31 +449,31 @@ export default function TVDisplay({
               style={{ position: 'relative', zIndex: 1, width: '100%', height: '100%', objectFit: 'cover' }}
             />
             <div style={{
-              position: 'absolute', inset: 0, borderRadius: '0.8vw', pointerEvents: 'none', zIndex: 2,
-              boxShadow: 'inset 0 0 1.5vw rgba(29,78,216,0.15)',
+              position: 'absolute', inset: 0, borderRadius: '1vw', pointerEvents: 'none', zIndex: 2,
+              boxShadow: 'inset 0 0 2vw rgba(29,78,216,0.15)',
             }} />
           </div>
 
           {/* Gold spot */}
           {spot && (
             <div style={{
-              padding: '0.8vw',
+              padding: '1.2vw',
               background: 'linear-gradient(135deg, rgba(120,80,10,0.2), rgba(80,50,5,0.1))',
-              borderRadius: '0.6vw',
+              borderRadius: '0.8vw',
               border: '1px solid rgba(200,151,42,0.25)',
               textAlign: 'center',
             }}>
-              <div style={{ fontSize: '0.7vw', color: '#a07830', letterSpacing: '0.1em', marginBottom: '0.3vw' }}>
+              <div style={{ fontSize: '0.8vw', color: '#a07830', letterSpacing: '0.15em', marginBottom: '0.4vw' }}>
                 {isFa ? 'قیمت جهانی طلا (USD/oz)' : 'WORLD GOLD PRICE (USD/oz)'}
               </div>
               <div style={{
-                fontSize: '1.8vw', fontWeight: 900, color: '#E8B84B',
+                fontSize: '2.2vw', fontWeight: 900, color: '#E8B84B',
                 fontVariantNumeric: 'tabular-nums',
-                textShadow: '0 0 1.2vw rgba(232,184,75,0.5)',
+                textShadow: '0 0 1.5vw rgba(232,184,75,0.5)',
               }}>
                 ${spot.priceUsd.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
-              <div style={{ fontSize: '0.7vw', color: '#7a8eaf', marginTop: '0.2vw' }}>
+              <div style={{ fontSize: '0.8vw', color: '#7a8eaf', marginTop: '0.3vw' }}>
                 C${spot.priceCad.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CAD
               </div>
             </div>
@@ -453,37 +481,20 @@ export default function TVDisplay({
 
           {/* Last updated indicator */}
           <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4vw',
-            padding: '0.2vw',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6vw',
+            padding: '0.5vw',
           }}>
             <div style={{
-              width: '0.5vw', height: '0.5vw', borderRadius: '50%',
+              width: '0.7vw', height: '0.7vw', borderRadius: '50%',
               background: pulse ? '#4ade80' : '#1d4a2a',
-              boxShadow: pulse ? '0 0 0.6vw #4ade80' : 'none',
+              boxShadow: pulse ? '0 0 0.8vw #4ade80' : 'none',
               transition: 'all 0.4s',
             }} />
-            <div style={{ fontSize: '0.65vw', color: '#3a4a6a' }}>
+            <div style={{ fontSize: '0.75vw', color: '#3a4a6a' }}>
               {isFa ? 'آخرین به‌روزرسانی:' : 'Updated:'}{' '}
               {lastUpdated.toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* ── FOOTER ticker ── */}
-      <div style={{
-        flexShrink: 0, overflow: 'hidden', height: '2.2vw',
-        background: 'rgba(29,58,130,0.25)',
-        borderTop: '1px solid rgba(100,140,220,0.2)',
-        display: 'flex', alignItems: 'center',
-        position: 'relative', zIndex: 1,
-      }}>
-        <div style={{
-          whiteSpace: 'nowrap', fontSize: '0.85vw', color: '#7a8eaf',
-          animation: 'ticker 25s linear infinite',
-          paddingLeft: '100%',
-        }}>
-          {'🌟 خوش آمدید 🌟   ·   🔧 تعمیرات تخصصی طلا و جواهر   ·   💰 قیمت‌های منصفانه به قیمت ایران   ·   ✨ تعمیرات حرفه‌ای با کیفیت تضمین‌شده   ·   🌟 خوش آمدید 🌟   ·   🔧 تعمیرات تخصصی طلا و جواهر   ·   💰 قیمت‌های منصفانه به قیمت ایران   ·   ✨ تعمیرات حرفه‌ای با کیفیت تضمین‌شده'}
         </div>
       </div>
 
