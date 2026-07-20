@@ -397,7 +397,7 @@ export default function TVDisplay({
 
         {/* ── RIGHT: video + spot ── */}
         <div style={{
-          width: '30vw', flexShrink: 0,
+          width: '22vw', flexShrink: 0,
           display: 'flex', flexDirection: 'column',
           borderLeft: '1px solid rgba(100,140,220,0.15)',
           background: 'rgba(0,0,0,0.2)',
