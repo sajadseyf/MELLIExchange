@@ -95,6 +95,12 @@ export default function TVDisplay({
 
   useEffect(() => { const id = setInterval(refresh, 30_000); return () => clearInterval(id); }, [refresh]);
 
+  /* full page reload every 10 minutes as a safety net */
+  useEffect(() => {
+    const id = setTimeout(() => window.location.reload(), 10 * 60 * 1_000);
+    return () => clearTimeout(id);
+  }, []);
+
   /* refresh immediately when tab becomes visible again */
   useEffect(() => {
     const onVisible = () => { if (document.visibilityState === 'visible') refresh(); };
