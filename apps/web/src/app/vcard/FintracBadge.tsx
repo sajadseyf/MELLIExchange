@@ -67,11 +67,6 @@ export function FintracBadge() {
               FINTRAC
             </span>
 
-            <span className="h-3.5 w-px bg-white/15" />
-
-            <span className="text-[10px] font-medium tracking-widest text-white/35">
-              Est. 2014
-            </span>
           </span>
         </div>
 
