@@ -66,11 +66,25 @@ export default async function VCardPage() {
             </div>
 
             <h1 className="text-2xl font-bold tracking-tight text-white">Melli Exchange</h1>
-            <p className="mt-1 text-xs font-medium uppercase tracking-[0.22em] text-amber-400/80">
-              Currency Exchange &amp; Gold Jewelry
+            <p className="mt-1 text-center text-xs font-medium uppercase tracking-[0.18em] text-amber-400/80 leading-5">
+              Currency Exchange<br />
+              &amp; Gold Jewelry
             </p>
 
             <FintracBadge />
+          </div>
+
+          {/* Promo video */}
+          <div className="mx-5 mb-4 overflow-hidden rounded-2xl border border-white/10"
+            style={{ aspectRatio: '16/9' }}>
+            <video
+              src="/tv-ad-1.mp4"
+              autoPlay
+              muted
+              playsInline
+              loop
+              className="h-full w-full object-cover"
+            />
           </div>
 
           {/* Live Rates */}
