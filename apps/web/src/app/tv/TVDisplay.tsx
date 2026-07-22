@@ -119,6 +119,8 @@ export default function TVDisplay({
 
     const init = () => {
       playerRef.current = new (window as any).YT.Player('yt-bg-player', {
+        width: '100%',
+        height: '100%',
         videoId: YOUTUBE_VIDEO_ID,
         playerVars: {
           autoplay: 1, mute: 1, controls: 0,
@@ -411,7 +413,7 @@ export default function TVDisplay({
           gap: '1.5vw',
         }}>
 
-          {/* Video panel — YouTube player hidden behind local video */}
+          {/* Video panel — YouTube player visible */}
           <div style={{
             flex: 1,
             borderRadius: '1vw',
@@ -420,18 +422,7 @@ export default function TVDisplay({
             background: '#04080f',
             position: 'relative',
           }}>
-            {/* YouTube audio: sits behind local video so browser never throttles it */}
-            {YOUTUBE_VIDEO_ID && (
-              <div id="yt-bg-player" style={{ position: 'absolute', inset: 0, zIndex: 0 }} />
-            )}
-            <video
-              ref={videoRef}
-              key={LOCAL_VIDEOS[videoIdx]}
-              src={LOCAL_VIDEOS[videoIdx]}
-              autoPlay muted playsInline
-              onEnded={handleVideoEnded}
-              style={{ position: 'relative', zIndex: 1, width: '100%', height: '100%', objectFit: 'cover' }}
-            />
+            <div id="yt-bg-player" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
             <div style={{
               position: 'absolute', inset: 0, borderRadius: '1vw', pointerEvents: 'none', zIndex: 2,
               boxShadow: 'inset 0 0 2vw rgba(29,78,216,0.15)',
@@ -500,6 +491,12 @@ export default function TVDisplay({
       </div>
 
       <style>{`
+        #yt-bg-player iframe {
+          width: 100% !important;
+          height: 100% !important;
+          position: absolute;
+          inset: 0;
+        }
         @keyframes ticker {
           0%   { transform: translateX(0); }
           100% { transform: translateX(-50%); }
