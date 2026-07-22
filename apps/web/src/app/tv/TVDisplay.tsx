@@ -54,7 +54,7 @@ function AnimNum({ value, fmt: f }: { value: number; fmt: (n: number) => string 
 // ── YouTube ambient music player ──────────────────────────────────────────────
 // Paste your YouTube video ID here (the part after ?v= or youtu.be/)
 // e.g. for https://www.youtube.com/watch?v=jfKfPfyJRdk → 'jfKfPfyJRdk'
-const YOUTUBE_VIDEO_ID = 'hP7qEXsXubw';
+const YOUTUBE_VIDEO_ID = 'lh4JdZTJe7k';
 
 const LOCAL_VIDEOS = ['/tv-ad-1.mp4', '/tv-ad-2.mp4'];
 
@@ -119,8 +119,6 @@ export default function TVDisplay({
 
     const init = () => {
       playerRef.current = new (window as any).YT.Player('yt-bg-player', {
-        width: '100%',
-        height: '100%',
         videoId: YOUTUBE_VIDEO_ID,
         playerVars: {
           autoplay: 1, mute: 1, controls: 0,
@@ -413,7 +411,7 @@ export default function TVDisplay({
           gap: '1.5vw',
         }}>
 
-          {/* Video panel — local ads visible, YouTube hidden behind for audio */}
+          {/* Video panel — YouTube player hidden behind local video */}
           <div style={{
             flex: 1,
             borderRadius: '1vw',
@@ -422,6 +420,7 @@ export default function TVDisplay({
             background: '#04080f',
             position: 'relative',
           }}>
+            {/* YouTube audio: sits behind local video so browser never throttles it */}
             {YOUTUBE_VIDEO_ID && (
               <div id="yt-bg-player" style={{ position: 'absolute', inset: 0, zIndex: 0 }} />
             )}
