@@ -453,14 +453,16 @@
     const poster = document.getElementById('poster');
     const originalText = btn.textContent;
     btn.textContent = '⏳ در حال ساخت تصویر...';
-    html2canvas(poster, { scale: 3, backgroundColor: null, useCORS: true }).then(canvas => {
+    document.fonts.ready.then(function () {
+      return html2canvas(poster, { scale: 3, backgroundColor: '#0A0F24', useCORS: true, allowTaint: false, logging: false, imageTimeout: 15000 });
+    }).then(function (canvas) {
       const link = document.createElement('a');
       const stamp = new Date().toISOString().slice(0, 10);
       link.download = 'melli-exchange-' + stamp + '.png';
       link.href = canvas.toDataURL('image/png');
       link.click();
       btn.textContent = originalText;
-    }).catch(err => {
+    }).catch(function (err) {
       console.error(err);
       alert('ساخت تصویر با خطا مواجه شد، دوباره امتحان کنید.');
       btn.textContent = originalText;
