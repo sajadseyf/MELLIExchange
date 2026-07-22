@@ -6,7 +6,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=Lalezar&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
 <style>
   :root{
     --ink:#0A0F24;
@@ -454,12 +454,12 @@
     const originalText = btn.textContent;
     btn.textContent = '⏳ در حال ساخت تصویر...';
     document.fonts.ready.then(function () {
-      return html2canvas(poster, { scale: 3, backgroundColor: '#0A0F24', useCORS: true, allowTaint: false, logging: false, imageTimeout: 15000 });
-    }).then(function (canvas) {
+      return htmlToImage.toPng(poster, { pixelRatio: 3, cacheBust: true });
+    }).then(function (dataUrl) {
       const link = document.createElement('a');
       const stamp = new Date().toISOString().slice(0, 10);
       link.download = 'melli-exchange-' + stamp + '.png';
-      link.href = canvas.toDataURL('image/png');
+      link.href = dataUrl;
       link.click();
       btn.textContent = originalText;
     }).catch(function (err) {
