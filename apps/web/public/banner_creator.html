@@ -5,6 +5,7 @@
 <title>Melli Exchange — Daily Rate Poster</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=Lalezar&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
   :root{
@@ -267,6 +268,21 @@
     margin:0 14px;
   }
 
+  .qr-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    margin-bottom:14px;
+  }
+  .qr-box{
+    background:#fff;
+    padding:6px;
+    border-radius:8px;
+    line-height:0;
+    box-shadow:0 0 0 1px rgba(232,190,93,.4);
+  }
+
   .footer{
     margin-top:18px;
     position:relative; z-index:2;
@@ -389,6 +405,9 @@
 
     <div class="footer">
       <div class="tagline">خرید و فروش آسان ارز و طلا · قیمت لحظه‌ای</div>
+      <div class="qr-row">
+        <div id="qrcode" class="qr-box"></div>
+      </div>
       <div class="contact">
         <span>☎ <span contenteditable="true">+1 (778) 752-7386</span></span>
         <span>☎ <span contenteditable="true">1-877-867-7090 (Toll Free)</span></span>
@@ -401,6 +420,15 @@
   </div>
 
 <script>
+  new QRCode(document.getElementById("qrcode"), {
+    text: "https://melliexchange.ca/vcard",
+    width: 84,
+    height: 84,
+    colorDark: "#0A0F24",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.M
+  });
+
   const now = new Date();
   document.getElementById('weekday').textContent =
     new Intl.DateTimeFormat('fa-IR', { weekday: 'long' }).format(now);
