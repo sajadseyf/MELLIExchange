@@ -5,8 +5,7 @@
 <title>Melli Exchange — Daily Rate Poster</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=Lalezar&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
   :root{
     --ink:#0A0F24;
@@ -247,6 +246,14 @@
   .cash-sub:last-of-type{
     margin-bottom:10px;
   }
+  .tehran-line{
+    text-align:center;
+    font-size:11.5px;
+    font-weight:700;
+    color:var(--gold);
+    margin-top:2px;
+    margin-bottom:10px;
+  }
   .cash-rows{
     display:flex;
     align-items:center;
@@ -271,6 +278,7 @@
   }
   .cash-item.buy .cash-item-val{ color:var(--green); }
   .cash-item.sell .cash-item-val{ color:var(--rust); }
+  .cash-item-val.call-note{ font-size:30px; white-space:nowrap; }
   .cash-sep{
     width:1px;
     height:34px;
@@ -338,11 +346,11 @@
     <div class="divider"></div>
 
     <div class="date-row">
-      <span id="weekday" contenteditable="true">سه‌شنبه</span>
+      <span id="weekday" contenteditable="true">چهارشنبه</span>
       <span>·</span>
-      <span id="jalali" contenteditable="true">۳۰ تیر ۱۴۰۵</span>
+      <span id="jalali" contenteditable="true">۳۱ تیر ۱۴۰۵</span>
       <span>·</span>
-      <span id="gregorian" contenteditable="true">July 21, 2026</span>
+      <span id="gregorian" contenteditable="true">July 22, 2026</span>
     </div>
 
     <table class="rates">
@@ -353,11 +361,11 @@
         </td>
         <td class="price-col buy">
           <div class="price-label">خرید (BUY)</div>
-          <div class="price-val" contenteditable="true">1.3893</div>
+          <div class="price-val" contenteditable="true">1.38</div>
         </td>
         <td class="price-col sell">
           <div class="price-label">فروش (SELL)</div>
-          <div class="price-val" contenteditable="true">1.4123</div>
+          <div class="price-val" contenteditable="true">1.41</div>
         </td>
       </tr>
       <tr class="cur-row">
@@ -367,11 +375,11 @@
         </td>
         <td class="price-col buy">
           <div class="price-label">خرید (BUY)</div>
-          <div class="price-val" contenteditable="true">1.6000</div>
+          <div class="price-val" contenteditable="true">1.60</div>
         </td>
         <td class="price-col sell">
           <div class="price-label">فروش (SELL)</div>
-          <div class="price-val" contenteditable="true">1.6348</div>
+          <div class="price-val" contenteditable="true">1.63</div>
         </td>
       </tr>
       <tr class="cur-row">
@@ -381,11 +389,11 @@
         </td>
         <td class="price-col buy">
           <div class="price-label">خرید (BUY)</div>
-          <div class="price-val" contenteditable="true">1.8800</div>
+          <div class="price-val" contenteditable="true">1.88</div>
         </td>
         <td class="price-col sell">
           <div class="price-label">فروش (SELL)</div>
-          <div class="price-val" contenteditable="true">1.9238</div>
+          <div class="price-val" contenteditable="true">1.92</div>
         </td>
       </tr>
     </table>
@@ -393,23 +401,24 @@
     <div class="gold-box">
       <div>
         <div class="g-label">طلای ۱۸ عیار (هر گرم)</div>
-        <div class="g-sub">World Gold: $<span contenteditable="true">4,127.40</span>/oz</div>
+        <div class="g-sub">World Gold: $<span contenteditable="true">4,145.40</span>/oz</div>
       </div>
-      <div class="g-val" contenteditable="true">$140.28</div>
+      <div class="g-val" contenteditable="true">$141 CAD</div>
     </div>
 
     <div class="cash-box">
       <div class="cash-label">نرخ نقدی</div>
       <div class="cash-sub">واریز کمتر از ۲۴ ساعت · با تضمین بهترین نرخ</div>
+      <div class="tehran-line" contenteditable="true">دارای دفتر فعال در تهران</div>
       <div class="cash-rows">
         <div class="cash-item buy">
           <div class="cash-item-label">خرید</div>
-          <div class="cash-item-val" contenteditable="true">000,000</div>
+          <div class="cash-item-val" contenteditable="true">۱۳۲,۰۰۰</div>
         </div>
         <div class="cash-sep"></div>
         <div class="cash-item sell">
           <div class="cash-item-label">فروش</div>
-          <div class="cash-item-val" contenteditable="true">000,000</div>
+          <div class="cash-item-val call-note" contenteditable="true">📞</div>
         </div>
       </div>
     </div>
@@ -417,11 +426,11 @@
     <div class="footer">
       <div class="tagline">خرید و فروش آسان ارز و طلا · قیمت لحظه‌ای</div>
       <div class="qr-row">
-        <div id="qrcode" class="qr-box"></div>
+        <div class="qr-box"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASgAAAEoCAIAAABkZftOAAAFhklEQVR4nO3dMW4dNxRA0ShwlyabyP4XlE2kcT1ZQEIbA/DpktY5pWH8GenrgsUDyY/neX4DPtfv9QvAVyQ8CAgPAsKDgPAgIDwICA8CwoOA8CAgPAgIDwLCg4DwICA8CAgPAsKDgPAgIDwICA8CwoOA8CAgPAgIDwLCg4DwICA8CAgPAsKDgPAgIDwICA8C36Yf8Meff00/Yovv//z9v/8+/f6r577lPffa9fOuWPEgIDwICA8CwoOA8CAgPAgIDwLjc7yV6TnJyq45UjX3W5l+n7ef8/b7vf3v4S0rHgSEBwHhQUB4EBAeBIQHAeFBIJvjrUzP2Spv52xv3396zrbrudXnn/b3YMWDgPAgIDwICA8CwoOA8CAgPAgcN8c7zfQ+t13zpbfv+XZ+eMt5mLew4kFAeBAQHgSEBwHhQUB4EBAeBMzxfmL6XMrpfXdvmdd9DiseBIQHAeFBQHgQEB4EhAcB4UHguDneaecf7pqzVfvudjntubez4kFAeBAQHgSEBwHhQUB4EBAeBLI53i37vqbncrvOt5z+/9Nu+XvYxYoHAeFBQHgQEB4EhAcB4UFAeBD4eJ6nfocrVedk7pq/nbbP8Kux4kFAeBAQHgSEBwHhQUB4EBAeBMb3491yL9wut8/ldpn+3qf3E07PJ614EBAeBIQHAeFBQHgQEB4EhAeB4+7HWzlt/nPLPrRq/nnaXHGl+h6teBAQHgSEBwHhQUB4EBAeBIQHgfE5XnUPW/Xcah542hzytP2Tp81drXgQEB4EhAcB4UFAeBAQHgSEB4Hj7sc7bR9ddS/c7ffvvVV9L9X3a8WDgPAgIDwICA8CwoOA8CAgPAhcfz/e27nTrnlUNf9ZOW0/3q7vZfU5p+2ve8uKBwHhQUB4EBAeBIQHAeFBQHgQuOZ+vF2mz7Gszu2c3kd3y3zyFlY8CAgPAsKDgPAgIDwICA8CwoPAcXO86XMjd83Bbr/X7rTfw67nVnPOt6x4EBAeBIQHAeFBQHgQEB4EhAeB8Tne9FyomjtNO+2+uLem56u3s+JBQHgQEB4EhAcB4UFAeBAQHgQ+nuep3+FTTZ8zWe0fm55nTu8bPG1/4DQrHgSEBwHhQUB4EBAeBIQHAeFBYHyOV93PdtpcaPr8xtPOjVypvsdd77OLFQ8CwoOA8CAgPAgIDwLCg4DwIHDN/Xhv5zm75jzV/O2t0/bdTf/epn/e6fmeFQ8CwoOA8CAgPAgIDwLCg4DwIHDcfrxb5jCe+2PVvXwrp523acWDgPAgIDwICA8CwoOA8CAgPAgcN8dbmd73ddqcpzoP85bzOXdxriZ8IcKDgPAgIDwICA8CwoOA8CAwPse7XXXO5Gn3+J32PiunzWNXrHgQEB4EhAcB4UFAeBAQHgSEB4Hx+/Fu2cf1dv4z/f+nVfcEVueCnsaKBwHhQUB4EBAeBIQHAeFBQHgQGJ/jrVRzm+l51FvVPrqVW84vvX3uZ8WDgPAgIDwICA8CwoOA8CAgPAhkc7yV0+ZF1XNvOYdzZXof5u37+qx4EBAeBIQHAeFBQHgQEB4EhAeB4+Z4t5i+B+9X3bd22j7M6n2seBAQHgSEBwHhQUB4EBAeBIQHAXO8n5je5zb9ObeY3n/49rnT8z0rHgSEBwHhQUB4EBAeBIQHAeFB4Lg53mn7x1Z+1X1l1edPf870vX9vWfEgIDwICA8CwoOA8CAgPAgIDwIfz/OMPuCWfWLT52SuTP9+3Nd3JiseBIQHAeFBQHgQEB4EhAcB4UFgfI4H/JcVDwLCg4DwICA8CAgPAsKDgPAgIDwICA8CwoOA8CAgPAgIDwLCg4DwICA8CAgPAsKDgPAgIDwICA8CwoOA8CAgPAgIDwLCg4DwICA8CAgPAsKDgPAg8C+UcvqiB4jTCQAAAABJRU5ErkJggg==" width="84" height="84" alt="QR"></div>
       </div>
       <div class="contact">
-        <span>☎ <span contenteditable="true">+1 (778) 752-7386</span></span>
-        <span>☎ <span contenteditable="true">1-877-867-7090 (Toll Free)</span></span>
+        <span>☎ <span dir="ltr" style="unicode-bidi:isolate" contenteditable="true">+1&nbsp;778-752-7386</span></span>
+        <span>☎ <span dir="ltr" style="unicode-bidi:isolate" contenteditable="true">1-877-867-7090 (Toll Free)</span></span>
       </div>
       <div class="contact" style="margin-top:8px;">
         <span>📷 <span contenteditable="true">melli_jewelry.exchange</span></span>
@@ -431,15 +440,6 @@
   </div>
 
 <script>
-  new QRCode(document.getElementById("qrcode"), {
-    text: "https://melliexchange.ca/vcard",
-    width: 84,
-    height: 84,
-    colorDark: "#0A0F24",
-    colorLight: "#ffffff",
-    correctLevel: QRCode.CorrectLevel.M
-  });
-
   const now = new Date();
   document.getElementById('weekday').textContent =
     new Intl.DateTimeFormat('fa-IR', { weekday: 'long' }).format(now);
@@ -453,13 +453,11 @@
     const poster = document.getElementById('poster');
     const originalText = btn.textContent;
     btn.textContent = '⏳ در حال ساخت تصویر...';
-    document.fonts.ready.then(function () {
-      return htmlToImage.toPng(poster, { pixelRatio: 3, cacheBust: true });
-    }).then(function (dataUrl) {
+    html2canvas(poster, { scale: 3, backgroundColor: null, useCORS: true }).then(function (canvas) {
       const link = document.createElement('a');
       const stamp = new Date().toISOString().slice(0, 10);
       link.download = 'melli-exchange-' + stamp + '.png';
-      link.href = dataUrl;
+      link.href = canvas.toDataURL('image/png');
       link.click();
       btn.textContent = originalText;
     }).catch(function (err) {
