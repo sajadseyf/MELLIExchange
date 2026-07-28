@@ -352,28 +352,30 @@ export default function TVDisplay({
             </div>
           ))}
 
-          {/* ── Promo ticker banner ── */}
-          <div style={{
-            overflow: 'hidden',
-            padding: '1.4vw 0',
-            background: 'linear-gradient(90deg, rgba(29,58,130,0.3) 0%, rgba(15,30,70,0.2) 100%)',
-            borderRadius: '1vw',
-            border: '1px solid rgba(100,140,220,0.2)',
-            boxShadow: '0 0.3vw 1.5vw rgba(0,0,0,0.3)',
-            direction: 'rtl',
-          }}>
+          {/* ── Gold Spot Ounce USD ── */}
+          {spot && (
             <div style={{
-              whiteSpace: 'nowrap',
-              fontSize: '1.6vw',
-              fontWeight: 700,
-              color: '#E8B84B',
-              animation: 'ticker 18s linear infinite',
-              paddingLeft: '100%',
-              textShadow: '0 0 1.5vw rgba(232,184,75,0.4)',
+              padding: '1.8vw 2vw',
+              background: 'linear-gradient(135deg, rgba(120,80,10,0.4) 0%, rgba(80,50,5,0.25) 100%)',
+              borderRadius: '1vw',
+              border: '1px solid rgba(200,151,42,0.45)',
+              boxShadow: '0 0 2.5vw rgba(200,151,42,0.2), 0 0.3vw 1.5vw rgba(0,0,0,0.3)',
+              textAlign: 'center',
             }}>
-              {'🌟 خوش آمدید 🌟   ·   🔧 تعمیرات تخصصی طلا و جواهر   ·   💰 قیمت‌های منصفانه به قیمت ایران   ·   ✨ تعمیرات حرفه‌ای با کیفیت تضمین‌شده   ·   🌟 خوش آمدید 🌟   ·   🔧 تعمیرات تخصصی طلا و جواهر   ·   💰 قیمت‌های منصفانه به قیمت ایران   ·   ✨ تعمیرات حرفه‌ای با کیفیت تضمین‌شده'}
+              <div style={{ fontSize: '1vw', color: '#a07830', letterSpacing: '0.15em', marginBottom: '0.8vw', fontWeight: 700 }}>
+                {isFa ? '🥇 قیمت اونس طلا' : '🥇 GOLD SPOT PRICE (USD/oz)'}
+              </div>
+              <div style={{
+                fontSize: '4.2vw', fontWeight: 900, color: '#E8B84B',
+                fontVariantNumeric: 'tabular-nums',
+                textShadow: '0 0 2.5vw rgba(232,184,75,0.7)',
+                lineHeight: 1,
+              }}>
+                $<AnimNum value={spot.priceUsd} fmt={fmtGold} />
+              </div>
+              <div style={{ fontSize: '0.85vw', color: '#7a8eaf', marginTop: '0.4vw' }}>USD / oz</div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* ── RIGHT: video + spot ── */}
@@ -414,28 +416,27 @@ export default function TVDisplay({
           </div>
 
 
-          {/* Gold spot — USD only */}
-          {spot && (
+          {/* Promo ticker below video */}
+          <div style={{
+            overflow: 'hidden',
+            padding: '1vw 0',
+            background: 'linear-gradient(90deg, rgba(29,58,130,0.3) 0%, rgba(15,30,70,0.2) 100%)',
+            borderRadius: '0.8vw',
+            border: '1px solid rgba(100,140,220,0.2)',
+            direction: 'rtl',
+          }}>
             <div style={{
-              padding: '1.2vw',
-              background: 'linear-gradient(135deg, rgba(120,80,10,0.2), rgba(80,50,5,0.1))',
-              borderRadius: '0.8vw',
-              border: '1px solid rgba(200,151,42,0.25)',
-              textAlign: 'center',
+              whiteSpace: 'nowrap',
+              fontSize: '1.1vw',
+              fontWeight: 700,
+              color: '#E8B84B',
+              animation: 'ticker 20s linear infinite',
+              paddingLeft: '100%',
+              textShadow: '0 0 1vw rgba(232,184,75,0.4)',
             }}>
-              <div style={{ fontSize: '0.8vw', color: '#a07830', letterSpacing: '0.15em', marginBottom: '0.4vw' }}>
-                {isFa ? 'قیمت اونس طلا' : 'GOLD SPOT (USD/oz)'}
-              </div>
-              <div style={{
-                fontSize: '3vw', fontWeight: 900, color: '#E8B84B',
-                fontVariantNumeric: 'tabular-nums',
-                textShadow: '0 0 1.5vw rgba(232,184,75,0.5)',
-              }}>
-                $<AnimNum value={spot.priceUsd} fmt={fmtGold} />
-              </div>
-              <div style={{ fontSize: '0.8vw', color: '#7a8eaf', marginTop: '0.3vw' }}>USD / oz</div>
+              {'🌟 خوش آمدید 🌟   ·   🔧 تعمیرات تخصصی طلا و جواهر   ·   💰 قیمت‌های منصفانه به قیمت ایران   ·   ✨ تعمیرات حرفه‌ای با کیفیت تضمین‌شده   ·   🌟 خوش آمدید 🌟   ·   🔧 تعمیرات تخصصی طلا و جواهر   ·   💰 قیمت‌های منصفانه به قیمت ایران   ·   ✨ تعمیرات حرفه‌ای با کیفیت تضمین‌شده'}
             </div>
-          )}
+          </div>
 
           {/* Last updated indicator */}
           <div style={{
