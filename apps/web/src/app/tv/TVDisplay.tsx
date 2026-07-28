@@ -352,48 +352,40 @@ export default function TVDisplay({
             </div>
           ))}
 
-          {/* ── 18K Gold bar ── */}
-          {gold18PricePerGram !== null && (
+          {/* ── Gold Spot Ounce ── */}
+          {spot && (
             <div style={{
-              display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
-              padding: '1.4vw 1.5vw',
-              background: 'linear-gradient(90deg, rgba(120,80,10,0.35) 0%, rgba(80,50,5,0.2) 100%)',
+              padding: '1.8vw 2vw',
+              background: 'linear-gradient(135deg, rgba(120,80,10,0.4) 0%, rgba(80,50,5,0.25) 100%)',
               borderRadius: '1vw',
-              border: '1px solid rgba(200,151,42,0.35)',
-              boxShadow: '0 0 2vw rgba(200,151,42,0.15), 0 0.3vw 1.5vw rgba(0,0,0,0.3)',
+              border: '1px solid rgba(200,151,42,0.45)',
+              boxShadow: '0 0 2.5vw rgba(200,151,42,0.2), 0 0.3vw 1.5vw rgba(0,0,0,0.3)',
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1vw' }}>
-                <div style={{
-                  width: '3.5vw', height: '3.5vw', borderRadius: '0.6vw',
-                  background: 'linear-gradient(135deg, #C8972A, #E8B84B, #C8972A)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '1.1vw', fontWeight: 900, color: '#1a0f00',
-                  boxShadow: '0 0 1vw rgba(200,151,42,0.5)',
-                  flexShrink: 0,
-                }}>
-                  18K
-                </div>
-                <div>
-                  <div style={{ fontSize: '1.8vw', fontWeight: 800, color: '#E8B84B', lineHeight: 1.1 }}>
-                    {isFa ? '۱۸ عیار' : '18K GOLD'}
-                  </div>
-                  <div style={{ fontSize: '1vw', color: '#a07830', marginTop: '0.2vw' }}>
-                    {isFa ? 'طلای ۷۵٪ · قیمت هر گرم' : '75% purity · per gram'}
-                  </div>
-                </div>
+              <div style={{ fontSize: '1vw', color: '#a07830', letterSpacing: '0.15em', marginBottom: '1vw', textAlign: 'center', fontWeight: 700 }}>
+                {isFa ? '🥇 قیمت اونس طلا' : '🥇 GOLD SPOT PRICE (OZ)'}
               </div>
-              <div />
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', gap: '1.5vw' }}>
                 <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '0.9vw', color: '#7a8eaf', marginBottom: '0.4vw', letterSpacing: '0.1em' }}>USD</div>
                   <div style={{
-                    fontSize: '2.8vw', fontWeight: 900, color: '#E8B84B',
+                    fontSize: '3.8vw', fontWeight: 900, color: '#E8B84B',
                     fontVariantNumeric: 'tabular-nums',
-                    textShadow: '0 0 2vw rgba(232,184,75,0.6)',
+                    textShadow: '0 0 2.5vw rgba(232,184,75,0.7)',
+                    lineHeight: 1,
                   }}>
-                    $<AnimNum value={gold18PricePerGram!} fmt={fmtGold} />
+                    $<AnimNum value={spot.priceUsd} fmt={fmtGold} />
                   </div>
-                  <div style={{ fontSize: '0.9vw', color: '#a07830', marginTop: '0.2vw' }}>
-                    {isFa ? 'دلار کانادا / گرم' : 'CAD / gram'}
+                </div>
+                <div style={{ width: '1px', height: '4vw', background: 'rgba(200,151,42,0.3)' }} />
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '0.9vw', color: '#7a8eaf', marginBottom: '0.4vw', letterSpacing: '0.1em' }}>CAD</div>
+                  <div style={{
+                    fontSize: '3.8vw', fontWeight: 900, color: '#E8B84B',
+                    fontVariantNumeric: 'tabular-nums',
+                    textShadow: '0 0 2.5vw rgba(232,184,75,0.7)',
+                    lineHeight: 1,
+                  }}>
+                    $<AnimNum value={spot.priceCad} fmt={fmtGold} />
                   </div>
                 </div>
               </div>
@@ -438,30 +430,6 @@ export default function TVDisplay({
             }} />
           </div>
 
-          {/* Gold spot */}
-          {spot && (
-            <div style={{
-              padding: '1.2vw',
-              background: 'linear-gradient(135deg, rgba(120,80,10,0.2), rgba(80,50,5,0.1))',
-              borderRadius: '0.8vw',
-              border: '1px solid rgba(200,151,42,0.25)',
-              textAlign: 'center',
-            }}>
-              <div style={{ fontSize: '0.8vw', color: '#a07830', letterSpacing: '0.15em', marginBottom: '0.4vw' }}>
-                {isFa ? 'قیمت جهانی طلا (USD/oz)' : 'WORLD GOLD PRICE (USD/oz)'}
-              </div>
-              <div style={{
-                fontSize: '2.2vw', fontWeight: 900, color: '#E8B84B',
-                fontVariantNumeric: 'tabular-nums',
-                textShadow: '0 0 1.5vw rgba(232,184,75,0.5)',
-              }}>
-                ${spot.priceUsd.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </div>
-              <div style={{ fontSize: '0.8vw', color: '#7a8eaf', marginTop: '0.3vw' }}>
-                C${spot.priceCad.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CAD
-              </div>
-            </div>
-          )}
 
           {/* Last updated indicator */}
           <div style={{
