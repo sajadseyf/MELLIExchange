@@ -14,7 +14,8 @@ function toFlagEmoji(code: string): string {
   );
 }
 
-function fmt(n: number)     { return n.toLocaleString('en-CA', { minimumFractionDigits: 4, maximumFractionDigits: 4 }); }
+function fmtBuy(n: number)  { return (Math.floor(n * 100) / 100).toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function fmtSell(n: number) { return (Math.ceil(n  * 100) / 100).toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 function fmtGold(n: number) { return n.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 
 /* ── Live clock ── */
@@ -336,7 +337,7 @@ export default function TVDisplay({
                   fontVariantNumeric: 'tabular-nums', letterSpacing: '0.02em',
                   textShadow: '0 0 2vw rgba(74,222,128,0.4)',
                 }}>
-                  <AnimNum value={Math.min(c.buy, c.sell)} fmt={fmt} />
+                  <AnimNum value={Math.min(c.buy, c.sell)} fmt={fmtBuy} />
                 </div>
               </div>
               {/* Sell — always the higher rate */}
@@ -346,7 +347,7 @@ export default function TVDisplay({
                   fontVariantNumeric: 'tabular-nums', letterSpacing: '0.02em',
                   textShadow: '0 0 2vw rgba(245,158,11,0.4)',
                 }}>
-                  <AnimNum value={Math.max(c.buy, c.sell)} fmt={fmt} />
+                  <AnimNum value={Math.max(c.buy, c.sell)} fmt={fmtSell} />
                 </div>
               </div>
             </div>
