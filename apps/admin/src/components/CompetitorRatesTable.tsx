@@ -163,6 +163,7 @@ export function CompetitorRatesTable() {
   }, [data]);
 
   const MEDIUM_MARGIN = 0.005; // 0.5% wider spread for medium-tier currencies
+  const avg = (arr: number[]) => arr.reduce((a, b) => a + b, 0) / arr.length;
 
   // Compute non-optimal updates from ALL codes (not filtered) so auto-apply covers every currency
   const nonOptimalRates = useMemo(() => {
@@ -177,19 +178,18 @@ export function CompetitorRatesTable() {
       // Low tier = manual management, never auto-update
       if (tier === 'low') return [];
 
-      const vanex    = data.vanex.rates[code];
       const arzsina  = data.arzsina.rates[code];
       const vbce     = data.vbce.rates[code];
       const daniel   = data.daniel.rates[code];
       const moneyway = data.moneyway.rates[code];
 
-      // Vanex excluded from optimization — shown in table but not used in calculations
+      // Vanex excluded — average of remaining competitors
       const competitorBuys  = [arzsina?.buy,  vbce?.buy,  daniel?.buy,  moneyway?.buy ].filter((v): v is number => !!v && v > 0);
       const competitorSells = [arzsina?.sell, vbce?.sell, daniel?.sell, moneyway?.sell].filter((v): v is number => !!v && v > 0);
       if (!competitorBuys.length && !competitorSells.length) return [];
 
-      const bestBuy  = competitorBuys.length  ? Math.max(...competitorBuys)  : null;
-      const bestSell = competitorSells.length ? Math.min(...competitorSells) : null;
+      const bestBuy  = competitorBuys.length  ? avg(competitorBuys)  : null;
+      const bestSell = competitorSells.length ? avg(competitorSells) : null;
 
       // Tier-adjusted targets: medium pulls back by MEDIUM_MARGIN, high matches exactly
       const targetBuy  = bestBuy  !== null ? Math.round(bestBuy  * (tier === 'medium' ? 1 - MEDIUM_MARGIN : 1) * 10000) / 10000 : null;
@@ -244,8 +244,8 @@ export function CompetitorRatesTable() {
 
       const competitorBuys  = [arzsina?.buy,  vbce?.buy,  daniel?.buy,  moneyway?.buy ].filter((v): v is number => !!v);
       const competitorSells = [arzsina?.sell, vbce?.sell, daniel?.sell, moneyway?.sell].filter((v): v is number => !!v);
-      const targetBuy  = competitorBuys.length  ? Math.max(...competitorBuys)  : null;
-      const targetSell = competitorSells.length ? Math.min(...competitorSells) : null;
+      const targetBuy  = competitorBuys.length  ? avg(competitorBuys)  : null;
+      const targetSell = competitorSells.length ? avg(competitorSells) : null;
 
       // For ⚠️ display: high = must match best; medium = within MEDIUM_MARGIN of best; low = no warning
       const adjBuy  = targetBuy  !== null ? Math.round(targetBuy  * (tier === 'medium' ? 1 - MEDIUM_MARGIN : 1) * 10000) / 10000 : null;
