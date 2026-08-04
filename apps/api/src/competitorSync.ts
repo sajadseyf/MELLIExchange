@@ -403,7 +403,7 @@ export async function syncCompetitorRates() {
     { name: 'moneyway', fn: scrapeMoneyWay },
   ];
 
-  const successfulMaps: RateMap[] = [];
+  const successfulMaps: Array<{ name: string; map: RateMap }> = [];
 
   for (const { name, fn } of sources) {
     try {
@@ -411,7 +411,7 @@ export async function syncCompetitorRates() {
       const count = Object.keys(rates).length;
       if (count === 0) { console.warn(`[competitorSync] ${name}: 0 rates`); continue; }
 
-      successfulMaps.push(rates);
+      successfulMaps.push({ name, map: rates });
       const ratesArr = Object.entries(rates).map(([code, r]) => ({ code, buy: r.buy, sell: r.sell }));
       await CompetitorRateModel.create({ source: name, recordedAt: now, rates: ratesArr });
       await detectJumps(name, rates);
@@ -421,23 +421,26 @@ export async function syncCompetitorRates() {
     }
   }
 
-  // Apply target rates (max competitor buy / min competitor sell) to CurrencyModel
-  if (successfulMaps.length > 0) {
+  // Apply average rates (excluding Vanex) to CurrencyModel
+  const avg = (arr: number[]) => arr.reduce((a, b) => a + b, 0) / arr.length;
+  const mapsForAvg = successfulMaps.filter(s => s.name !== 'vanex').map(s => s.map);
+
+  if (mapsForAvg.length > 0) {
     try {
       const allCodes = new Set<string>();
-      for (const map of successfulMaps) for (const code of Object.keys(map)) allCodes.add(code);
+      for (const map of mapsForAvg) for (const code of Object.keys(map)) allCodes.add(code);
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
       let updated = 0;
       for (const code of allCodes) {
-        const buys  = successfulMaps.map(m => m[code]?.buy ).filter((v): v is number => !!v && v > 0);
-        const sells = successfulMaps.map(m => m[code]?.sell).filter((v): v is number => !!v && v > 0);
+        const buys  = mapsForAvg.map(m => m[code]?.buy ).filter((v): v is number => !!v && v > 0);
+        const sells = mapsForAvg.map(m => m[code]?.sell).filter((v): v is number => !!v && v > 0);
         if (!buys.length || !sells.length) continue;
 
-        const targetBuy  = Math.max(...buys);
-        const targetSell = Math.min(...sells);
+        const targetBuy  = avg(buys);
+        const targetSell = avg(sells);
 
         const result = await CurrencyModel.findOneAndUpdate(
           { code },
@@ -453,7 +456,8 @@ export async function syncCompetitorRates() {
           updated++;
         }
       }
-      console.log(`[competitorSync] applied target rates to ${updated} currencies`);
+      const srcNames = mapsForAvg.length > 0 ? successfulMaps.filter(s => s.name !== 'vanex').map(s => s.name).join(', ') : 'none';
+      console.log(`[competitorSync] applied avg rates (excl. vanex) from [${srcNames}] to ${updated} currencies`);
     } catch (e) {
       console.error('[competitorSync] apply target rates failed:', e);
     }
