@@ -16,6 +16,7 @@ import analysisRouter from './routes/analysis.js';
 import spotRouter from './routes/spot.js';
 import newsRouter from './routes/news.js';
 import faqRouter from './routes/faq.js';
+import cronRouter from './routes/cron.js';
 
 export const app = express();
 
@@ -42,6 +43,7 @@ app.use('/api/analysis',   analysisRouter);
 app.use('/api/spot',       spotRouter);
 app.use('/api/news',       newsRouter);
 app.use('/api/faq',        faqRouter);
+app.use('/api/cron',       cronRouter);
 
 app.get('/api/v1/rates', async (_req, res) => {
   const { CurrencyModel } = await import('./models/Currency.js');
