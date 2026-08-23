@@ -69,9 +69,10 @@ export function CompetitorRatesTable() {
   const [filter,     setFilter]     = useState('');
   const [sortKey,    setSortKey]    = useState<SortKey>('priority');
   const [sortAsc,    setSortAsc]    = useState(true);
-  const [applying,   setApplying]   = useState(false);
-  const [inlineEdit, setInlineEdit] = useState<{ code: string; field: 'buy' | 'sell'; value: string } | null>(null);
-  const [mwManual,   setMwManual]   = useState(false);
+  const [applying,      setApplying]      = useState(false);
+  const [autoOptimize,  setAutoOptimize]  = useState(true);
+  const [inlineEdit,    setInlineEdit]    = useState<{ code: string; field: 'buy' | 'sell'; value: string } | null>(null);
+  const [mwManual,      setMwManual]      = useState(false);
   const [mwEdit,     setMwEdit]     = useState<{ code: string; field: 'buy' | 'sell'; value: string } | null>(null);
   const [mwSaving,   setMwSaving]   = useState(false);
   const inlineSaving  = useRef(false);
@@ -236,9 +237,9 @@ export function CompetitorRatesTable() {
     });
   }, [data, allCodes]);
 
-  // Auto-apply optimal rates whenever competitor data changes
+  // Auto-apply optimal rates whenever competitor data changes (only when auto-optimize is on)
   useEffect(() => {
-    if (nonOptimalRates.length === 0 || autoApplying.current) return;
+    if (!autoOptimize || nonOptimalRates.length === 0 || autoApplying.current) return;
     autoApplying.current = true;
     Promise.all(
       nonOptimalRates.map(({ code, body }) =>
@@ -248,7 +249,7 @@ export function CompetitorRatesTable() {
       .then(() => load())
       .finally(() => { autoApplying.current = false; });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nonOptimalRates]);
+  }, [nonOptimalRates, autoOptimize]);
 
   const rows = useMemo(() => {
     if (!data) return [];
@@ -330,12 +331,25 @@ export function CompetitorRatesTable() {
         <Button size="sm" variant="ghost" onClick={refresh} disabled={refreshing}>
           {refreshing ? 'Refreshing…' : '↻ Refresh now'}
         </Button>
-        {nonOptimalRates.length > 0
-          ? <span className="text-xs text-amber-600 font-medium">⚡ Auto-optimizing {nonOptimalRates.length} rate{nonOptimalRates.length > 1 ? 's' : ''}…</span>
-          : rows.length > 0
-            ? <span className="text-xs text-emerald-600 font-medium">✓ All rates optimal</span>
-            : null
-        }
+        <button
+          onClick={() => setAutoOptimize((v) => !v)}
+          className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+            autoOptimize
+              ? 'border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+              : 'border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100'
+          }`}
+        >
+          {autoOptimize ? '⚡ Auto-optimize: ON' : '✎ Manual mode: ON'}
+        </button>
+        {autoOptimize && nonOptimalRates.length > 0 && (
+          <span className="text-xs text-amber-600 font-medium">⚡ Auto-optimizing {nonOptimalRates.length} rate{nonOptimalRates.length > 1 ? 's' : ''}…</span>
+        )}
+        {autoOptimize && nonOptimalRates.length === 0 && rows.length > 0 && (
+          <span className="text-xs text-emerald-600 font-medium">✓ All rates optimal</span>
+        )}
+        {!autoOptimize && (
+          <span className="text-xs text-amber-600 font-medium">Click any rate in MY RATE column to edit manually</span>
+        )}
         {mwManual && <span className="text-xs text-amber-600 font-medium">✎ MoneyWay: manual mode — click cells to edit rates</span>}
         {updatedAt && <span className="text-xs text-ink-400">Last updated: {updatedAt} · auto-refreshes every 60s</span>}
       </div>
