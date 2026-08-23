@@ -11,6 +11,7 @@ const schema = new Schema(
     source:     { type: String, required: true, enum: ['vanex', 'arzsina', 'vbce', 'daniel', 'moneyway'] },
     recordedAt: { type: Date, required: true },
     rates:      { type: [rateEntrySchema], default: [] },
+    manual:     { type: Boolean, default: false },
   },
   { timestamps: true },
 );

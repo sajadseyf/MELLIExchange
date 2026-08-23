@@ -6,7 +6,7 @@ import { api, ApiError } from '@/lib/api';
 
 type Tier = 'high' | 'medium' | 'low';
 interface RateMap { [code: string]: { buy: number; sell: number; tier?: Tier } }
-interface SourceData { rates: RateMap; recordedAt: string | null }
+interface SourceData { rates: RateMap; recordedAt: string | null; manual?: boolean }
 interface CompetitorData {
   own:      SourceData;
   vanex:    SourceData;
@@ -71,6 +71,9 @@ export function CompetitorRatesTable() {
   const [sortAsc,    setSortAsc]    = useState(true);
   const [applying,   setApplying]   = useState(false);
   const [inlineEdit, setInlineEdit] = useState<{ code: string; field: 'buy' | 'sell'; value: string } | null>(null);
+  const [mwManual,   setMwManual]   = useState(false);
+  const [mwEdit,     setMwEdit]     = useState<{ code: string; field: 'buy' | 'sell'; value: string } | null>(null);
+  const [mwSaving,   setMwSaving]   = useState(false);
   const inlineSaving  = useRef(false);
   const autoApplying  = useRef(false);
 
@@ -78,6 +81,7 @@ export function CompetitorRatesTable() {
     try {
       const d = await api<CompetitorData>('/api/competitor/latest');
       setData(d);
+      setMwManual(d.moneyway.manual ?? false);
       setError(null);
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'Failed to load');
@@ -140,6 +144,36 @@ export function CompetitorRatesTable() {
       setError(e instanceof ApiError ? e.message : 'Apply failed');
     } finally {
       setApplying(false);
+    }
+  }
+
+  async function saveMwRate() {
+    if (!mwEdit || mwSaving) return;
+    const { code, field, value } = mwEdit;
+    const num = parseFloat(value);
+    setMwEdit(null);
+    if (isNaN(num) || num <= 0) return;
+    setMwSaving(true);
+    try {
+      const current = data?.moneyway.rates[code] ?? { buy: 0, sell: 0 };
+      await api('/api/competitor/moneyway/rate', {
+        method: 'PUT',
+        body: JSON.stringify({ code, buy: field === 'buy' ? num : current.buy, sell: field === 'sell' ? num : current.sell }),
+      });
+      await load();
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : 'Failed to save MoneyWay rate');
+    } finally {
+      setMwSaving(false);
+    }
+  }
+
+  async function enableMwAuto() {
+    try {
+      await api('/api/competitor/moneyway/auto', { method: 'POST', body: '{}' });
+      setTimeout(load, 5000);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : 'Failed to enable auto');
     }
   }
 
@@ -302,6 +336,7 @@ export function CompetitorRatesTable() {
             ? <span className="text-xs text-emerald-600 font-medium">✓ All rates optimal</span>
             : null
         }
+        {mwManual && <span className="text-xs text-amber-600 font-medium">✎ MoneyWay: manual mode — click cells to edit rates</span>}
         {updatedAt && <span className="text-xs text-ink-400">Last updated: {updatedAt} · auto-refreshes every 60s</span>}
       </div>
 
@@ -322,7 +357,18 @@ export function CompetitorRatesTable() {
                 </th>
                 {SOURCES.map((src) => (
                   <th key={src} colSpan={2} className={`${src === 'own' ? 'sticky left-[160px] z-20 bg-ink-50 text-ink-800 font-semibold' : ''} border-l border-ink-100 px-3 py-2 text-center text-xs font-medium uppercase tracking-wide text-ink-500`}>
-                    {SOURCE_LABELS[src]}
+                    {src === 'moneyway' ? (
+                      <span className="inline-flex items-center gap-1.5">
+                        MoneyWay
+                        <button
+                          onClick={() => mwManual ? enableMwAuto() : setMwManual(true)}
+                          title={mwManual ? 'Switch to auto-sync' : 'Switch to manual entry'}
+                          className={`inline-flex items-center justify-center rounded px-1.5 py-0.5 text-[9px] font-bold transition-colors ${mwManual ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-ink-100 text-ink-500 hover:bg-ink-200'}`}
+                        >
+                          {mwManual ? 'Manual' : 'Auto'}
+                        </button>
+                      </span>
+                    ) : SOURCE_LABELS[src]}
                   </th>
                 ))}
                 <th colSpan={2} className="border-l border-ink-100 px-3 py-2 text-center text-xs font-medium uppercase tracking-wide text-amber-600">
@@ -422,9 +468,36 @@ export function CompetitorRatesTable() {
                     {/* Daniel */}
                     <td className={`border-l border-ink-50 px-3 py-2 text-right font-mono ${buyClass(daniel?.buy)}`}>{fmt(daniel?.buy)}</td>
                     <td className={`px-3 py-2 text-right font-mono ${sellClass(daniel?.sell)}`}>{fmt(daniel?.sell)}</td>
-                    {/* MoneyWay */}
-                    <td className={`border-l border-ink-50 px-3 py-2 text-right font-mono ${buyClass(moneyway?.buy)}`}>{fmt(moneyway?.buy)}</td>
-                    <td className={`px-3 py-2 text-right font-mono ${sellClass(moneyway?.sell)}`}>{fmt(moneyway?.sell)}</td>
+                    {/* MoneyWay — editable in manual mode */}
+                    {(['buy', 'sell'] as const).map((field) => {
+                      const val = moneyway?.[field];
+                      const cls = field === 'buy' ? buyClass(val) : sellClass(val);
+                      const isEditing = mwEdit?.code === code && mwEdit?.field === field;
+                      return (
+                        <td key={`mw_${field}`} className={`${field === 'buy' ? 'border-l border-ink-50' : ''} px-3 py-2 text-right font-mono ${cls}`}>
+                          {mwManual && isEditing ? (
+                            <input
+                              type="number"
+                              step="0.0001"
+                              autoFocus
+                              value={mwEdit.value}
+                              onChange={(e) => setMwEdit({ ...mwEdit, value: e.target.value })}
+                              onBlur={saveMwRate}
+                              onKeyDown={(e) => { if (e.key === 'Enter') saveMwRate(); if (e.key === 'Escape') setMwEdit(null); }}
+                              className="w-24 rounded border border-amber-400 bg-white px-1 py-0.5 text-right text-xs outline-none"
+                            />
+                          ) : (
+                            <span
+                              className={mwManual ? 'cursor-pointer rounded px-1 hover:bg-amber-50 hover:text-amber-700 transition-colors' : ''}
+                              title={mwManual ? 'Click to edit' : undefined}
+                              onClick={mwManual ? () => setMwEdit({ code, field, value: String(val ?? '') }) : undefined}
+                            >
+                              {fmt(val)}
+                            </span>
+                          )}
+                        </td>
+                      );
+                    })}
                     {/* Target */}
                     <td className="border-l border-ink-50 px-3 py-2 text-right font-mono text-amber-600">{fmt(targetBuy ?? undefined)}</td>
                     <td className="px-3 py-2 text-right font-mono text-amber-600">{fmt(targetSell ?? undefined)}</td>
