@@ -29,6 +29,7 @@ function serialize(doc: any) {
     tier: (doc.tier ?? 'high') as 'high' | 'medium' | 'low',
     contactUs: doc.contactUs ?? false,
     hidden: doc.hidden ?? false,
+    locked: doc.locked ?? false,
     updatedAt: doc.updatedAt?.toISOString?.() ?? new Date().toISOString(),
   };
 }
@@ -144,6 +145,7 @@ const updateSchema = upsertSchema.partial().omit({ code: true }).extend({
   tier:      z.enum(['high', 'medium', 'low']).optional(),
   contactUs: z.boolean().optional(),
   hidden:    z.boolean().optional(),
+  locked:    z.boolean().optional(),
 });
 
 router.put('/:code', requireAuth, async (req, res) => {

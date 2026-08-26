@@ -13,6 +13,7 @@ const currencySchema = new Schema(
     tier:      { type: String, enum: ['high', 'medium', 'low'], default: 'high' },
     contactUs: { type: Boolean, default: false },
     hidden:    { type: Boolean, default: false },
+    locked:    { type: Boolean, default: false },
   },
   { timestamps: true },
 );

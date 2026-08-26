@@ -5,7 +5,7 @@ import { Card, Button } from '@melli/ui';
 import { api, ApiError } from '@/lib/api';
 
 type Tier = 'high' | 'medium' | 'low';
-interface RateMap { [code: string]: { buy: number; sell: number; tier?: Tier } }
+interface RateMap { [code: string]: { buy: number; sell: number; tier?: Tier; locked?: boolean } }
 interface SourceData { rates: RateMap; recordedAt: string | null; manual?: boolean }
 interface CompetitorData {
   own:      SourceData;
@@ -169,6 +169,15 @@ export function CompetitorRatesTable() {
     }
   }
 
+  async function toggleLock(code: string, currentLocked: boolean) {
+    try {
+      await api(`/api/currencies/${code}`, { method: 'PUT', body: JSON.stringify({ locked: !currentLocked }) });
+      await load();
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : 'Failed to toggle lock');
+    }
+  }
+
   async function enableMwAuto() {
     try {
       await api('/api/competitor/moneyway/auto', { method: 'POST', body: '{}' });
@@ -208,6 +217,9 @@ export function CompetitorRatesTable() {
       const own = data.own.rates[code];
       // Only update currencies we already track — skip codes not in our DB
       if (!own?.buy || !own?.sell) return [];
+
+      // Locked currencies are pinned — never auto-update regardless of tier
+      if (own.locked) return [];
 
       const tier = own.tier ?? 'high';
       // Low tier = manual management, never auto-update
@@ -285,10 +297,11 @@ export function CompetitorRatesTable() {
       // For ⚠️ display: high = must match best; medium = within MEDIUM_MARGIN of best; low = no warning
       const adjBuy  = targetBuy  !== null ? Math.round(targetBuy  * (tier === 'medium' ? 1 - MEDIUM_MARGIN : 1) * 10000) / 10000 : null;
       const adjSell = targetSell !== null ? Math.round(targetSell * (tier === 'medium' ? 1 + MEDIUM_MARGIN : 1) * 10000) / 10000 : null;
-      const ownBuyIsBest  = tier === 'low' || (!!own?.buy  && adjBuy  !== null && Math.abs(own.buy  - adjBuy)  < 0.0001);
-      const ownSellIsBest = tier === 'low' || (!!own?.sell && adjSell !== null && Math.abs(own.sell - adjSell) < 0.0001);
+      const locked = own?.locked ?? false;
+      const ownBuyIsBest  = locked || tier === 'low' || (!!own?.buy  && adjBuy  !== null && Math.abs(own.buy  - adjBuy)  < 0.0001);
+      const ownSellIsBest = locked || tier === 'low' || (!!own?.sell && adjSell !== null && Math.abs(own.sell - adjSell) < 0.0001);
 
-      return { code, own, tier, vanex, arzsina, vbce, daniel, moneyway, buyClass, sellClass, ownBuyIsBest, ownSellIsBest, targetBuy, targetSell };
+      return { code, own, tier, locked, vanex, arzsina, vbce, daniel, moneyway, buyClass, sellClass, ownBuyIsBest, ownSellIsBest, targetBuy, targetSell };
     }).sort((a, b) => {
       let va: number | string = 0;
       let vb: number | string = 0;
@@ -350,6 +363,11 @@ export function CompetitorRatesTable() {
         {!autoOptimize && (
           <span className="text-xs text-amber-600 font-medium">Click any rate in MY RATE column to edit manually</span>
         )}
+        {rows.some((r) => r.locked) && (
+          <span className="text-xs text-rose-600 font-medium">
+            🔒 {rows.filter((r) => r.locked).length} pinned — excluded from auto-optimize
+          </span>
+        )}
         {mwManual && <span className="text-xs text-amber-600 font-medium">✎ MoneyWay: manual mode — click cells to edit rates</span>}
         {updatedAt && <span className="text-xs text-ink-400">Last updated: {updatedAt} · auto-refreshes every 60s</span>}
       </div>
@@ -402,7 +420,7 @@ export function CompetitorRatesTable() {
               </tr>
             </thead>
             <tbody className="divide-y divide-ink-50">
-              {rows.map(({ code, own, tier, vanex, arzsina, vbce, daniel, moneyway, buyClass, sellClass, ownBuyIsBest, ownSellIsBest, targetBuy, targetSell }) => {
+              {rows.map(({ code, own, tier, locked, vanex, arzsina, vbce, daniel, moneyway, buyClass, sellClass, ownBuyIsBest, ownSellIsBest, targetBuy, targetSell }) => {
                 const info = CURRENCY_INFO[code];
                 const TIER_CFG: Record<Tier, { label: string; cls: string; next: Tier; title: string }> = {
                   high:   { label: 'H', cls: 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200', next: 'medium', title: 'High demand — auto-match best competitor rate' },
@@ -429,6 +447,15 @@ export function CompetitorRatesTable() {
                                 className={`inline-flex h-4 w-4 items-center justify-center rounded text-[9px] font-bold leading-none transition-colors ${tc.cls}`}
                               >
                                 {tc.label}
+                              </button>
+                            )}
+                            {own && (
+                              <button
+                                onClick={() => toggleLock(code, locked)}
+                                title={locked ? 'Locked — rate is pinned, auto-optimize skips this currency. Click to unlock.' : 'Unlocked — click to pin this rate and exclude from auto-optimize'}
+                                className={`inline-flex h-4 w-4 items-center justify-center rounded text-[9px] leading-none transition-colors ${locked ? 'bg-rose-100 text-rose-600 hover:bg-rose-200' : 'bg-ink-100 text-ink-400 hover:bg-ink-200'}`}
+                              >
+                                {locked ? '🔒' : '🔓'}
                               </button>
                             )}
                           </div>
@@ -461,10 +488,10 @@ export function CompetitorRatesTable() {
                           ) : (
                             <span
                               className="cursor-pointer rounded px-1 hover:bg-gold-50 hover:text-gold-700 transition-colors"
-                              title="Click to edit"
+                              title={locked ? 'Pinned — click to edit (auto-optimize skips this)' : 'Click to edit'}
                               onClick={() => setInlineEdit({ code, field, value: String(val ?? '') })}
                             >
-                              {fmt(val)}{val && notBest ? ' ⚠️' : ''}
+                              {fmt(val)}{val && notBest && !locked ? ' ⚠️' : ''}
                             </span>
                           )}
                         </td>

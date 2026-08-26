@@ -24,8 +24,8 @@ router.get('/latest', requireAuth, async (_req, res) => {
     return { rates: m, recordedAt: doc?.recordedAt ?? null };
   };
 
-  const ownMap: Record<string, { buy: number; sell: number; tier: 'high' | 'medium' | 'low' }> = {};
-  for (const c of own) ownMap[c.code] = { buy: c.buy, sell: c.sell, tier: ((c as any).tier ?? 'high') as 'high' | 'medium' | 'low' };
+  const ownMap: Record<string, { buy: number; sell: number; tier: 'high' | 'medium' | 'low'; locked: boolean }> = {};
+  for (const c of own) ownMap[c.code] = { buy: c.buy, sell: c.sell, tier: ((c as any).tier ?? 'high') as 'high' | 'medium' | 'low', locked: (c as any).locked ?? false };
 
   const mwDoc = moneyway as any;
   res.json({
