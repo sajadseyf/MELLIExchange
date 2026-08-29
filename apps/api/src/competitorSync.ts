@@ -217,6 +217,82 @@ async function scrapeMoneyWay(): Promise<RateMap> {
   throw new Error('MoneyWay: no rates parsed (tried JS vars + table)');
 }
 
+// ── MCE Currency scrape ──────────────────────────────────────────────────────
+// Rates embedded as: var exchangeRates = {"USD":{"mce_buys_at":1.375,"mce_sells_at":1.395},...}
+// mce_buys_at = exchange buys (our buy); mce_sells_at = exchange sells (our sell)
+
+async function scrapeMce(): Promise<RateMap> {
+  const res = await fetch('https://mcecurrency.com', {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.1 Safari/605.1.15',
+      'Accept': 'text/html,application/xhtml+xml',
+    },
+  });
+  if (!res.ok) throw new Error(`MCE ${res.status}`);
+  const html = await res.text();
+
+  const startIdx = html.indexOf('var exchangeRates');
+  if (startIdx === -1) throw new Error('MCE: exchangeRates var not found');
+  const objStart = html.indexOf('{', startIdx);
+  if (objStart === -1) throw new Error('MCE: object start not found');
+
+  let depth = 0, objEnd = -1;
+  for (let i = objStart; i < Math.min(objStart + 50_000, html.length); i++) {
+    if (html[i] === '{') depth++;
+    else if (html[i] === '}') { depth--; if (depth === 0) { objEnd = i; break; } }
+  }
+  if (objEnd === -1) throw new Error('MCE: object end not found');
+
+  const raw = JSON.parse(html.slice(objStart, objEnd + 1)) as Record<string, { mce_buys_at: number; mce_sells_at: number }>;
+  const map: RateMap = {};
+  for (const [code, r] of Object.entries(raw)) {
+    if (code === 'CAD') continue;
+    const buy  = parseFloat(String(r.mce_buys_at));
+    const sell = parseFloat(String(r.mce_sells_at));
+    if (buy > 0 && sell > 0) map[code] = { buy, sell };
+  }
+  if (Object.keys(map).length === 0) throw new Error('MCE: no rates parsed');
+  return map;
+}
+
+// ── Attar FX scrape ──────────────────────────────────────────────────────────
+// Rates embedded as: const aceRates = {"USD":{"iso":"USD","buy":1.375,"sell":1.402},...}
+// buy = exchange buys (our buy); sell = exchange sells (our sell)
+
+async function scrapeAttar(): Promise<RateMap> {
+  const res = await fetch('https://attarfx.ca/rates/', {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.1 Safari/605.1.15',
+      'Accept': 'text/html,application/xhtml+xml',
+    },
+  });
+  if (!res.ok) throw new Error(`Attar ${res.status}`);
+  const html = await res.text();
+
+  const startIdx = html.indexOf('aceRates');
+  if (startIdx === -1) throw new Error('Attar: aceRates not found');
+  const objStart = html.indexOf('{', startIdx);
+  if (objStart === -1) throw new Error('Attar: object start not found');
+
+  let depth = 0, objEnd = -1;
+  for (let i = objStart; i < Math.min(objStart + 50_000, html.length); i++) {
+    if (html[i] === '{') depth++;
+    else if (html[i] === '}') { depth--; if (depth === 0) { objEnd = i; break; } }
+  }
+  if (objEnd === -1) throw new Error('Attar: object end not found');
+
+  const raw = JSON.parse(html.slice(objStart, objEnd + 1)) as Record<string, { buy: number; sell: number }>;
+  const map: RateMap = {};
+  for (const [code, r] of Object.entries(raw)) {
+    if (code === 'CAD') continue;
+    const buy  = parseFloat(String(r.buy));
+    const sell = parseFloat(String(r.sell));
+    if (buy > 0 && sell > 0) map[code] = { buy, sell };
+  }
+  if (Object.keys(map).length === 0) throw new Error('Attar: no rates parsed');
+  return map;
+}
+
 // ── VBCE API ─────────────────────────────────────────────────────────────────
 
 async function scrapeVBCE(): Promise<RateMap> {
@@ -400,11 +476,13 @@ export async function syncCompetitorRates() {
   const mwIsManual = latestMw?.manual === true;
   if (mwIsManual) console.log('[competitorSync] moneyway: skipping (manual mode)');
 
-  const sources: Array<{ name: 'vanex' | 'arzsina' | 'vbce' | 'daniel' | 'moneyway'; fn: () => Promise<RateMap> }> = [
+  const sources: Array<{ name: 'vanex' | 'arzsina' | 'vbce' | 'daniel' | 'moneyway' | 'mce' | 'attar'; fn: () => Promise<RateMap> }> = [
     { name: 'vanex',    fn: scrapeVanex },
     { name: 'arzsina',  fn: scrapeArzSina },
     { name: 'vbce',     fn: scrapeVBCE },
     { name: 'daniel',   fn: scrapeDaniel },
+    { name: 'mce',      fn: scrapeMce },
+    { name: 'attar',    fn: scrapeAttar },
     ...(mwIsManual ? [] : [{ name: 'moneyway' as const, fn: scrapeMoneyWay }]),
   ];
 

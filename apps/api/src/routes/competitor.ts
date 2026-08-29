@@ -9,12 +9,14 @@ const router = Router();
 
 // Latest rates from all sources + own rates for comparison
 router.get('/latest', requireAuth, async (_req, res) => {
-  const [vanex, arzsina, vbce, daniel, moneyway, own] = await Promise.all([
+  const [vanex, arzsina, vbce, daniel, moneyway, mce, attar, own] = await Promise.all([
     CompetitorRateModel.findOne({ source: 'vanex'    }).sort({ recordedAt: -1 }).lean(),
     CompetitorRateModel.findOne({ source: 'arzsina'  }).sort({ recordedAt: -1 }).lean(),
     CompetitorRateModel.findOne({ source: 'vbce'     }).sort({ recordedAt: -1 }).lean(),
     CompetitorRateModel.findOne({ source: 'daniel'   }).sort({ recordedAt: -1 }).lean(),
     CompetitorRateModel.findOne({ source: 'moneyway' }).sort({ recordedAt: -1 }).lean(),
+    CompetitorRateModel.findOne({ source: 'mce'      }).sort({ recordedAt: -1 }).lean(),
+    CompetitorRateModel.findOne({ source: 'attar'    }).sort({ recordedAt: -1 }).lean(),
     CurrencyModel.find().lean(),
   ]);
 
@@ -35,6 +37,8 @@ router.get('/latest', requireAuth, async (_req, res) => {
     vbce:     toMap(vbce),
     daniel:   toMap(daniel),
     moneyway: { ...toMap(mwDoc), manual: mwDoc?.manual ?? false },
+    mce:      toMap(mce),
+    attar:    toMap(attar),
   });
 });
 

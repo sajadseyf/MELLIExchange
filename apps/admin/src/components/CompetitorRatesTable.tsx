@@ -14,10 +14,12 @@ interface CompetitorData {
   vbce:     SourceData;
   daniel:   SourceData;
   moneyway: SourceData;
+  mce:      SourceData;
+  attar:    SourceData;
 }
 
-const SOURCES = ['own', 'vanex', 'arzsina', 'vbce', 'daniel', 'moneyway'] as const;
-const SOURCE_LABELS: Record<string, string> = { own: 'My Rate', vanex: 'Vanex*', arzsina: 'ArzSina', vbce: 'VBCE', daniel: 'Daniel', moneyway: 'MoneyWay' };
+const SOURCES = ['own', 'vanex', 'arzsina', 'vbce', 'daniel', 'moneyway', 'mce', 'attar'] as const;
+const SOURCE_LABELS: Record<string, string> = { own: 'My Rate', vanex: 'Vanex*', arzsina: 'ArzSina', vbce: 'VBCE', daniel: 'Daniel', moneyway: 'MoneyWay', mce: 'MCE', attar: 'Attar' };
 
 // Most-used currencies in Canada, in order
 const PRIORITY = ['USD', 'EUR', 'GBP', 'AUD', 'CHF', 'JPY', 'AED', 'HKD', 'CNY', 'INR', 'MXN', 'TRY', 'SEK', 'KRW', 'PHP'];
@@ -225,6 +227,8 @@ export function CompetitorRatesTable() {
       ...Object.keys(data.vbce.rates),
       ...Object.keys(data.daniel.rates),
       ...Object.keys(data.moneyway.rates),
+      ...Object.keys(data.mce.rates),
+      ...Object.keys(data.attar.rates),
     ]);
     return [...codes];
   }, [data]);
@@ -252,10 +256,12 @@ export function CompetitorRatesTable() {
       const vbce     = data.vbce.rates[code];
       const daniel   = data.daniel.rates[code];
       const moneyway = data.moneyway.rates[code];
+      const mce      = data.mce.rates[code];
+      const attar    = data.attar.rates[code];
 
       // Vanex excluded — average of remaining competitors
-      const competitorBuys  = [arzsina?.buy,  vbce?.buy,  daniel?.buy,  moneyway?.buy ].filter((v): v is number => !!v && v > 0);
-      const competitorSells = [arzsina?.sell, vbce?.sell, daniel?.sell, moneyway?.sell].filter((v): v is number => !!v && v > 0);
+      const competitorBuys  = [arzsina?.buy,  vbce?.buy,  daniel?.buy,  moneyway?.buy,  mce?.buy,  attar?.buy ].filter((v): v is number => !!v && v > 0);
+      const competitorSells = [arzsina?.sell, vbce?.sell, daniel?.sell, moneyway?.sell, mce?.sell, attar?.sell].filter((v): v is number => !!v && v > 0);
       if (!competitorBuys.length && !competitorSells.length) return [];
 
       const bestBuy  = competitorBuys.length  ? avg(competitorBuys)  : null;
@@ -298,10 +304,12 @@ export function CompetitorRatesTable() {
       const vbce     = data.vbce.rates[code];
       const daniel   = data.daniel.rates[code];
       const moneyway = data.moneyway.rates[code];
+      const mce      = data.mce.rates[code];
+      const attar    = data.attar.rates[code];
 
       // Vanex excluded from best-rate calculations (still displayed in its column)
-      const buyValues  = [own?.buy,  arzsina?.buy,  vbce?.buy,  daniel?.buy,  moneyway?.buy ].filter((v): v is number => !!v && v > 0);
-      const sellValues = [own?.sell, arzsina?.sell, vbce?.sell, daniel?.sell, moneyway?.sell].filter((v): v is number => !!v && v > 0);
+      const buyValues  = [own?.buy,  arzsina?.buy,  vbce?.buy,  daniel?.buy,  moneyway?.buy,  mce?.buy,  attar?.buy ].filter((v): v is number => !!v && v > 0);
+      const sellValues = [own?.sell, arzsina?.sell, vbce?.sell, daniel?.sell, moneyway?.sell, mce?.sell, attar?.sell].filter((v): v is number => !!v && v > 0);
 
       const maxBuy  = buyValues.length  ? Math.max(...buyValues)  : 0;
       const minSell = sellValues.length ? Math.min(...sellValues) : 0;
@@ -312,8 +320,8 @@ export function CompetitorRatesTable() {
       const buyClass  = (v?: number) => !v || v <= 0 ? '' : Math.abs(v - maxBuy)  < EPS ? 'text-emerald-600 font-semibold' : 'text-red-500';
       const sellClass = (v?: number) => !v || v <= 0 ? '' : Math.abs(v - minSell) < EPS ? 'text-emerald-600 font-semibold' : 'text-red-500';
 
-      const competitorBuys  = [arzsina?.buy,  vbce?.buy,  daniel?.buy,  moneyway?.buy ].filter((v): v is number => !!v);
-      const competitorSells = [arzsina?.sell, vbce?.sell, daniel?.sell, moneyway?.sell].filter((v): v is number => !!v);
+      const competitorBuys  = [arzsina?.buy,  vbce?.buy,  daniel?.buy,  moneyway?.buy,  mce?.buy,  attar?.buy ].filter((v): v is number => !!v);
+      const competitorSells = [arzsina?.sell, vbce?.sell, daniel?.sell, moneyway?.sell, mce?.sell, attar?.sell].filter((v): v is number => !!v);
       const targetBuy  = competitorBuys.length  ? avg(competitorBuys)  : null;
       const targetSell = competitorSells.length ? avg(competitorSells) : null;
 
@@ -324,7 +332,7 @@ export function CompetitorRatesTable() {
       const ownBuyIsBest  = locked || tier === 'low' || (!!own?.buy  && adjBuy  !== null && Math.abs(own.buy  - adjBuy)  < 0.0001);
       const ownSellIsBest = locked || tier === 'low' || (!!own?.sell && adjSell !== null && Math.abs(own.sell - adjSell) < 0.0001);
 
-      return { code, own, tier, locked, vanex, arzsina, vbce, daniel, moneyway, buyClass, sellClass, ownBuyIsBest, ownSellIsBest, targetBuy, targetSell };
+      return { code, own, tier, locked, vanex, arzsina, vbce, daniel, moneyway, mce, attar, buyClass, sellClass, ownBuyIsBest, ownSellIsBest, targetBuy, targetSell };
     }).sort((a, b) => {
       let va: number | string = 0;
       let vb: number | string = 0;
@@ -444,7 +452,7 @@ export function CompetitorRatesTable() {
               </tr>
             </thead>
             <tbody className="divide-y divide-ink-50">
-              {rows.map(({ code, own, tier, locked, vanex, arzsina, vbce, daniel, moneyway, buyClass, sellClass, ownBuyIsBest, ownSellIsBest, targetBuy, targetSell }) => {
+              {rows.map(({ code, own, tier, locked, vanex, arzsina, vbce, daniel, moneyway, mce, attar, buyClass, sellClass, ownBuyIsBest, ownSellIsBest, targetBuy, targetSell }) => {
                 const info = CURRENCY_INFO[code];
                 const TIER_CFG: Record<Tier, { label: string; cls: string; next: Tier; title: string }> = {
                   high:   { label: 'H', cls: 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200', next: 'medium', title: 'High demand — auto-match best competitor rate' },
@@ -563,6 +571,12 @@ export function CompetitorRatesTable() {
                         </td>
                       );
                     })}
+                    {/* MCE */}
+                    <td className={`border-l border-ink-50 px-3 py-2 text-right font-mono ${buyClass(mce?.buy)}`}>{fmt(mce?.buy)}</td>
+                    <td className={`px-3 py-2 text-right font-mono ${sellClass(mce?.sell)}`}>{fmt(mce?.sell)}</td>
+                    {/* Attar */}
+                    <td className={`border-l border-ink-50 px-3 py-2 text-right font-mono ${buyClass(attar?.buy)}`}>{fmt(attar?.buy)}</td>
+                    <td className={`px-3 py-2 text-right font-mono ${sellClass(attar?.sell)}`}>{fmt(attar?.sell)}</td>
                     {/* Target */}
                     <td className="border-l border-ink-50 px-3 py-2 text-right font-mono text-amber-600">{fmt(targetBuy ?? undefined)}</td>
                     <td className="px-3 py-2 text-right font-mono text-amber-600">{fmt(targetSell ?? undefined)}</td>
@@ -570,7 +584,7 @@ export function CompetitorRatesTable() {
                 );
               })}
               {rows.length === 0 && (
-                <tr><td colSpan={15} className="py-10 text-center text-sm text-ink-400">No data yet. Click Refresh to scrape rates.</td></tr>
+                <tr><td colSpan={19} className="py-10 text-center text-sm text-ink-400">No data yet. Click Refresh to scrape rates.</td></tr>
               )}
             </tbody>
           </table>
