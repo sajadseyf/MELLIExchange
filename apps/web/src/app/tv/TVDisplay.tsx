@@ -73,11 +73,13 @@ export default function TVDisplay({
   const [pulse, setPulse]             = useState(false);
   const [lang, setLang]               = useState<'en' | 'fa'>('en');
   const [langVisible, setLangVisible] = useState(true);
-  const [videoIdx, setVideoIdx]       = useState(0);
-  const [musicOn, setMusicOn]         = useState(false);
-  const [playerReady, setPlayerReady] = useState(false);
-  const videoRef                      = useRef<HTMLVideoElement>(null);
-  const playerRef                     = useRef<any>(null);
+  const [videoIdx, setVideoIdx]         = useState(0);
+  const [musicOn, setMusicOn]           = useState(false);
+  const [playerReady, setPlayerReady]   = useState(false);
+  const [showTapOverlay, setShowTapOverlay] = useState(false);
+  const [playerError, setPlayerError]   = useState(false);
+  const videoRef                        = useRef<HTMLVideoElement>(null);
+  const playerRef                       = useRef<any>(null);
 
   /* ── data refresh ── */
   const refresh = useCallback(async () => {
@@ -128,17 +130,18 @@ export default function TVDisplay({
         events: {
           onReady: (e: any) => {
             e.target.playVideo();
-            // Try immediate unmute — works if Chrome has granted audio autoplay for this domain
-            e.target.unMute();
-            e.target.setVolume(80);
-            setMusicOn(true);
             setPlayerReady(true);
+            setShowTapOverlay(true); // show tap prompt — don't unMute yet (browser requires gesture)
           },
           onStateChange: (e: any) => {
             // 0 = ended, 2 = paused — auto-resume so music never cuts off
             if (e.data === 0 || e.data === 2) {
               setTimeout(() => e.target.playVideo(), 500);
             }
+          },
+          onError: () => {
+            setPlayerError(true);
+            setShowTapOverlay(false);
           },
         },
       });
@@ -161,32 +164,25 @@ export default function TVDisplay({
   }, []);
 
   /* ── unlock audio on first interaction anywhere on the page ── */
-  useEffect(() => {
-    if (!playerReady || musicOn) return;
-    const unlock = () => {
-      playerRef.current?.unMute();
-      playerRef.current?.setVolume(80);
-      setMusicOn(true);
-    };
-    document.addEventListener('click', unlock, { once: true });
-    document.addEventListener('touchstart', unlock, { once: true });
-    return () => {
-      document.removeEventListener('click', unlock);
-      document.removeEventListener('touchstart', unlock);
-    };
-  }, [playerReady, musicOn]);
+  const unlockAudio = useCallback(() => {
+    if (!playerRef.current || musicOn) return;
+    playerRef.current.unMute();
+    playerRef.current.setVolume(80);
+    playerRef.current.playVideo();
+    setMusicOn(true);
+    setShowTapOverlay(false);
+  }, [musicOn]);
 
   /* ── toggle YouTube background music via IFrame API ── */
   const toggleMusic = useCallback(() => {
     if (!playerRef.current || !playerReady) return;
     if (musicOn) {
       playerRef.current.mute();
+      setMusicOn(false);
     } else {
-      playerRef.current.unMute();
-      playerRef.current.setVolume(80);
+      unlockAudio();
     }
-    setMusicOn(m => !m);
-  }, [musicOn, playerReady]);
+  }, [musicOn, playerReady, unlockAudio]);
 
   /* ── language toggle every 8s with fade ── */
   useEffect(() => {
@@ -475,6 +471,29 @@ export default function TVDisplay({
         </div>
       </div>
 
+      {/* ── Tap-to-start overlay (shown after player ready, before first interaction) ── */}
+      {showTapOverlay && !playerError && (
+        <div
+          onClick={unlockAudio}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 200,
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(0,0,0,0.55)',
+            backdropFilter: 'blur(6px)',
+            cursor: 'pointer',
+            animation: 'tapPulse 2.5s ease-in-out infinite',
+          }}
+        >
+          <div style={{ fontSize: '8vw', lineHeight: 1 }}>🎵</div>
+          <div style={{ fontSize: '3.5vw', fontWeight: 900, color: '#E8B84B', marginTop: '1.5vw', textShadow: '0 0 2vw rgba(232,184,75,0.8)' }}>
+            Tap anywhere to start music
+          </div>
+          <div style={{ fontSize: '2vw', color: '#7a8eaf', marginTop: '0.8vw' }}>
+            برای شروع موسیقی لمس کنید
+          </div>
+        </div>
+      )}
+
       <style>{`
         @keyframes ticker {
           0%   { transform: translateX(0); }
@@ -487,6 +506,10 @@ export default function TVDisplay({
         @keyframes pulse {
           0%, 100% { transform: scale(1);    box-shadow: 0 0 2vw rgba(200,151,42,0.2); }
           50%       { transform: scale(1.08); box-shadow: 0 0 3vw rgba(200,151,42,0.5); }
+        }
+        @keyframes tapPulse {
+          0%, 100% { opacity: 1; }
+          50%       { opacity: 0.7; }
         }
       `}</style>
     </div>
