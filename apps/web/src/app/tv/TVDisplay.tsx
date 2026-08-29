@@ -52,11 +52,6 @@ function AnimNum({ value, fmt: f }: { value: number; fmt: (n: number) => string 
   return <span style={{ transition: 'color 0.4s', color: flash ? '#fff' : 'inherit' }}>{f(display)}</span>;
 }
 
-// ── YouTube ambient music player ──────────────────────────────────────────────
-// Paste your YouTube video ID here (the part after ?v= or youtu.be/)
-// e.g. for https://www.youtube.com/watch?v=jfKfPfyJRdk → 'jfKfPfyJRdk'
-const YOUTUBE_VIDEO_ID = 'XaNKSiEpytI';
-
 const LOCAL_VIDEOS = ['/tv-ad-1.mp4', '/tv-ad-2.mp4'];
 
 export default function TVDisplay({
@@ -73,13 +68,11 @@ export default function TVDisplay({
   const [pulse, setPulse]             = useState(false);
   const [lang, setLang]               = useState<'en' | 'fa'>('en');
   const [langVisible, setLangVisible] = useState(true);
-  const [videoIdx, setVideoIdx]         = useState(0);
-  const [musicOn, setMusicOn]           = useState(false);
-  const [playerReady, setPlayerReady]   = useState(false);
-  const [showTapOverlay, setShowTapOverlay] = useState(false);
-  const [playerError, setPlayerError]   = useState(false);
-  const videoRef                        = useRef<HTMLVideoElement>(null);
-  const playerRef                       = useRef<any>(null);
+  const [videoIdx, setVideoIdx]       = useState(0);
+  const [musicOn, setMusicOn]         = useState(false);
+  const [showTapOverlay, setShowTapOverlay] = useState(true);
+  const videoRef                      = useRef<HTMLVideoElement>(null);
+  const audioRef                      = useRef<HTMLAudioElement>(null);
 
   /* ── data refresh ── */
   const refresh = useCallback(async () => {
@@ -98,9 +91,9 @@ export default function TVDisplay({
 
   useEffect(() => { const id = setInterval(refresh, 30_000); return () => clearInterval(id); }, [refresh]);
 
-  /* full page reload every 10 minutes as a safety net */
+  /* full page reload every 6 hours as a safety net */
   useEffect(() => {
-    const id = setTimeout(() => window.location.reload(), 10 * 60 * 1_000);
+    const id = setTimeout(() => window.location.reload(), 6 * 60 * 60 * 1_000);
     return () => clearTimeout(id);
   }, []);
 
@@ -111,78 +104,45 @@ export default function TVDisplay({
     return () => document.removeEventListener('visibilitychange', onVisible);
   }, [refresh]);
 
-  /* ── cycle local videos on ended (fallback when no YOUTUBE_VIDEO_ID) ── */
+  /* ── cycle local videos on ended ── */
   const handleVideoEnded = useCallback(() => {
     setVideoIdx(i => (i + 1) % LOCAL_VIDEOS.length);
   }, []);
 
-  /* ── load YouTube IFrame API once, create player when ready ── */
+  /* ── on mount: if user already started music before, auto-play ── */
   useEffect(() => {
-    if (!YOUTUBE_VIDEO_ID) return;
-
-    const init = () => {
-      playerRef.current = new (window as any).YT.Player('yt-bg-player', {
-        videoId: YOUTUBE_VIDEO_ID,
-        playerVars: {
-          autoplay: 1, mute: 1, controls: 0,
-          disablekb: 1, modestbranding: 1, rel: 0, iv_load_policy: 3,
-        },
-        events: {
-          onReady: (e: any) => {
-            e.target.playVideo();
-            setPlayerReady(true);
-            setShowTapOverlay(true); // show tap prompt — don't unMute yet (browser requires gesture)
-          },
-          onStateChange: (e: any) => {
-            // 0 = ended, 2 = paused — auto-resume so music never cuts off
-            if (e.data === 0 || e.data === 2) {
-              setTimeout(() => e.target.playVideo(), 500);
-            }
-          },
-          onError: () => {
-            setPlayerError(true);
-            setShowTapOverlay(false);
-          },
-        },
+    if (localStorage.getItem('tvMusicStarted') === '1') {
+      audioRef.current?.play().then(() => {
+        setMusicOn(true);
+        setShowTapOverlay(false);
+      }).catch(() => {
+        // browser still blocked — keep overlay visible
       });
-    };
-
-    if ((window as any).YT?.Player) {
-      init();
-    } else {
-      const prev = (window as any).onYouTubeIframeAPIReady;
-      (window as any).onYouTubeIframeAPIReady = () => { prev?.(); init(); };
-      if (!document.getElementById('yt-api-script')) {
-        const s = document.createElement('script');
-        s.id = 'yt-api-script';
-        s.src = 'https://www.youtube.com/iframe_api';
-        document.head.appendChild(s);
-      }
     }
-
-    return () => { playerRef.current?.destroy?.(); };
   }, []);
 
-  /* ── unlock audio on first interaction anywhere on the page ── */
+  /* ── unlock audio on first tap ── */
   const unlockAudio = useCallback(() => {
-    if (!playerRef.current || musicOn) return;
-    playerRef.current.unMute();
-    playerRef.current.setVolume(80);
-    playerRef.current.playVideo();
-    setMusicOn(true);
-    setShowTapOverlay(false);
+    const audio = audioRef.current;
+    if (!audio || musicOn) return;
+    audio.play().then(() => {
+      setMusicOn(true);
+      setShowTapOverlay(false);
+      localStorage.setItem('tvMusicStarted', '1');
+    }).catch(() => { /* stay on overlay */ });
   }, [musicOn]);
 
-  /* ── toggle YouTube background music via IFrame API ── */
+  /* ── toggle music ── */
   const toggleMusic = useCallback(() => {
-    if (!playerRef.current || !playerReady) return;
+    const audio = audioRef.current;
+    if (!audio) return;
     if (musicOn) {
-      playerRef.current.mute();
+      audio.pause();
       setMusicOn(false);
     } else {
       unlockAudio();
     }
-  }, [musicOn, playerReady, unlockAudio]);
+  }, [musicOn, unlockAudio]);
 
   /* ── language toggle every 8s with fade ── */
   useEffect(() => {
@@ -197,7 +157,6 @@ export default function TVDisplay({
     .filter(c => ['USD', 'EUR', 'GBP'].includes(c.code))
     .sort((a, b) => ['USD', 'EUR', 'GBP'].indexOf(a.code) - ['USD', 'EUR', 'GBP'].indexOf(b.code));
 
-  // Compute 18K price from live Kitco spot — same formula everywhere
   const TROY_OZ_GRAMS = 31.1035;
   const gold18PricePerGram = spot
     ? Math.round(spot.priceCad / TROY_OZ_GRAMS * (18 / 24) * 100) / 100
@@ -222,12 +181,14 @@ export default function TVDisplay({
       position: 'relative', zIndex: 1,
     }}>
 
+      {/* ── background music audio element ── */}
+      <audio ref={audioRef} src="/music.mp4" loop preload="auto" />
+
       {/* ── decorative blobs ── */}
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: '-10vw', left: '-5vw', width: '40vw', height: '40vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(29,78,216,0.15) 0%, transparent 70%)' }} />
         <div style={{ position: 'absolute', bottom: '-8vw', right: '-5vw', width: '35vw', height: '35vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,151,42,0.10) 0%, transparent 70%)' }} />
       </div>
-
 
       {/* ── HEADER ── */}
       <div style={{
@@ -256,28 +217,23 @@ export default function TVDisplay({
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '2vw' }}>
-          {/* Music toggle button */}
-          {YOUTUBE_VIDEO_ID && (
-            <button
-              onClick={toggleMusic}
-              disabled={!playerReady}
-              title={!playerReady ? 'Loading…' : musicOn ? 'Mute music' : 'Play background music'}
-              style={{
-                background: musicOn ? 'rgba(200,151,42,0.15)' : 'rgba(255,255,255,0.05)',
-                border: `1px solid ${musicOn ? 'rgba(200,151,42,0.5)' : 'rgba(100,140,220,0.2)'}`,
-                borderRadius: '50%',
-                width: '3vw', height: '3vw',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: playerReady ? 'pointer' : 'default',
-                fontSize: '1.3vw',
-                opacity: playerReady ? 1 : 0.4,
-                transition: 'all 0.3s',
-                flexShrink: 0,
-              }}
-            >
-              {!playerReady ? '⏳' : musicOn ? '🎵' : '🔇'}
-            </button>
-          )}
+          <button
+            onClick={toggleMusic}
+            title={musicOn ? 'Mute music' : 'Play background music'}
+            style={{
+              background: musicOn ? 'rgba(200,151,42,0.15)' : 'rgba(255,255,255,0.05)',
+              border: `1px solid ${musicOn ? 'rgba(200,151,42,0.5)' : 'rgba(100,140,220,0.2)'}`,
+              borderRadius: '50%',
+              width: '3vw', height: '3vw',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer',
+              fontSize: '1.3vw',
+              transition: 'all 0.3s',
+              flexShrink: 0,
+            }}
+          >
+            {musicOn ? '🎵' : '🔇'}
+          </button>
           <Clock lang={lang} />
         </div>
       </div>
@@ -319,30 +275,19 @@ export default function TVDisplay({
               backdropFilter: 'blur(4px)',
               animation: `slideIn 0.6s ease ${i * 0.1}s both`,
             }}>
-              {/* Currency info — flag only */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '1.5vw' }}>
                 <span style={{ fontSize: '5vw', lineHeight: 1, filter: 'drop-shadow(0 0 0.5vw rgba(255,255,255,0.15))' }}>{toFlagEmoji(c.flag)}</span>
                 <div style={{ fontSize: '1.1vw', color: '#7a8eaf' }}>
                   {isFa ? CURRENCY_FA[c.code] ?? c.name : c.name}
                 </div>
               </div>
-              {/* Buy — always the lower rate */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{
-                  fontSize: '2.6vw', fontWeight: 800, color: '#4ade80',
-                  fontVariantNumeric: 'tabular-nums', letterSpacing: '0.02em',
-                  textShadow: '0 0 2vw rgba(74,222,128,0.4)',
-                }}>
+                <div style={{ fontSize: '2.6vw', fontWeight: 800, color: '#4ade80', fontVariantNumeric: 'tabular-nums', letterSpacing: '0.02em', textShadow: '0 0 2vw rgba(74,222,128,0.4)' }}>
                   <AnimNum value={Math.min(c.buy, c.sell)} fmt={fmtBuy} />
                 </div>
               </div>
-              {/* Sell — always the higher rate */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{
-                  fontSize: '2.6vw', fontWeight: 800, color: '#f59e0b',
-                  fontVariantNumeric: 'tabular-nums', letterSpacing: '0.02em',
-                  textShadow: '0 0 2vw rgba(245,158,11,0.4)',
-                }}>
+                <div style={{ fontSize: '2.6vw', fontWeight: 800, color: '#f59e0b', fontVariantNumeric: 'tabular-nums', letterSpacing: '0.02em', textShadow: '0 0 2vw rgba(245,158,11,0.4)' }}>
                   <AnimNum value={Math.max(c.buy, c.sell)} fmt={fmtSell} />
                 </div>
               </div>
@@ -362,12 +307,7 @@ export default function TVDisplay({
               <div style={{ fontSize: '1vw', color: '#a07830', letterSpacing: '0.15em', marginBottom: '0.8vw', fontWeight: 700 }}>
                 {isFa ? '🥇 قیمت اونس طلا' : '🥇 GOLD SPOT PRICE (USD/oz)'}
               </div>
-              <div style={{
-                fontSize: '4.2vw', fontWeight: 900, color: '#E8B84B',
-                fontVariantNumeric: 'tabular-nums',
-                textShadow: '0 0 2.5vw rgba(232,184,75,0.7)',
-                lineHeight: 1,
-              }}>
+              <div style={{ fontSize: '4.2vw', fontWeight: 900, color: '#E8B84B', fontVariantNumeric: 'tabular-nums', textShadow: '0 0 2.5vw rgba(232,184,75,0.7)', lineHeight: 1 }}>
                 $<AnimNum value={spot.priceUsd} fmt={fmtGold} />
               </div>
               <div style={{ fontSize: '0.85vw', color: '#7a8eaf', marginTop: '0.4vw' }}>USD / oz</div>
@@ -375,7 +315,7 @@ export default function TVDisplay({
           )}
         </div>
 
-        {/* ── RIGHT: video + spot ── */}
+        {/* ── RIGHT: video ── */}
         <div style={{
           width: '30vw', flexShrink: 0,
           display: 'flex', flexDirection: 'column',
@@ -384,68 +324,36 @@ export default function TVDisplay({
           padding: '1.5vw',
           gap: '1.5vw',
         }}>
-
-          {/* Video panel — YouTube player hidden behind local video */}
           <div style={{
-            flex: 1,
-            borderRadius: '1vw',
-            overflow: 'hidden',
+            flex: 1, borderRadius: '1vw', overflow: 'hidden',
             border: '1px solid rgba(100,140,220,0.2)',
-            background: '#04080f',
-            position: 'relative',
+            background: '#04080f', position: 'relative',
           }}>
-            {/* YouTube audio: sits behind local video so browser never throttles it */}
-            {YOUTUBE_VIDEO_ID && (
-              <div id="yt-bg-player" style={{ position: 'absolute', inset: 0, zIndex: 0 }} />
-            )}
             <video
               ref={videoRef}
               key={LOCAL_VIDEOS[videoIdx]}
               src={LOCAL_VIDEOS[videoIdx]}
               autoPlay muted playsInline
               onEnded={handleVideoEnded}
-              style={{ position: 'relative', zIndex: 1, width: '100%', height: '100%', objectFit: 'cover' }}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
-            <div style={{
-              position: 'absolute', inset: 0, borderRadius: '1vw', pointerEvents: 'none', zIndex: 2,
-              boxShadow: 'inset 0 0 2vw rgba(29,78,216,0.15)',
-            }} />
+            <div style={{ position: 'absolute', inset: 0, borderRadius: '1vw', pointerEvents: 'none', boxShadow: 'inset 0 0 2vw rgba(29,78,216,0.15)' }} />
           </div>
 
-
-          {/* Promo ticker below video */}
+          {/* Promo ticker */}
           <div style={{
-            overflow: 'hidden',
-            padding: '1vw 0',
+            overflow: 'hidden', padding: '1vw 0',
             background: 'linear-gradient(90deg, rgba(29,58,130,0.3) 0%, rgba(15,30,70,0.2) 100%)',
-            borderRadius: '0.8vw',
-            border: '1px solid rgba(100,140,220,0.2)',
-            direction: 'rtl',
+            borderRadius: '0.8vw', border: '1px solid rgba(100,140,220,0.2)', direction: 'rtl',
           }}>
-            <div style={{
-              whiteSpace: 'nowrap',
-              fontSize: '1.1vw',
-              fontWeight: 700,
-              color: '#E8B84B',
-              animation: 'ticker 20s linear infinite',
-              paddingLeft: '100%',
-              textShadow: '0 0 1vw rgba(232,184,75,0.4)',
-            }}>
+            <div style={{ whiteSpace: 'nowrap', fontSize: '1.1vw', fontWeight: 700, color: '#E8B84B', animation: 'ticker 20s linear infinite', paddingLeft: '100%', textShadow: '0 0 1vw rgba(232,184,75,0.4)' }}>
               {'🌟 خوش آمدید 🌟   ·   🔧 تعمیرات تخصصی طلا و جواهر   ·   💰 قیمت‌های منصفانه به قیمت ایران   ·   ✨ تعمیرات حرفه‌ای با کیفیت تضمین‌شده   ·   🌟 خوش آمدید 🌟   ·   🔧 تعمیرات تخصصی طلا و جواهر   ·   💰 قیمت‌های منصفانه به قیمت ایران   ·   ✨ تعمیرات حرفه‌ای با کیفیت تضمین‌شده'}
             </div>
           </div>
 
-          {/* Last updated indicator */}
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6vw',
-            padding: '0.5vw',
-          }}>
-            <div style={{
-              width: '0.7vw', height: '0.7vw', borderRadius: '50%',
-              background: pulse ? '#4ade80' : '#1d4a2a',
-              boxShadow: pulse ? '0 0 0.8vw #4ade80' : 'none',
-              transition: 'all 0.4s',
-            }} />
+          {/* Last updated */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6vw', padding: '0.5vw' }}>
+            <div style={{ width: '0.7vw', height: '0.7vw', borderRadius: '50%', background: pulse ? '#4ade80' : '#1d4a2a', boxShadow: pulse ? '0 0 0.8vw #4ade80' : 'none', transition: 'all 0.4s' }} />
             <div style={{ fontSize: '0.75vw', color: '#3a4a6a' }}>
               {isFa ? 'آخرین به‌روزرسانی:' : 'Updated:'}{' '}
               {lastUpdated.toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
@@ -462,23 +370,19 @@ export default function TVDisplay({
         display: 'flex', alignItems: 'center',
         position: 'relative', zIndex: 1,
       }}>
-        <div style={{
-          whiteSpace: 'nowrap', fontSize: '1vw', color: '#7a8eaf',
-          animation: 'ticker 25s linear infinite',
-          paddingLeft: '100%',
-        }}>
+        <div style={{ whiteSpace: 'nowrap', fontSize: '1vw', color: '#7a8eaf', animation: 'ticker 25s linear infinite', paddingLeft: '100%' }}>
           {'🌟 خوش آمدید 🌟   ·   🔧 تعمیرات تخصصی طلا و جواهر   ·   💰 قیمت‌های منصفانه به قیمت ایران   ·   ✨ تعمیرات حرفه‌ای با کیفیت تضمین‌شده   ·   🌟 خوش آمدید 🌟   ·   🔧 تعمیرات تخصصی طلا و جواهر   ·   💰 قیمت‌های منصفانه به قیمت ایران   ·   ✨ تعمیرات حرفه‌ای با کیفیت تضمین‌شده'}
         </div>
       </div>
 
-      {/* ── Tap-to-start overlay (shown after player ready, before first interaction) ── */}
-      {showTapOverlay && !playerError && (
+      {/* ── Tap-to-start overlay ── */}
+      {showTapOverlay && (
         <div
           onClick={unlockAudio}
           style={{
             position: 'fixed', inset: 0, zIndex: 200,
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(0,0,0,0.55)',
+            background: 'rgba(0,0,0,0.6)',
             backdropFilter: 'blur(6px)',
             cursor: 'pointer',
             animation: 'tapPulse 2.5s ease-in-out infinite',
@@ -503,13 +407,9 @@ export default function TVDisplay({
           from { opacity: 0; transform: translateY(1vw); }
           to   { opacity: 1; transform: translateY(0); }
         }
-        @keyframes pulse {
-          0%, 100% { transform: scale(1);    box-shadow: 0 0 2vw rgba(200,151,42,0.2); }
-          50%       { transform: scale(1.08); box-shadow: 0 0 3vw rgba(200,151,42,0.5); }
-        }
         @keyframes tapPulse {
           0%, 100% { opacity: 1; }
-          50%       { opacity: 0.7; }
+          50%       { opacity: 0.65; }
         }
       `}</style>
     </div>
