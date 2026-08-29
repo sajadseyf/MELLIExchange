@@ -29,14 +29,13 @@ router.get('/latest', requireAuth, async (_req, res) => {
   const ownMap: Record<string, { buy: number; sell: number; tier: 'high' | 'medium' | 'low'; locked: boolean }> = {};
   for (const c of own) ownMap[c.code] = { buy: c.buy, sell: c.sell, tier: ((c as any).tier ?? 'high') as 'high' | 'medium' | 'low', locked: (c as any).locked ?? false };
 
-  const mwDoc = moneyway as any;
   res.json({
     own:      { rates: ownMap, recordedAt: own[0] ? (own[0] as any).updatedAt : null },
     vanex:    toMap(vanex),
     arzsina:  toMap(arzsina),
     vbce:     toMap(vbce),
     daniel:   toMap(daniel),
-    moneyway: { ...toMap(mwDoc), manual: mwDoc?.manual ?? false },
+    moneyway: toMap(moneyway),
     mce:      toMap(mce),
     attar:    toMap(attar),
   });

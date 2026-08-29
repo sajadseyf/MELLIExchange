@@ -471,11 +471,6 @@ export async function syncCompetitorRates() {
   console.log('[competitorSync] starting…');
   const now = new Date();
 
-  // Skip MoneyWay if rates are in manual mode
-  const latestMw = await CompetitorRateModel.findOne({ source: 'moneyway' }).sort({ recordedAt: -1 }).lean() as any;
-  const mwIsManual = latestMw?.manual === true;
-  if (mwIsManual) console.log('[competitorSync] moneyway: skipping (manual mode)');
-
   const sources: Array<{ name: 'vanex' | 'arzsina' | 'vbce' | 'daniel' | 'moneyway' | 'mce' | 'attar'; fn: () => Promise<RateMap> }> = [
     { name: 'vanex',    fn: scrapeVanex },
     { name: 'arzsina',  fn: scrapeArzSina },
@@ -483,7 +478,7 @@ export async function syncCompetitorRates() {
     { name: 'daniel',   fn: scrapeDaniel },
     { name: 'mce',      fn: scrapeMce },
     { name: 'attar',    fn: scrapeAttar },
-    ...(mwIsManual ? [] : [{ name: 'moneyway' as const, fn: scrapeMoneyWay }]),
+    { name: 'moneyway', fn: scrapeMoneyWay },
   ];
 
   const successfulMaps: Array<{ name: string; map: RateMap }> = [];
