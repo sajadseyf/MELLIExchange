@@ -93,6 +93,24 @@ router.post('/refresh', requireAuth, async (_req, res) => {
   }
 });
 
+// Debug — test if Vercel can reach MCE and Attar
+router.get('/debug-fetch', requireAuth, async (_req, res) => {
+  const results: Record<string, unknown> = {};
+  for (const [name, url] of [['mce', 'https://mcecurrency.com'], ['attar', 'https://attarfx.ca/rates/']] as const) {
+    try {
+      const r = await fetch(url, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.1 Safari/605.1.15' },
+        signal: AbortSignal.timeout(15_000),
+      });
+      const html = await r.text();
+      results[name] = { status: r.status, htmlLength: html.length, hasVar: name === 'mce' ? html.includes('var exchangeRates') : html.includes('aceRates') };
+    } catch (e: any) {
+      results[name] = { error: e.message };
+    }
+  }
+  res.json(results);
+});
+
 // Alert history
 router.get('/alerts', requireAuth, async (req, res) => {
   const limit = Number(req.query.limit ?? 100);
