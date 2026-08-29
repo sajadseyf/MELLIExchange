@@ -227,6 +227,7 @@ async function scrapeMce(): Promise<RateMap> {
       'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.1 Safari/605.1.15',
       'Accept': 'text/html,application/xhtml+xml',
     },
+    signal: AbortSignal.timeout(15_000),
   });
   if (!res.ok) throw new Error(`MCE ${res.status}`);
   const html = await res.text();
@@ -265,6 +266,7 @@ async function scrapeAttar(): Promise<RateMap> {
       'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.1 Safari/605.1.15',
       'Accept': 'text/html,application/xhtml+xml',
     },
+    signal: AbortSignal.timeout(15_000),
   });
   if (!res.ok) throw new Error(`Attar ${res.status}`);
   const html = await res.text();
@@ -472,12 +474,12 @@ export async function syncCompetitorRates() {
   const now = new Date();
 
   const sources: Array<{ name: 'vanex' | 'arzsina' | 'vbce' | 'daniel' | 'moneyway' | 'mce' | 'attar'; fn: () => Promise<RateMap> }> = [
+    { name: 'mce',      fn: scrapeMce },
+    { name: 'attar',    fn: scrapeAttar },
     { name: 'vanex',    fn: scrapeVanex },
     { name: 'arzsina',  fn: scrapeArzSina },
     { name: 'vbce',     fn: scrapeVBCE },
     { name: 'daniel',   fn: scrapeDaniel },
-    { name: 'mce',      fn: scrapeMce },
-    { name: 'attar',    fn: scrapeAttar },
     { name: 'moneyway', fn: scrapeMoneyWay },
   ];
 

@@ -82,10 +82,15 @@ router.post('/moneyway/auto', requireAuth, async (_req, res) => {
   res.json({ ok: true, message: 'Auto-sync re-enabled, refresh started' });
 });
 
-// Manual refresh
+// Manual refresh — awaited so Vercel doesn't terminate the function early
 router.post('/refresh', requireAuth, async (_req, res) => {
-  syncCompetitorRates().catch(console.error);
-  res.json({ ok: true, message: 'Refresh started in background' });
+  try {
+    await syncCompetitorRates();
+    res.json({ ok: true, message: 'Refresh complete' });
+  } catch (e) {
+    console.error('[refresh]', e);
+    res.status(500).json({ error: 'Refresh failed' });
+  }
 });
 
 // Alert history
