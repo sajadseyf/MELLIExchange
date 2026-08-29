@@ -71,6 +71,7 @@ export function CompetitorRatesTable() {
   const [sortAsc,    setSortAsc]    = useState(true);
   const [applying,      setApplying]      = useState(false);
   const [autoOptimize,  setAutoOptimize]  = useState(true);
+  const [modeLoaded,    setModeLoaded]    = useState(false);
   const [inlineEdit,    setInlineEdit]    = useState<{ code: string; field: 'buy' | 'sell'; value: string } | null>(null);
   const [mwManual,      setMwManual]      = useState(false);
   const [mwEdit,     setMwEdit]     = useState<{ code: string; field: 'buy' | 'sell'; value: string } | null>(null);
@@ -88,6 +89,27 @@ export function CompetitorRatesTable() {
       setError(e instanceof ApiError ? e.message : 'Failed to load');
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function loadMode() {
+    try {
+      const s = await api<{ autoOptimize: boolean }>('/api/settings');
+      setAutoOptimize(s.autoOptimize ?? true);
+    } catch {
+      // keep default true on error
+    } finally {
+      setModeLoaded(true);
+    }
+  }
+
+  async function toggleAutoOptimize() {
+    const next = !autoOptimize;
+    setAutoOptimize(next);
+    try {
+      await api('/api/settings', { method: 'PUT', body: JSON.stringify({ autoOptimize: next }) });
+    } catch {
+      setAutoOptimize(!next); // revert on failure
     }
   }
 
@@ -188,6 +210,7 @@ export function CompetitorRatesTable() {
   }
 
   useEffect(() => {
+    loadMode();
     load();
     const id = setInterval(load, 60_000);
     return () => clearInterval(id);
@@ -345,14 +368,15 @@ export function CompetitorRatesTable() {
           {refreshing ? 'Refreshing…' : '↻ Refresh now'}
         </Button>
         <button
-          onClick={() => setAutoOptimize((v) => !v)}
-          className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+          onClick={toggleAutoOptimize}
+          disabled={!modeLoaded}
+          className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-50 ${
             autoOptimize
               ? 'border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
               : 'border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100'
           }`}
         >
-          {autoOptimize ? '⚡ Auto-optimize: ON' : '✎ Manual mode: ON'}
+          {autoOptimize ? '⚡ Auto: ON' : '✎ Manual: ON'}
         </button>
         {autoOptimize && nonOptimalRates.length > 0 && (
           <span className="text-xs text-amber-600 font-medium">⚡ Auto-optimizing {nonOptimalRates.length} rate{nonOptimalRates.length > 1 ? 's' : ''}…</span>

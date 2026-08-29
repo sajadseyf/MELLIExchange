@@ -13,6 +13,7 @@ router.get('/', requireAuth, async (_req, res) => {
     currencySource: (doc as any).currencySource ?? 'vanex_scrape',
     goldSource:     (doc as any).goldSource     ?? 'yahoo_finance',
     spread:         (doc as any).spread         ?? 1.5,
+    autoOptimize:   (doc as any).autoOptimize   ?? true,
     hasApiKeys: {
       open_exchange_rates: !!keys.open_exchange_rates,
       currency_api:        !!keys.currency_api,
@@ -36,17 +37,19 @@ router.get('/', requireAuth, async (_req, res) => {
 });
 
 router.put('/', requireAuth, async (req, res) => {
-  const { currencySource, goldSource, spread, apiKeys } = req.body as {
+  const { currencySource, goldSource, spread, apiKeys, autoOptimize } = req.body as {
     currencySource?: string;
     goldSource?: string;
     spread?: number;
     apiKeys?: Record<string, string>;
+    autoOptimize?: boolean;
   };
 
   const update: Record<string, unknown> = {};
-  if (currencySource)          update['currencySource'] = currencySource;
-  if (goldSource)              update['goldSource']     = goldSource;
-  if (typeof spread === 'number') update['spread']      = spread;
+  if (currencySource)                    update['currencySource'] = currencySource;
+  if (goldSource)                        update['goldSource']     = goldSource;
+  if (typeof spread === 'number')        update['spread']         = spread;
+  if (typeof autoOptimize === 'boolean') update['autoOptimize']   = autoOptimize;
   if (apiKeys) {
     for (const [k, v] of Object.entries(apiKeys)) {
       if (v) update[`apiKeys.${k}`] = v;

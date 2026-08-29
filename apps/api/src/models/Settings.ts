@@ -23,6 +23,7 @@ const schema = new Schema(
       metals_api:          { type: String, default: '' },
       gold_api:            { type: String, default: '' },
     },
+    autoOptimize: { type: Boolean, default: true },
     alerts: {
       enabled:       { type: Boolean, default: false },
       email:         { type: String, default: '' },
