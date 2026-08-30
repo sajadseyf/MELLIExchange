@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
-import { getGoldPrices, getCurrencies, getGoldSpotPrice } from '@/lib/api';
+import { getGoldPrices, getCurrencies, getGoldSpotPrice, getGoldHistory } from '@/lib/api';
 import { getPageMetadata } from '@/lib/seo';
 import { LiveGoldSpot } from '@/components/LiveGoldSpot';
 import { KaratCard } from '@/components/KaratCard';
+import { GoldPriceChart } from '@/components/GoldPriceChart';
+import { IranGoldPrices } from '@/components/IranGoldPrices';
 import { Container, PageHeading } from '@melli/ui';
 import { site } from '@/lib/site';
 
@@ -23,10 +25,11 @@ const KARATS = [
 
 export default async function GoldPage({ params }: { params: { locale: string } }) {
   const locale = params.locale ?? 'en';
-  const [rows, currencies, liveSpot, t] = await Promise.all([
+  const [rows, currencies, liveSpot, history, t] = await Promise.all([
     getGoldPrices(),
     getCurrencies(),
     getGoldSpotPrice(),
+    getGoldHistory(30),
     getTranslations('gold'),
   ]);
 
@@ -140,6 +143,19 @@ export default async function GoldPage({ params }: { params: { locale: string } 
               Lower karat = harder = more wear-resistant
             </span>
           </div>
+        </div>
+
+        {/* Iran gold market prices + historical chart */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Iranian prices */}
+          <IranGoldPrices locale={locale} />
+
+          {/* Historical chart */}
+          {history.length > 0 && (
+            <div className="rounded-xl border border-ink-100 bg-white px-6 py-5 dark:border-dark-border dark:bg-dark-card">
+              <GoldPriceChart data={history} />
+            </div>
+          )}
         </div>
 
         {/* About Our Gold Prices */}

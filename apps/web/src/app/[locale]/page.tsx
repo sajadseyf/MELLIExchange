@@ -14,6 +14,7 @@ import { RatesTable } from '@/components/RatesTable';
 import { GoldCards } from '@/components/GoldCards';
 import { CurrencyCalculator } from '@/components/CurrencyCalculator';
 import { LiveGoldSpot } from '@/components/LiveGoldSpot';
+import { IranGoldPrices } from '@/components/IranGoldPrices';
 import { Link } from '@/i18n/navigation';
 import { site } from '@/lib/site';
 import { getPageMetadata } from '@/lib/seo';
@@ -66,7 +67,7 @@ const websiteSchema = {
 
 const TROY_OZ_GRAMS = 31.1035;
 
-export default async function HomePage() {
+export default async function HomePage({ params }: { params: { locale: string } }) {
   const [currencies, gold, spot, t] = await Promise.all([
     getCurrencies(),
     getGoldPrices(),
@@ -305,6 +306,13 @@ export default async function HomePage() {
               <GoldCards rows={goldWithLivePrice} stacked />
             </div>
           </div>
+        </Container>
+      </section>
+
+      {/* Iran gold prices strip */}
+      <section className="py-4">
+        <Container>
+          <IranGoldPrices locale={params.locale} />
         </Container>
       </section>
 
