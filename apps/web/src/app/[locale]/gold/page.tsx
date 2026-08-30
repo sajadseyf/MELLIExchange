@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
-import { getGoldPrices, getCurrencies, getGoldSpotPrice, getGoldHistory } from '@/lib/api';
+import { getGoldPrices, getCurrencies, getGoldSpotPrice } from '@/lib/api';
 import { getPageMetadata } from '@/lib/seo';
 import { LiveGoldSpot } from '@/components/LiveGoldSpot';
 import { KaratCard } from '@/components/KaratCard';
-import { GoldPriceChart } from '@/components/GoldPriceChart';
+import { KitcoGoldChart } from '@/components/KitcoGoldChart';
 import { IranGoldPrices } from '@/components/IranGoldPrices';
 import { Container, PageHeading } from '@melli/ui';
 import { site } from '@/lib/site';
@@ -25,11 +25,10 @@ const KARATS = [
 
 export default async function GoldPage({ params }: { params: { locale: string } }) {
   const locale = params.locale ?? 'en';
-  const [rows, currencies, liveSpot, history, t] = await Promise.all([
+  const [rows, currencies, liveSpot, t] = await Promise.all([
     getGoldPrices(),
     getCurrencies(),
     getGoldSpotPrice(),
-    getGoldHistory(30),
     getTranslations('gold'),
   ]);
 
@@ -150,12 +149,10 @@ export default async function GoldPage({ params }: { params: { locale: string } 
           {/* Iranian prices */}
           <IranGoldPrices locale={locale} />
 
-          {/* Historical chart */}
-          {history.length > 0 && (
-            <div className="rounded-xl border border-ink-100 bg-white px-6 py-5 dark:border-dark-border dark:bg-dark-card">
-              <GoldPriceChart data={history} />
-            </div>
-          )}
+          {/* Kitco historical chart */}
+          <div className="rounded-xl border border-ink-100 bg-white px-6 py-5 dark:border-dark-border dark:bg-dark-card">
+            <KitcoGoldChart />
+          </div>
         </div>
 
         {/* About Our Gold Prices */}
